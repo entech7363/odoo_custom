@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="receipt_order_document" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@name='div_sched_date']" position="after">
+            <t t-set="o" t-value="docs[0]"/>
+            <div class="col col-3 mw-100 mb-2" id="Vendor_fields">
+                    <div t-if="o.Quotation_number" class="col" name="Quotation_number_info">
+                        <strong>Quotation Number</strong>
+                        <div t-esc="o.Quotation_number"/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Quotation_date" class="col" name="Quotation_date_info">
+                        <strong>Quotation date</strong>
+                        <div t-esc="o.Quotation_date"/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Order_Number" class="col" name="Order_Number_info">
+                        <strong>Order Number</strong>
+                        <div t-esc="o.Order_Number"/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Order_Date" class="col" name="Order_Date_info">
+                        <strong>Order Date</strong>
+                        <div t-esc="o.Order_Date"/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Delivery_Type " class="col" name="Delivery_Type _info">
+                        <strong>Delivery Type </strong>
+                        <div t-esc="o.Delivery_Type "/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Receipt_Number" class="col" name="Receipt_Number_info">
+                        <strong>Receipt Number</strong>
+                        <div t-esc="o.Receipt_Number"/>
+                    </div>
+            </div>
+            <div class="col col-3 mw-100 mb-2" id="Quota_fields">
+                    <div t-if="o.Reference_Number" class="col" name="Reference_Number_info">
+                        <strong>Reference_Number</strong>
+                        <div t-esc="o.Reference_Number"/>
+                    </div>
+            </div>
+
+
+
+        </xpath>
+    </template>
+</odoo>

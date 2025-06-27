@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_picking_form" model="ir.ui.view">
+        <field name="name">delivery.sale.inherit.view</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='other_infos']" position="after">
+
+                <group string="Customer">
+                        <field name="Customer_RFQ"/>
+                        <field name="Customer_RFQ_date"/>
+                        <field name="Customer_Purchase"/>
+                        <field name="Customer_Purchase_date"/>
+                        <field name="Customer_Delivery"/>
+                        <field name="Customer_Number"/>
+
+                </group>
+
+
+
+            </xpath>
+        </field>
+
+
+    </record>
+
+    <record id="stock_picking_receipt_order_form" model="ir.ui.view">
+        <field name="name">stock.receipt.inherit.view</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='other_infos']" position="before">
+
+                <group string="Vendor">
+                        <field name="Quotation_number"/>
+                        <field name="Quotation_date"/>
+                        <field name="Order_Number"/>
+                        <field name="Order_Date"/>
+                        <field name="Reference_Number"/>
+                        <field name="Delivery_Type"/>
+                        <field name="Receipt_Number"/>
+
+                </group>
+
+
+
+            </xpath>
+        </field>
+
+
+    </record>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="sale_report_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@class='row mb-4']" position="after">
+            <t t-set="o" t-value="docs[0]"/>
+                <div class="row mb-4" id="Customer_fields">
+                    <div t-if="o.Customer_RFQ" class="col" name="Customer_RFQ_info">
+                        <strong>Customer_RFQ</strong>
+                        <div t-esc="o.Customer_RFQ"/>
+                    </div>
+                    <div t-if="o.Customer_RFQ_date" class="col" name="Customer_RFQ_date_info">
+                        <strong>Customer_RFQ</strong>
+                        <div t-esc="o.Customer_RFQ_date"/>
+                    </div>
+                    <div t-if="o.Customer_Purchase" class="col" name="info_customer_purchase">
+                            <strong>Customer Purchase</strong>
+                            <div t-esc="o.Customer_Purchase"/>
+                    </div>
+
+                    <div t-if="o.Customer_Purchase_date" class="col" name="info_customer_purchase_date">
+                            <strong>Customer Purchase Date</strong>
+                            <div t-esc="o.Customer_Purchase_date"/>
+                    </div>
+                </div>
+                <div class="row mb-4" id="Delivery_fields">
+                    <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
+                            <strong>Customer Delivery</strong>
+                            <div t-esc="o.Customer_Delivery"/>
+                    </div>
+
+
+                    <div t-if="o.Customer_Number" class="col" name="info_customer_number">
+                            <strong>Customer Number</strong>
+                            <div t-esc="o.Customer_Number"/>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </xpath>
+    </template>
+</odoo>
