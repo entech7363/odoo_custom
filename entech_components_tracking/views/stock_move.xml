@@ -1,0 +1,18 @@
+<odoo>
+    <record id="view_stock_move_operations_inherit_start_date" model="ir.ui.view">
+        <field name="name">stock.move.operations.form.inherit.start.date</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_stock_move_operations"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+
+                <field name="show_vendor_warranty" invisible="1"/>
+                <field name="show_customer_warranty" invisible="1"/>
+                <field name="v_start_date" invisible="show_customer_warranty"/>
+                <field name="c_start_date" invisible="show_vendor_warranty"/>
+                <field name="vendor_warranty" invisible="show_customer_warranty"/>
+                <field name="customer_warranty" invisible="show_vendor_warranty"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

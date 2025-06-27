@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_part_user,access.product.part.user,model_product_part,,1,1,1,1
+access_product_component,access_product_component,model_product_component,,1,1,1,1
+access_stock_lot_component_line_user,access_stock_lot_component_line_user,model_stock_lot_component_line,base.group_user,1,1,1,1

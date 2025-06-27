@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <record id="view_stock_move_line_operation_tree_inherit_expiry" model="ir.ui.view">
+            <field name="name">stock.move.line.operations.list.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lot_name']" position="after">
+
+<!--                    <field name="show_battery_sno" invisible="1"/>-->
+<!--                    <field name="show_docking_station_sno" invisible="1"/>-->
+                    <field name="imei_no_1"/>
+                    <field name="imei_no_2"/>
+                    <field name="battery_sno" invisible="not show_battery_sno"/>
+                    <field name="docking_station_sno" invisible="not show_docking_station_sno"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

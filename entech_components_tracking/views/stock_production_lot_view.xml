@@ -1,0 +1,33 @@
+<odoo>
+    <data>
+        <record id="view_production_lot_form_inherit_imei" model="ir.ui.view">
+            <field name="name">stock.production.lot.form.inherit.imei</field>
+            <field name="model">stock.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//group[@name='main_group']/group[2]/div[field[@name='standard_price']]" position="after">
+                    <field name="imei_no_1" readonly="1"/>
+                    <field name="imei_no_2" readonly="1"/>
+                    <field name="v_start_date" readonly="1"/>
+                    <field name="vendor_warranty" readonly="1"/>
+                    <field name="c_start_date" readonly="1"/>
+                    <field name="customer_warranty" readonly="1"/>
+                </xpath>
+
+                <xpath expr="//notebook/page[@name='description']" position="after">
+                    <page name="component_tab" string="Components">
+                        <field name="lot_component_line_ids">
+                            <list editable="bottom">
+                                <field name="product_part_id" readonly="1"/>
+                                <field name="serial_number"/>
+                                <field name="v_expiry_date"/>
+                                <field name="c_expiry_date"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
