@@ -2,10 +2,6 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo import _
 
-
-
-
-
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
@@ -19,16 +15,27 @@ class StockMove(models.Model):
     imei_no_2 = fields.Char(string="IMEI NO.2")
     battery_sno = fields.Char(string="Battery_SNO")
     docking_station_sno = fields.Char(string="Docking_Station_SNO")
-    # show_battery = fields.Boolean(compute='_compute_show_serial_field', store=False)
-    # show_docking_station = fields.Boolean(compute='_compute_show_serial_field', store=False)
-    #
-    # @api.depends('product_id')
-    # def _compute_show_serial_field(self):
-    #     for line in self:
-    #         tmpl = line.product_id.product_tmpl_id
-    #         components = tmpl.component_ids if tmpl else []
-    #         line.show_battery = any(c.is_battery and c.serial_number for c in components)
-    #         line.show_docking_station = any(c.is_docking_station and c.serial_number for c in components)
+    show_battery = fields.Boolean(compute='_compute_show_serial_field', store=False)
+    show_docking_station = fields.Boolean(compute='_compute_show_serial_field', store=False)
+
+    @api.depends('product_id')
+    def _compute_show_serial_field(self):
+        for line in self:
+            tmpl = line.product_id.product_tmpl_id
+            components = tmpl.component_ids if tmpl else []
+            line.show_battery = any(c.is_battery and c.serial_number for c in components)
+            line.show_docking_station = any(c.is_docking_station and c.serial_number for c in components)
+
+    show_battery_sno = fields.Boolean(compute='_compute_show_fields', default=True)
+    show_docking_station_sno = fields.Boolean(compute='_compute_show_fields', default=True)
+
+    @api.depends('product_id')
+    def _compute_show_fields(self):
+        for line in self:
+            tmpl = line.product_id.product_tmpl_id
+            components = tmpl.component_ids if tmpl else []
+            line.show_battery_sno = any(c.is_battery and c.serial_number for c in components)
+            line.show_docking_station_sno = any(c.is_docking_station and c.serial_number for c in components)
 
 
     show_vendor_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
@@ -59,27 +66,30 @@ class StockMove(models.Model):
                     'company_id': move.company_id.id,
                 })
 
+            existing_line = move.move_line_ids.filtered(lambda l: l.lot_id == lot)
+            if existing_line:
+                existing_line.unlink()
 
-            existing_line = move.move_line_ids.filtered(lambda l: not l.lot_id and l.qty_done == 0.0)
 
-            line_vals = {
+            reusable_line = move.move_line_ids.filtered(lambda l: not l.lot_id)
+
+            new_line_vals = {
                 'product_id': move.product_id.id,
                 'lot_id': lot.id,
-                'qty_done': 1.0,
                 'lot_name': move.serial_no,
                 'imei_no_1': move.imei_no_1,
                 'imei_no_2': move.imei_no_2,
                 'battery_sno': move.battery_sno,
                 'docking_station_sno': move.docking_station_sno,
-                'location_id': move.location_id.id,
-                'location_dest_id': move.location_dest_id.id,
+                # 'qty_done': 1.0,
             }
 
-            if existing_line:
-                existing_line[0].write(line_vals)
+            if reusable_line:
+                reusable_line[0].write(new_line_vals)
             else:
-                line_vals['move_id'] = move.id
-                self.env['stock.move.line'].create(line_vals)
+                new_line_vals['move_id'] = move.id
+                self.env['stock.move.line'].create(new_line_vals)
+
 
 
             move.serial_no = False

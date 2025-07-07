@@ -16,8 +16,9 @@ class SaleOrder(models.Model):
 
     @api.depends('state', 'user_id')
     def _compute_show_approve_button(self):
+
         for order in self:
-            order.show_approve_button = order.state == 'to_approve' and order.user_id.id == self.env.uid
+            order.show_approve_button = order.state == 'to_approve'
 
     def _check_approval_step_sequence(self):
         for order in self:
@@ -25,13 +26,14 @@ class SaleOrder(models.Model):
                 raise UserError("This order has already been approved.")
 
     def action_approve(self):
-        print("sssssssss")
+
         for order in self:
             if order.state == 'to_approve':
 
                 order.approval_step_sequence += 1
 
                 order.with_context(from_approval_wizard=True).action_confirm()
+                order.write({'state': 'sale'})
 
     def action_confirm(self):
         for order in self:
@@ -40,7 +42,7 @@ class SaleOrder(models.Model):
                         'state': 'to_approve',
                         'user_id': self.env.uid,
                     })
-                    
+
 
                 if self._context.get('from_approval_wizard') and order.state == 'to_approve':
                     order.write({

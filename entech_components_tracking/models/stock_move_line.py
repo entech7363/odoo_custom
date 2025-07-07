@@ -9,16 +9,16 @@ class StockMoveLine(models.Model):
     battery_sno = fields.Char(string="Battery_SNO")
     docking_station_sno = fields.Char(string="Docking_Station_SNO")
 
-    show_battery_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
-    show_docking_station_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
-
-    @api.depends('product_id')
-    def _compute_show_serial_fields(self):
-        for line in self:
-            tmpl = line.product_id.product_tmpl_id
-            components = tmpl.component_ids if tmpl else []
-            line.show_battery_sno = any(c.is_battery and c.serial_number for c in components)
-            line.show_docking_station_sno = any(c.is_docking_station and c.serial_number for c in components)
+    # show_battery_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
+    # show_docking_station_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
+    #
+    # @api.depends('product_id')
+    # def _compute_show_serial_fields(self):
+    #     for line in self:
+    #         tmpl = line.product_id.product_tmpl_id
+    #         components = tmpl.component_ids if tmpl else []
+    #         line.show_battery_sno = any(c.is_battery and c.serial_number for c in components)
+    #         line.show_docking_station_sno = any(c.is_docking_station and c.serial_number for c in components)
 
     def write(self, vals):
         res = super().write(vals)
@@ -90,10 +90,13 @@ class StockMoveLine(models.Model):
             lot = record.lot_id
 
             if picking.picking_type_code == 'outgoing' and lot:
-                vals_to_write = {
-                    'imei_no_1': lot.imei_no_1,
-                    'imei_no_2': lot.imei_no_2,
-                }
+                vals_to_write = {}
+
+
+                if lot.imei_no_1:
+                    vals_to_write['imei_no_1'] = lot.imei_no_1
+                if lot.imei_no_2:
+                    vals_to_write['imei_no_2'] = lot.imei_no_2
 
                 for comp in lot.lot_component_line_ids:
                     product_part = comp.product_part_id
