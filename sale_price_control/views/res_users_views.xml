@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+     <data noupdate="1">
+        <record id="access_minimum_price" model="res.groups">
+            <field name="name">Check Minimum Price Of Product </field>
+        </record>
+    </data>
+</odoo>

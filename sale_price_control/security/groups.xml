@@ -1,0 +1,14 @@
+<odoo>
+    <record model="ir.module.category" id="base.module_category_sales_sales">
+        <field name="name">Sale management</field>
+        <field name="description">Approval of products in sales</field>
+
+    </record>
+
+    <record id="group_approval" model="res.groups">
+        <field name="name">Sales Approval</field>
+
+
+
+    </record>
+</odoo>
