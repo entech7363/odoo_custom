@@ -42,5 +42,5 @@ class StockLotComponentLine(models.Model):
                 vendor_months = comp.vendor_warranty or 0
                 customer_months = comp.customer_warranty or 0
 
-                line.v_expiry_date = v_start + timedelta(days=vendor_months * 30) if v_start else False
-                line.c_expiry_date = c_start + timedelta(days=customer_months * 30) if c_start else False
+                line.v_expiry_date = v_start + relativedelta(months=vendor_months) if v_start else False
+                line.c_expiry_date = c_start + relativedelta(months=customer_months) if c_start else False

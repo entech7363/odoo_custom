@@ -11,8 +11,10 @@
                     <field name="imei_no_2" readonly="1"/>
                     <field name="v_start_date" readonly="1"/>
                     <field name="vendor_warranty" readonly="1"/>
+                    <field name="vendor_expiry_date" readonly="1"/>
                     <field name="c_start_date" readonly="1"/>
                     <field name="customer_warranty" readonly="1"/>
+                    <field name="customer_expiry_date" readonly="1"/>
                 </xpath>
 
                 <xpath expr="//notebook/page[@name='description']" position="after">

@@ -9,8 +9,8 @@ class StockMoveLine(models.Model):
     battery_sno = fields.Char(string="Battery_SNO")
     docking_station_sno = fields.Char(string="Docking_Station_SNO")
 
-    show_battery_sno = fields.Boolean(compute='_compute_show_serial_fields', store=False)
-    show_docking_station_sno = fields.Boolean(compute='_compute_show_serial_fields', store=False)
+    show_battery_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
+    show_docking_station_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
 
     @api.depends('product_id')
     def _compute_show_serial_fields(self):
@@ -55,10 +55,7 @@ class StockMoveLine(models.Model):
                 if line.battery_sno:
                     battery_comp = components.filtered(lambda c: c.is_battery)
                     if battery_comp:
-                        print("Battery:", battery_comp.product_part_id.name)
-                        print("Vendor Warranty:", battery_comp.vendor_warranty)
-                        print("Customer Warranty:", battery_comp.customer_warranty)
-
+                        product_part = battery_comp[0].product_part_id
                         lot.lot_component_line_ids.filtered(
                             lambda l: l.product_part_id == battery_comp.product_part_id
                         ).unlink()
@@ -72,10 +69,7 @@ class StockMoveLine(models.Model):
                 if line.docking_station_sno:
                     dock_comp = components.filtered(lambda c: c.is_docking_station)
                     if dock_comp:
-                        print("Docking Station:", dock_comp.product_part_id.name)
-                        print("Vendor Warranty:", dock_comp.vendor_warranty)
-                        print("Customer Warranty:", dock_comp.customer_warranty)
-
+                        product_part = dock_comp[0].product_part_id
                         lot.lot_component_line_ids.filtered(
                             lambda l: l.product_part_id == dock_comp.product_part_id
                         ).unlink()

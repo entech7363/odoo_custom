@@ -40,14 +40,14 @@ class SaleOrder(models.Model):
                         'state': 'to_approve',
                         'user_id': self.env.uid,
                     })
-                    print("rrrrr")
+                    
 
                 if self._context.get('from_approval_wizard') and order.state == 'to_approve':
                     order.write({
-                        'state': 'sale',
+                        'state': 'to_approve',
                         'user_id': self.env.uid,
                     })
-                print("kukkuuuu")
+
 
 
         for order in self:
@@ -62,8 +62,8 @@ class SaleOrder(models.Model):
 
 
 
-                if (line.price_unit * uom_qty) < minimum_price:
-                    print("ppppp")
+                if line.price_unit  < minimum_price:
+
                     view = self.env.ref('sale_price_control.sale_order_approval_wizard_form').sudo()
                     return {
                         'name': 'Approval Required',
