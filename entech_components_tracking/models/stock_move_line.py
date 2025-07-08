@@ -6,8 +6,8 @@ class StockMoveLine(models.Model):
 
     imei_no_1 = fields.Char(string="IMEI NO.1")
     imei_no_2 = fields.Char(string="IMEI NO.2")
-    battery_sno = fields.Char(string="Battery_SNO")
-    docking_station_sno = fields.Char(string="Docking_Station_SNO")
+    battery_sno = fields.Char(string="Battery SNO")
+    docking_station_sno = fields.Char(string="Docking Station SNO")
 
     # show_battery_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)
     # show_docking_station_sno = fields.Boolean(compute='_compute_show_serial_fields', default=True)

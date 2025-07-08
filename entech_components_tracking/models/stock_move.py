@@ -13,11 +13,24 @@ class StockMove(models.Model):
     serial_no = fields.Char(string="Serial No")
     imei_no_1 = fields.Char(string="IMEI NO.1")
     imei_no_2 = fields.Char(string="IMEI NO.2")
-    battery_sno = fields.Char(string="Battery_SNO")
-    docking_station_sno = fields.Char(string="Docking_Station_SNO")
+    battery_sno = fields.Char(string="Battery SNO")
+    docking_station_sno = fields.Char(string="Docking Station SNO")
+
+
     show_battery = fields.Boolean(compute='_compute_show_serial_field', store=False)
     show_docking_station = fields.Boolean(compute='_compute_show_serial_field', store=False)
 
+    show_battery_sno = fields.Boolean(compute='_compute_show_fields', default=True)
+    show_docking_station_sno = fields.Boolean(compute='_compute_show_fields', default=True)
+
+    show_imei_fields = fields.Boolean(compute='_compute_show_imei_fields', store=False)
+
+    show_imei_form_fields = fields.Boolean(compute='_compute_show_imei_form_fields', store=False)
+
+    show_vendor_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
+    show_customer_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
+
+    # Dynamically show Battery and Docking Station fields in the form view
     @api.depends('product_id')
     def _compute_show_serial_field(self):
         for line in self:
@@ -26,9 +39,7 @@ class StockMove(models.Model):
             line.show_battery = any(c.is_battery and c.serial_number for c in components)
             line.show_docking_station = any(c.is_docking_station and c.serial_number for c in components)
 
-    show_battery_sno = fields.Boolean(compute='_compute_show_fields', default=True)
-    show_docking_station_sno = fields.Boolean(compute='_compute_show_fields', default=True)
-
+    # Dynamically show Battery and Docking Station fields in the list view
     @api.depends('product_id')
     def _compute_show_fields(self):
         for line in self:
@@ -37,9 +48,33 @@ class StockMove(models.Model):
             line.show_battery_sno = any(c.is_battery and c.serial_number for c in components)
             line.show_docking_station_sno = any(c.is_docking_station and c.serial_number for c in components)
 
+    # Dynamically show imeino1 and imeino2 in the list view
+    @api.depends('product_id')
+    def _compute_show_imei_fields(self):
+        for line in self:
+            tmpl = line.product_id.product_tmpl_id
+            components = tmpl.component_ids if tmpl else []
 
-    show_vendor_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
-    show_customer_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
+            has_battery = any(c.is_battery and c.serial_number for c in components)
+            has_docking = any(c.is_docking_station and c.serial_number for c in components)
+
+            line.show_battery_sno = has_battery
+            line.show_docking_station_sno = has_docking
+            line.show_imei_fields = has_battery or has_docking
+
+    # Dynamically show imeino1 and imeino2 in the form view
+    @api.depends('product_id')
+    def _compute_show_imei_form_fields(self):
+        for line in self:
+            tmpl = line.product_id.product_tmpl_id
+            components = tmpl.component_ids if tmpl else []
+
+            has_battery = any(c.is_battery and c.serial_number for c in components)
+            has_docking = any(c.is_docking_station and c.serial_number for c in components)
+
+            line.show_battery_sno = has_battery
+            line.show_docking_station_sno = has_docking
+            line.show_imei_form_fields = has_battery or has_docking
 
     @api.depends('picking_type_id.code')
     def _compute_show_warranty_flags(self):
@@ -47,6 +82,7 @@ class StockMove(models.Model):
             move_type = move.picking_type_id.code if move.picking_type_id else ''
             move.show_vendor_warranty = move_type == 'incoming'
             move.show_customer_warranty = move_type == 'outgoing'
+
 
     def action_transfer_serial_fields(self):
         for move in self:
@@ -81,7 +117,7 @@ class StockMove(models.Model):
                 'imei_no_2': move.imei_no_2,
                 'battery_sno': move.battery_sno,
                 'docking_station_sno': move.docking_station_sno,
-                # 'qty_done': 1.0,
+                'qty_done': 1.0,
             }
 
             if reusable_line:
