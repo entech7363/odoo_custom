@@ -14,6 +14,7 @@
                             string="Approve"
                             type="object"
                             class="btn btn-primary"
+                            groups="sale_price_control.group_approval"
                             invisible="state !='to_approve'"/>
 
             </xpath>

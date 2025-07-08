@@ -1,6 +1,6 @@
 {
     'name':"Sale Price Control",
-    'version':'1.1',
+    'version':'1.2',
     'summary':"Management of sales price",
     'description':"Margin and minimum sales price of the product",
     'author':'AGM Global Services',
