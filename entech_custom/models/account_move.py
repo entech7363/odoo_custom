@@ -7,7 +7,7 @@ class InvoiceCreate(models.Model):
     Customer_Purchase = fields.Char(string="Customer Purchase",compute='compute_sale_details')
     Customer_Purchase_date = fields.Date(string="Customer Purchase Date",compute='compute_sale_details')
     Customer_Delivery = fields.Char(string="Customer Delivery",compute='compute_sale_details')
-    Customer_Number = fields.Char(string="Customer Number",compute='compute_sale_details')
+    #Customer_Number = fields.Char(string="Customer Number",compute='compute_sale_details')
 
     def compute_sale_details(self):
         for k in self:

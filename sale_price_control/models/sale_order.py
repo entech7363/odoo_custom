@@ -30,42 +30,38 @@ class SaleOrder(models.Model):
         for order in self:
             if order.state == 'to_approve':
 
-                order.approval_step_sequence += 1
+
+
 
                 order.with_context(from_approval_wizard=True).action_confirm()
-                order.write({'state': 'sale'})
+                #order.write({'state': 'sale'})
+
 
     def action_confirm(self):
         for order in self:
-                if self._context.get('from_approval_wizard') and order.state != 'to_approve':
+            if self._context.get('from_approval_wizard'):
+                if order.state != 'to_approve':
+                    # Step 1: send for approval
                     order.write({
                         'state': 'to_approve',
                         'user_id': self.env.uid,
                     })
+                    return
+                else:
 
+                    order.state = 'draft'
+                    return super(SaleOrder, order).action_confirm()
 
-                if self._context.get('from_approval_wizard') and order.state == 'to_approve':
-                    order.write({
-                        'state': 'to_approve',
-                        'user_id': self.env.uid,
-                    })
-
-
-
+        # Standard confirm logic
         for order in self:
-
             for line in order.order_line:
-
                 product_cost = line.product_id.standard_price
                 minimum_price = line.product_id.minimum_price
                 product_uom = line.product_uom
                 uom_qty = line.product_uom_qty
                 cost_per_unit = line.product_id.uom_id._compute_price(product_cost, product_uom)
 
-
-
-                if line.price_unit  < minimum_price:
-
+                if line.price_unit < minimum_price:
                     view = self.env.ref('sale_price_control.sale_order_approval_wizard_form').sudo()
                     return {
                         'name': 'Approval Required',
@@ -84,6 +80,4 @@ class SaleOrder(models.Model):
                         }
                     }
 
-
         return super(SaleOrder, self).action_confirm()
-

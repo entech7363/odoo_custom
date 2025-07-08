@@ -29,7 +29,6 @@
                         <field name="Customer_Purchase"/>
                         <field name="Customer_Purchase_date"/>
                         <field name="Customer_Delivery"/>
-                        <field name="Customer_Number"/>
 
                     </group>
                 </xpath>

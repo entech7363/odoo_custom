@@ -3,7 +3,7 @@
     <template id="stock_picking_document" inherit_id="stock.report_delivery_document">
         <xpath expr="//div[@name='div_sched_date']" position="after">
             <t t-set="o" t-value="docs[0]"/>
-                <div class="col col-3 mw-100 mb-2" id="Customer_fields">
+                <!--<div class="col col-3 mw-100 mb-2" id="Customer_fields">
                     <div t-if="o.Customer_RFQ" class="col" name="Customer_RFQ_info">
                         <strong>RFQ</strong>
                         <div t-esc="o.Customer_RFQ"/>
@@ -14,31 +14,31 @@
                         <strong>RFQ Date</strong>
                         <div t-esc="o.Customer_RFQ_date"/>
                     </div>
-                </div>
+                </div>-->
                 <div class="col col-3 mw-100 mb-2" id="purchase_fields">
                     <div t-if="o.Customer_Purchase" class="col" name="Customer_Purchase">
-                        <strong>Purchase</strong>
+                        <strong>PO Number</strong>
                         <div t-esc="o.Customer_Purchase"/>
                     </div>
                 </div>
                 <div class="col col-3 mw-100 mb-2" id="purchasing_fields">
                     <div t-if="o.Customer_Purchase_date" class="col" name="Customer_Purchase_date">
-                        <strong>Purchase Date</strong>
+                        <strong>PO Date</strong>
                         <div t-esc="o.Customer_Purchase_date"/>
                     </div>
                 </div>
                 <div class="col col-3 mw-100 mb-2" id="Delivery_fields">
                     <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
-                            <strong>Delivery</strong>
+                            <strong>Place of Delivery</strong>
                             <div t-esc="o.Customer_Delivery"/>
                     </div>
                 </div>
-                <div class="col col-3 mw-100 mb-2" id="Deliver_fields">
+                <!--<div class="col col-3 mw-100 mb-2" id="Deliver_fields">
                     <div t-if="o.Customer_Number" class="col" name="info_customer_number">
                             <strong>Delivery Number</strong>
                             <div t-esc="o.Customer_Number"/>
                     </div>
-                </div>
+                </div>-->
 
 
 

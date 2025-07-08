@@ -8,12 +8,11 @@
             <xpath expr="//group[@name='other_infos']" position="after">
 
                 <group string="Customer">
-                        <field name="Customer_RFQ"/>
-                        <field name="Customer_RFQ_date"/>
+
                         <field name="Customer_Purchase"/>
                         <field name="Customer_Purchase_date"/>
                         <field name="Customer_Delivery"/>
-                        <field name="Customer_Number"/>
+
 
                 </group>
 
@@ -25,7 +24,7 @@
 
     </record>
 
-    <record id="stock_picking_receipt_order_form" model="ir.ui.view">
+    <!--<record id="stock_picking_receipt_order_form" model="ir.ui.view">
         <field name="name">stock.receipt.inherit.view</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
@@ -49,7 +48,7 @@
         </field>
 
 
-    </record>
+    </record>-->
 </odoo>
 
 
