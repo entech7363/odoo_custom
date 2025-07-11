@@ -22,9 +22,10 @@ class ReceiptPurchase(models.Model):
     Quotation_date = fields.Date(string="Quotation Date", related="purchase_id.Quotation_date")
     Order_Number = fields.Char(string=" Order Number", related="purchase_id.Order_Number")
     Order_Date = fields.Date(string="Order Date", related="purchase_id.Order_Date")
-    Reference_Number = fields.Char(string="Reference Number", related="purchase_id.Reference_Number")
-    Delivery_Type = fields.Char(string="Delivery Type", related="purchase_id.Delivery_Type")
-    Receipt_Number = fields.Char(string="Receipt Number", related="purchase_id.Receipt_Number")
+    Customer_Delivery=fields.Char(string="Place of Delivery", related="purchase_id.Customer_Delivery")
+    #Reference_Number = fields.Char(string="Reference Number", related="purchase_id.Reference_Number")
+    #Delivery_Type = fields.Char(string="Delivery Type", related="purchase_id.Delivery_Type")
+    #Receipt_Number = fields.Char(string="Receipt Number", related="purchase_id.Receipt_Number")
 
 
 

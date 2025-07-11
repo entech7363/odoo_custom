@@ -24,6 +24,8 @@ class saleorderline(models.Model):
             'default_customer_id': self.order_id.partner_id.id,
             'default_product_id': self.product_id.id,
             'default_order_date': self.order_id.date_order,
+            'default_Customer_Purchase':self.order_id.Customer_Purchase,
+            'default_order_name': self.order_id.name,
             'default_message': f"Please adjust the price or send it for approval."
             }
 

@@ -17,6 +17,8 @@
                                                 <field name="date_order"/>
                                                 <field name="product_name"/>
                                                 <field name="price"/>
+                                                <field name="Customer_Purchase"/>
+                                                <field name="order_name"/>
                                         </list>
                                 </field>
                         </page>

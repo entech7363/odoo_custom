@@ -7,7 +7,8 @@ class PurchaseOrder(models.Model):
     Quotation_date = fields.Date(string="Quotation Date")
     Order_Number = fields.Char(string=" Order Number")
     Order_Date = fields.Date(string="Order Date")
-    Reference_Number = fields.Char(string="Reference Number")
-    Delivery_Type = fields.Char(string="Delivery Type")
-    Receipt_Number = fields.Char(string="Receipt Number")
+    Customer_Delivery = fields.Char(string="Place of Delivery")
+    #Reference_Number = fields.Char(string="Reference Number")
+    #Delivery_Type = fields.Char(string="Delivery Type")
+    #Receipt_Number = fields.Char(string="Receipt Number")
 

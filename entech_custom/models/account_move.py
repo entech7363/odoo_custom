@@ -4,10 +4,11 @@ class InvoiceCreate(models.Model):
 
     Customer_RFQ = fields.Char(string="Customer RFQ",compute='compute_sale_details')
     Customer_RFQ_date = fields.Date(string="Customer RFQ Date",compute='compute_sale_details')
-    Customer_Purchase = fields.Char(string="Customer Purchase",compute='compute_sale_details')
-    Customer_Purchase_date = fields.Date(string="Customer Purchase Date",compute='compute_sale_details')
-    Customer_Delivery = fields.Char(string="Customer Delivery",compute='compute_sale_details')
+    Customer_Purchase = fields.Char(string="PO Number",compute='compute_sale_details')
+    Customer_Purchase_date = fields.Date(string=" PO Date",compute='compute_sale_details')
+    Customer_Delivery = fields.Char(string="Place of Delivery",compute='compute_sale_details')
     #Customer_Number = fields.Char(string="Customer Number",compute='compute_sale_details')
+    For_Company=fields.Char(string="Company Name",compute='compute_sale_details')
 
     def compute_sale_details(self):
         for k in self:
@@ -18,7 +19,8 @@ class InvoiceCreate(models.Model):
                 k.Customer_Purchase = order.Customer_Purchase
                 k.Customer_Purchase_date = order.Customer_Purchase_date
                 k.Customer_Delivery = order.Customer_Delivery
-                k.Customer_Number = order.Customer_Number
+                #k.Customer_Number = order.Customer_Number
+                k.For_Company = order.For_Company
             else:
 
                 k.Customer_RFQ = ''
@@ -26,7 +28,8 @@ class InvoiceCreate(models.Model):
                 k.Customer_Purchase = ''
                 k.Customer_Purchase_date = False
                 k.Customer_Delivery = ''
-                k.Customer_Number = ''
+                #k.Customer_Number = ''
+                k.For_Company = ''
 
 class BillsCreate(models.Model):
     _inherit = 'account.move'
@@ -35,9 +38,10 @@ class BillsCreate(models.Model):
     Quotation_date = fields.Date(string="Quotation Date",compute='_compute_Quotation')
     Order_Number = fields.Char(string=" Order Number",compute='_compute_Quotation')
     Order_Date = fields.Date(string="Order Date",compute='_compute_Quotation')
-    Reference_Number = fields.Char(string="Reference Number",compute='_compute_Quotation')
-    Delivery_Type = fields.Char(string="Delivery Type",compute='_compute_Quotation')
-    Receipt_Number = fields.Char(string="Receipt Number",compute='_compute_Quotation')
+    Customer_Delivery = fields.Char(string="Place of Delivery",compute='_compute_Quotation')
+    #Reference_Number = fields.Char(string="Reference Number",compute='_compute_Quotation')
+    #Delivery_Type = fields.Char(string="Delivery Type",compute='_compute_Quotation')
+    #Receipt_Number = fields.Char(string="Receipt Number",compute='_compute_Quotation')
     def _compute_Quotation(self):
         for record in self:
             bill_new=self.env['purchase.order'].search([('name','=',record.invoice_origin)],limit=1)
@@ -46,17 +50,19 @@ class BillsCreate(models.Model):
                 record.Quotation_date=bill_new.Quotation_date
                 record.Order_Number=bill_new.Order_Number
                 record.Order_Date=bill_new.Order_Date
-                record.Reference_Number=bill_new.Reference_Number
-                record.Delivery_Type=bill_new.Delivery_Type
-                record.Receipt_Number=bill_new.Receipt_Number
+                record.Customer_Delivery=bill_new.Customer_Delivery
+                #record.Reference_Number=bill_new.Reference_Number
+                #record.Delivery_Type=bill_new.Delivery_Type
+                #record.Receipt_Number=bill_new.Receipt_Number
             else:
                 record.Quotation_number=''
                 record.Quotation_date=False
                 record.Order_Number=''
                 record.Order_Date=False
-                record.Reference_Number=''
-                record.Delivery_Type=''
-                record.Receipt_Number=''
+                record.Customer_Delivery=''
+                #record.Reference_Number=''
+                #record.Delivery_Type=''
+                #record.Receipt_Number=''
 
 
 

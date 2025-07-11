@@ -10,6 +10,9 @@ class SaleOrderWizard(models.TransientModel):
     date_order = fields.Datetime(string='Order Date')
     product_name = fields.Char(string='Product')
     price = fields.Float(string='Price')
+    Customer_Purchase = fields.Char(string="PO Number")
+    order_name=fields.Char(string='Order Number')
+
 
 
     @api.model
@@ -17,6 +20,7 @@ class SaleOrderWizard(models.TransientModel):
             res = super(SaleOrderWizard, self).default_get(fields_list)
             customer_id = self.env.context.get('default_customer_id')
             product_id = self.env.context.get('default_product_id')
+
             history_lines = []
 
             if customer_id and product_id:
@@ -31,6 +35,8 @@ class SaleOrderWizard(models.TransientModel):
                         'date_order': line.order_id.date_order,
                         'product_name': line.product_id.name,
                         'price': line.price_unit,
+                        'Customer_Purchase':line.order_id.Customer_Purchase,
+                        'order_name': line.order_id.name,
                     }))
                 res['history_line_ids'] = history_lines
 
@@ -38,6 +44,8 @@ class SaleOrderWizard(models.TransientModel):
                 res['customer_id'] = customer_id
             if product_id:
                 res['product_id'] = product_id
+
+
 
             return res
 
@@ -49,3 +57,5 @@ class SaleOrderLineHistoryLine(models.TransientModel):
     date_order = fields.Datetime(string='Order Date')
     product_name = fields.Char(string='Product')
     price = fields.Float(string='Price')
+    Customer_Purchase= fields.Char(string="PO Number")
+    order_name = fields.Char(string='Order Number')

@@ -9,6 +9,7 @@ class SaleOrder(models.Model):
     Customer_Purchase_date = fields.Date(string="PO Date")
     Customer_Delivery = fields.Char(string="Place of Delivery")
     #Customer_Number = fields.Char(string="Customer Number")
+    For_Company=fields.Char(string="Company Name")
 
 
 

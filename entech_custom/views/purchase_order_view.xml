@@ -12,9 +12,10 @@
                         <field name="Quotation_date"/>
                         <field name="Order_Number"/>
                         <field name="Order_Date"/>
-                        <field name="Reference_Number"/>
+                        <field name="Customer_Delivery"/>
+                        <!--<field name="Reference_Number"/>
                         <field name="Delivery_Type"/>
-                        <field name="Receipt_Number"/>
+                        <field name="Receipt_Number"/>-->
 
                 </group>
 

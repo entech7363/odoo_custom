@@ -1,5 +1,5 @@
 {
-    'name':"Inter Sale",
+    'name':"Inter Sale History",
     'version':'1.0',
     'summary':"Management of order history",
     'description':"All information and history about the orders made by a customer",

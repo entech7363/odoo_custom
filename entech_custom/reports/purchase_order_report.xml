@@ -14,7 +14,11 @@
                         <strong>Order_Number</strong>
                         <div t-esc="o.Order_Number"/>
                     </div>
-                    <div t-if="o.Delivery_Type " class="col" name="Delivery_Type _info">
+                    <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
+                            <strong>Place of Delivery</strong>
+                            <div t-esc="o.Customer_Delivery"/>
+                    </div>
+                    <!--<div t-if="o.Delivery_Type " class="col" name="Delivery_Type _info">
                         <strong>Delivery Type </strong>
                         <div t-esc="o.Delivery_Type "/>
                     </div>
@@ -22,7 +26,7 @@
                     <div t-if="o.Reference_Number" class="col" name="Reference_Number_info">
                         <strong>Reference Number</strong>
                         <div t-esc="o.Reference_Number"/>
-                    </div>
+                    </div>-->
                 </div>
                 <div class="row mb-4" id="details">
 
@@ -34,14 +38,20 @@
                         <strong>Date</strong>
                         <div t-esc="o.Order_Date"/>
                     </div>
+                    <div t-if="o.Order_Date" class="col" name="Order_Date_info">
 
-                    <div t-if="o.Receipt_Number " class="col" name="Receipt_Number_info">
+                    </div>
+
+
+
+
+                    <!--<div t-if="o.Receipt_Number " class="col" name="Receipt_Number_info">
                         <strong>Receipt Number </strong>
                         <div t-esc="o.Receipt_Number "/>
                     </div>
                     <div t-if="o.Receipt_Number " class="col" name="Receipt_Number_info">
 
-                    </div>
+                    </div>-->
 
 
                 </div>

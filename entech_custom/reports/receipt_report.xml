@@ -3,6 +3,28 @@
     <template id="receipt_order_document" inherit_id="stock.report_delivery_document">
         <xpath expr="//div[@name='div_sched_date']" position="after">
             <t t-set="o" t-value="docs[0]"/>
+
+            <div class="row">
+                <div t-if="o.Order_Number" class="col-3" name="Order_Number_info">
+                    <strong>SO Number</strong>
+                    <div t-esc="o.Order_Number"/>
+                </div>
+                <div t-if="o.Order_Date" class="col-3" name="Order_Date_info">
+                    <strong>SO Date</strong>
+                    <div t-esc="o.Order_Date"/>
+                </div>
+            </div>
+
+        </xpath>
+
+
+    </template>
+</odoo>
+
+<!--<odoo>
+    <template id="receipt_order_document" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@name='div_sched_date']" position="after">
+            <t t-set="o" t-value="docs[0]"/>
             <div class="col col-3 mw-100 mb-2" id="Vendor_fields">
                     <div t-if="o.Quotation_number" class="col" name="Quotation_number_info">
                         <strong>Quotation Number</strong>
@@ -15,15 +37,18 @@
                         <div t-esc="o.Quotation_date"/>
                     </div>
             </div>
+
+
+
             <div class="col col-3 mw-100 mb-2" id="Quota_fields">
                     <div t-if="o.Order_Number" class="col" name="Order_Number_info">
-                        <strong>Order Number</strong>
+                        <strong>SO Number</strong>
                         <div t-esc="o.Order_Number"/>
                     </div>
             </div>
             <div class="col col-3 mw-100 mb-2" id="Quota_fields">
                     <div t-if="o.Order_Date" class="col" name="Order_Date_info">
-                        <strong>Order Date</strong>
+                        <strong>SO Date</strong>
                         <div t-esc="o.Order_Date"/>
                     </div>
             </div>
@@ -50,4 +75,4 @@
 
         </xpath>
     </template>
-</odoo>
+</odoo>-->

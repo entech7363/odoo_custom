@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <template id="stock_picking_document" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@name='div_sched_date']" position="before">
+            <!--<t t-set="o" t-value="docs[0]"/>-->
+
+                    <div class="col col-3 mw-100 mb-2" id="Delivery_fields">
+                            <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
+                                    <strong>Place of Delivery</strong>
+                                    <div t-esc="o.Customer_Delivery"/>
+                            </div>
+                    </div>
+        </xpath>
         <xpath expr="//div[@name='div_sched_date']" position="after">
             <t t-set="o" t-value="docs[0]"/>
                 <!--<div class="col col-3 mw-100 mb-2" id="Customer_fields">
@@ -15,6 +25,7 @@
                         <div t-esc="o.Customer_RFQ_date"/>
                     </div>
                 </div>-->
+
                 <div class="col col-3 mw-100 mb-2" id="purchase_fields">
                     <div t-if="o.Customer_Purchase" class="col" name="Customer_Purchase">
                         <strong>PO Number</strong>
@@ -27,12 +38,7 @@
                         <div t-esc="o.Customer_Purchase_date"/>
                     </div>
                 </div>
-                <div class="col col-3 mw-100 mb-2" id="Delivery_fields">
-                    <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
-                            <strong>Place of Delivery</strong>
-                            <div t-esc="o.Customer_Delivery"/>
-                    </div>
-                </div>
+
                 <!--<div class="col col-3 mw-100 mb-2" id="Deliver_fields">
                     <div t-if="o.Customer_Number" class="col" name="info_customer_number">
                             <strong>Delivery Number</strong>
@@ -42,6 +48,21 @@
 
 
 
+
+        </xpath>
+        <xpath expr="//div[hasclass('page')]" position="after">
+             <div style="height: 30px;"></div>
+            <div style="float: right; text-align: right;">
+                <span>
+                    <strong>Received in good condition</strong>
+                </span>
+                <br/><br/>
+                <span>____________________________</span>
+                <br/>
+                <span>
+                    <strong>Authorized Signature:</strong>
+                </span>
+            </div>
 
         </xpath>
     </template>

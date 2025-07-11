@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding='utf-8'?>
 <odoo>
-    <record id="account_move_customer_view" model="ir.ui.view">
+    <!--<record id="account_move_customer_view" model="ir.ui.view">
         <field name="name">account.move.form.view</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
@@ -21,7 +21,7 @@
 
 
 
-    </record>
+    </record>-->
     <record id="account_move_vendor_view" model="ir.ui.view">
         <field name="name">account.move.bills.form.view</field>
         <field name="model">account.move</field>
@@ -33,9 +33,10 @@
                         <field name="Quotation_date"/>
                         <field name="Order_Number"/>
                         <field name="Order_Date"/>
-                        <field name="Reference_Number"/>
+                        <field name="Customer_Delivery"/>
+                        <!--<field name="Reference_Number"/>
                         <field name="Delivery_Type"/>
-                        <field name="Receipt_Number"/>
+                        <field name="Receipt_Number"/>-->
 
                     </group>
                 </xpath>
