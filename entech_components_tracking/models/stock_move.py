@@ -30,6 +30,21 @@ class StockMove(models.Model):
     show_vendor_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
     show_customer_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
 
+    show_imei_fields = fields.Boolean(compute='_compute_show_imei_fields_conditional', store=True)
+    show_battery_sno = fields.Boolean(compute='_compute_show_imei_fields_conditional', store=True)
+    show_docking_station_sno = fields.Boolean(compute='_compute_show_imei_fields_conditional', store=True)
+
+    @api.depends('product_id')
+    def _compute_show_imei_fields_conditional(self):
+        for line in self:
+            tmpl = line.product_id.product_tmpl_id
+            components = tmpl.component_ids if tmpl else []
+
+            line.show_battery_sno = any(c.is_battery and c.serial_number for c in components)
+            line.show_docking_station_sno = any(c.is_docking_station and c.serial_number for c in components)
+            line.show_imei_fields = line.show_battery_sno or line.show_docking_station_sno
+
+
     # Dynamically show Battery and Docking Station fields in the form view
     @api.depends('product_id')
     def _compute_show_serial_field(self):
@@ -82,6 +97,7 @@ class StockMove(models.Model):
             move_type = move.picking_type_id.code if move.picking_type_id else ''
             move.show_vendor_warranty = move_type == 'incoming'
             move.show_customer_warranty = move_type == 'outgoing'
+
 
 
     def action_transfer_serial_fields(self):

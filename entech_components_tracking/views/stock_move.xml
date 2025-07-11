@@ -9,9 +9,17 @@
                     <group>
                         <field name="product_id"/>
                         <field name="v_start_date" invisible="show_customer_warranty"/>
-                        <field name="vendor_warranty" invisible="show_customer_warranty"/>
+                        <label for="vendor_warranty" invisible="show_customer_warranty"/>
+                        <div invisible="show_customer_warranty">
+                            <field name="vendor_warranty" class="oe_inline" style="vertical-align:baseline"/>
+                            Months
+                        </div>
                         <field name="c_start_date" invisible="show_vendor_warranty"/>
-                        <field name="customer_warranty" invisible="show_vendor_warranty"/>
+                        <label for="customer_warranty" invisible="show_vendor_warranty"/>
+                        <div invisible="show_vendor_warranty">
+                            <field name="customer_warranty" class="oe_inline" style="vertical-align:baseline"/>
+                            Months
+                        </div>
                         <field name="product_uom_qty"/>
                         <field name="show_battery_sno" invisible="1"/>
                         <field name="show_docking_station_sno" invisible="1"/>
@@ -20,14 +28,14 @@
                     </group>
 
                     <group>
-                        <field name="serial_no"/>
+                        <field name="serial_no" widget="auto_tab_serial"/>
                         <field name="show_imei_form_fields" invisible="1"/>
-                        <field name="imei_no_1" invisible="not show_imei_form_fields"/>
-                        <field name="imei_no_2" invisible="not show_imei_form_fields"/>
+                        <field name="imei_no_1" invisible="not show_imei_form_fields" widget="auto_tab_serial"/>
+                        <field name="imei_no_2" invisible="not show_imei_form_fields" widget="auto_tab_serial"/>
                         <field name="show_battery" invisible="1"/>
-                        <field name="show_docking_station" invisible="1" />
-                        <field name="battery_sno" invisible="not show_battery"/>
-                        <field name="docking_station_sno" invisible="not show_docking_station"/>
+                        <field name="show_docking_station" invisible="1"/>
+                        <field name="battery_sno" invisible="not show_battery" widget="auto_tab_serial"/>
+                        <field name="docking_station_sno" invisible="not show_docking_station" widget="auto_tab_serial"/>
 
                         <button name="action_transfer_serial_fields"
                                 string="Next"

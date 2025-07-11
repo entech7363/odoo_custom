@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit delivery slip header row to add serial headers -->
+    <template id="custom_delivery_add_serial_headers" inherit_id="stock.report_delivery_document">
+        <xpath expr="//th[@name='lot_serial']" position="after">
+
+            <th t-if="o.show_imei_fields_in_delivery" class="text-center">IMEI NO.1</th>
+            <th t-if="o.show_imei_fields_in_delivery" class="text-center">IMEI NO.2</th>
+            <th t-if="o.show_imei_fields_in_delivery" class="text-center">Battery SNO</th>
+            <th t-if="o.show_imei_fields_in_delivery" class="text-center">Docking Station SNO</th>
+        </xpath>
+    </template>
+
+
+    <template id="custom_delivery_add_serial_fields" inherit_id="stock.stock_report_delivery_has_serial_move_line">
+        <xpath expr="//td[span[@t-field='move_line.lot_id.name']]" position="after">
+
+            <td t-if="o.show_imei_fields_in_delivery" class="text-center">
+                <span t-field="move_line.imei_no_1"/>
+            </td>
+            <td t-if="o.show_imei_fields_in_delivery" class="text-center">
+                <span t-field="move_line.imei_no_2"/>
+            </td>
+            <td t-if="o.show_imei_fields_in_delivery" class="text-center">
+                <span t-field="move_line.battery_sno"/>
+            </td>
+            <td t-if="o.show_imei_fields_in_delivery" class="text-center">
+                <span t-field="move_line.docking_station_sno"/>
+            </td>
+        </xpath>
+    </template>
+</odoo>
+
