@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="bill_order_document" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@class='row mb-4']" position="inside">
+            <t t-set="o" t-value="docs[0]"/>
+
+            <div t-if="o.Order_Number" class="col-3" name="Order_Number_info">
+                <strong>SO Number</strong><br/>
+                <div t-esc="o.Order_Number"/>
+            </div>
+
+            <div t-if="o.Order_Date" class="col-3" name="Order_Date_info">
+                <strong>SO Date</strong><br/>
+                <div t-esc="o.Order_Date"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

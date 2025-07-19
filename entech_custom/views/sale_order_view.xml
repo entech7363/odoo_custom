@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding='utf-8'?>
+<!--<odoo>
+    <record id="sale_ord_inherit_view" model="ir.ui.view">
+
+            <field name="name">sale.order.form.inherit.entech</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+            <field name="payment_term_id" position="after">
+                    <field name="Customer_RFQ"/>
+                    <field name="Customer_RFQ_date"/>
+                    <field name="Customer_Purchase"/>
+                    <field name="Customer_Purchase_date"/>
+                    <field name="Customer_Delivery"/>
+            </field>
+            </field>
+    </record>
+</odoo>-->
+<odoo>
+    <record id="sale_ord_inherit_view" model="ir.ui.view">
+        <field name="name">sale.order.form.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+                <xpath expr="//group[@name='sale_info']" position="before">
+                    <group string="Customer">
+                        <field name="Customer_RFQ"/>
+                        <field name="Customer_RFQ_date"/>
+                        <field name="Customer_Purchase"/>
+                        <field name="Customer_Purchase_date"/>
+                        <field name="Customer_Delivery"/>
+
+                    </group>
+                </xpath>
+        </field>
+
+    </record>
+</odoo>

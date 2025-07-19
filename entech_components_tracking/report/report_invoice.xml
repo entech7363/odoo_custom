@@ -1,0 +1,47 @@
+<odoo>
+    <template id="custom_invoice_add_serial_fields" inherit_id="account.report_invoice_document">
+
+        <!-- HEADERS -->
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th t-if="o.show_delivery_serials" class="text-center">Lot/Serial</th>
+
+
+            <t t-if="o.show_delivery_serials and o.show_imei_columns">
+                <th class="text-center">IMEI NO.1</th>
+                <th class="text-center">IMEI NO.2</th>
+                <th class="text-center">Battery SNO</th>
+                <th class="text-center">Dock SNO</th>
+            </t>
+        </xpath>
+
+        <!-- VALUES -->
+        <xpath expr="//td[@name='account_invoice_line_name']" position="after">
+            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
+                <span t-field="line.lot_id.name"/>
+            </td>
+
+            <t t-if="o.show_delivery_serials and o.show_imei_columns and line.display_type == 'product'">
+                <td class="text-center">
+                    <span t-field="line.imei_no_1"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.imei_no_2"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.battery_sno"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.docking_station_sno"/>
+                </td>
+            </t>
+        </xpath>
+<!--                  Added sale order date-->
+        <xpath expr="//div[@name='origin']" position="after">
+            <div class="col" t-if="o.sale_order_date" name="order_date">
+                <strong>Order Date</strong>
+                <div t-esc="o.sale_order_date.strftime('%Y-%m-%d')"/>
+            </div>
+        </xpath>
+
+    </template>
+</odoo>

@@ -1,0 +1,41 @@
+<odoo>
+    <data>
+
+        <record id="product_template_form_view_inherit_component_tab" model="ir.ui.view">
+            <field name="name">product.template.form.inherit.component.tab</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <!---component tab-->
+                <xpath expr="//page[@name='purchase']" position="after">
+                    <page name="component_tab" string="Component">
+                        <field name="component_ids">
+                            <list editable="bottom">
+                                <field name="product_part_id" required="1"/>
+                                <field name="serial_number"/>
+                                <field name="vendor_warranty"/>
+                                <field name="customer_warranty"/>
+                                <field name="is_battery"/>
+                                <field name="is_docking_station"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vendor Part No field -->
+        <record id="product_template_form_view_inherit_vendor_part_no" model="ir.ui.view">
+            <field name="name">product.template.form.inherit.vendor.part.no</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lot_valuated']" position="after">
+                    <field name="vendor_part_no"/>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

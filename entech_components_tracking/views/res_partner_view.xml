@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="view_partner_form_inherit_customer_vendor_flags" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.customer.vendor.flags</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_type']" position="after">
+                    <br/>
+                    <field name="partner_type" widget="radio" options="{'horizontal': true}"/>
+                    <br/>
+                </xpath>
+                <xpath expr="//field[@name='function']" position="before">
+                    <field name="serial_number"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>
