@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields,api
 
 class DeliveryOrder(models.Model):
     _inherit = 'stock.picking'
@@ -26,6 +26,7 @@ class ReceiptPurchase(models.Model):
     #Reference_Number = fields.Char(string="Reference Number", related="purchase_id.Reference_Number")
     #Delivery_Type = fields.Char(string="Delivery Type", related="purchase_id.Delivery_Type")
     #Receipt_Number = fields.Char(string="Receipt Number", related="purchase_id.Receipt_Number")
+
 
 
 

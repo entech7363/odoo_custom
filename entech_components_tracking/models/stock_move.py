@@ -98,13 +98,23 @@ class StockMove(models.Model):
             move.show_vendor_warranty = move_type == 'incoming'
             move.show_customer_warranty = move_type == 'outgoing'
 
-
-
     def action_transfer_serial_fields(self):
         for move in self:
+            # ✅ Validate all 5 serial-related fields are unique (if filled)
+            values = [
+                move.serial_no,
+                move.imei_no_1,
+                move.imei_no_2,
+                move.battery_sno,
+                move.docking_station_sno,
+            ]
+            non_empty_values = [v for v in values if v]
+            if len(non_empty_values) != len(set(non_empty_values)):
+                raise UserError(
+                    _("All fields must have unique values."))
+
             if not move.serial_no:
                 raise UserError(_("Please enter a Serial No."))
-
 
             lot = self.env['stock.lot'].search([
                 ('name', '=', move.serial_no),
@@ -120,11 +130,26 @@ class StockMove(models.Model):
 
             existing_line = move.move_line_ids.filtered(lambda l: l.lot_id == lot)
             if existing_line:
-                existing_line.unlink()
+                raise UserError(_("Serial number '%s' is already assigned to this product.") % move.serial_no)
 
+            if move.imei_no_1:
+                if move.move_line_ids.filtered(lambda l: l.imei_no_1 == move.imei_no_1):
+                    raise UserError(_("IMEI NO.1 '%s' already exists in another line.") % move.imei_no_1)
+
+            if move.imei_no_2:
+                if move.move_line_ids.filtered(lambda l: l.imei_no_2 == move.imei_no_2):
+                    raise UserError(_("IMEI NO.2 '%s' already exists in another line.") % move.imei_no_2)
+
+            if move.battery_sno:
+                if move.move_line_ids.filtered(lambda l: l.battery_sno == move.battery_sno):
+                    raise UserError(_("Battery SNO '%s' already exists in another line.") % move.battery_sno)
+
+            if move.docking_station_sno:
+                if move.move_line_ids.filtered(lambda l: l.docking_station_sno == move.docking_station_sno):
+                    raise UserError(
+                        _("Docking Station SNO '%s' already exists in another line.") % move.docking_station_sno)
 
             reusable_line = move.move_line_ids.filtered(lambda l: not l.lot_id)
-
             new_line_vals = {
                 'product_id': move.product_id.id,
                 'lot_id': lot.id,
@@ -141,8 +166,6 @@ class StockMove(models.Model):
             else:
                 new_line_vals['move_id'] = move.id
                 self.env['stock.move.line'].create(new_line_vals)
-
-
 
             move.serial_no = False
             move.imei_no_1 = False

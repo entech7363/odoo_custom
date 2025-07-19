@@ -21,8 +21,9 @@
             <t t-set="o" t-value="docs[0]"/>
             <t t-if="o.picking_policy">
                 <br/>
-                <strong>Shipping Policy</strong>
-                <div t-esc="o.picking_policy"/>
+                <strong>Shipping Policy</strong><br/>
+                <span t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>
+
             </t>
         </xpath>
         <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Salesperson']]" position="inside">

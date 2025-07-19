@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <template id="stock_picking_document" inherit_id="stock.report_delivery_document">
-        <xpath expr="//div[@name='div_sched_date']" position="before">
-            <!--<t t-set="o" t-value="docs[0]"/>-->
+        <!--<xpath expr="//div[@name='div_sched_date']" position="before">
+            <t t-set="o" t-value="docs[0]"/>
 
                     <div class="col col-3 mw-100 mb-2" id="Delivery_fields">
                             <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
@@ -10,7 +10,7 @@
                                     <div t-esc="o.Customer_Delivery"/>
                             </div>
                     </div>
-        </xpath>
+        </xpath>-->
         <xpath expr="//div[@name='div_sched_date']" position="after">
             <t t-set="o" t-value="docs[0]"/>
                 <!--<div class="col col-3 mw-100 mb-2" id="Customer_fields">
