@@ -13,3 +13,5 @@ class StockPicking(models.Model):
                 for line in picking.move_line_ids
             )
             picking.show_imei_fields_in_delivery = show
+
+
