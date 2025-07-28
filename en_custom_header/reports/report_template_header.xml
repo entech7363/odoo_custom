@@ -43,5 +43,34 @@
                 </div>
             </t>
         </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-if="company.report_footer_image">
+                <div class="footer" style="text-align: center; margin: 0; padding: 0;">
+                    <img t-att-src="image_data_uri(company.report_footer_image)"
+                         alt="Footer Image" style="width: 95%; height: auto; "/>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="o_footer_content row border-top pt-2">
+                    <div class="col-8">
+                        <span t-field="company.report_footer"/>
+                    </div>
+                    <div class="col-4 text-end">
+                        <strong t-if="company.report_header" t-field="company.report_header" class="o_company_tagline">
+                            Company tagline
+                        </strong>
+                        <span t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted"
+                              t-out="str(o.name) + ', '">(document name)
+                        </span>
+                        <span t-if="report_type == 'pdf'" class="text-muted">Page
+                            <span class="page"/>
+                            /
+                            <span class="topage"/>
+                        </span>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+
     </template>
 </odoo>
