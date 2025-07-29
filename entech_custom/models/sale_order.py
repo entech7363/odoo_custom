@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -10,6 +10,30 @@ class SaleOrder(models.Model):
     Customer_Delivery = fields.Char(string="Place of Delivery")
     #Customer_Number = fields.Char(string="Customer Number")
     For_Company=fields.Char(string="Company Name")
+    delivery_schedule = fields.Char(string='Delivery Schedule', default='0')
+    # poc_name = fields.Char(string="POC")
+    poc_id = fields.Many2one('res.partner', string='Point of Contact',
+                             domain="[('parent_id', '=', partner_id), ('type', '=', 'contact')]")
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id_set_poc(self):
+        for order in self:
+            if order.partner_id:
+                if order.partner_id.type == 'contact' and order.partner_id.parent_id:
+
+                    order.poc_id = order.partner_id
+                else:
+
+                    child_contact = self.env['res.partner'].search([
+                        ('parent_id', '=', order.partner_id.id),
+                        ('type', '=', 'contact')
+                    ], limit=1)
+                    order.poc_id = child_contact or False
+            else:
+                order.poc_id = False
+
+
+
 
 
 
