@@ -7,7 +7,9 @@
             <t t-set="o" t-value="docs[0]"/>
             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
                 <strong>Delivery Schedule</strong>
-                <div t-esc="o.delivery_schedule"/>
+               <div>
+        <t t-esc="o.delivery_schedule"/> weeks
+    </div>
             </div>
 
             <div t-if="o.Customer_Purchase" class="col" name="info_customer_purchase">
@@ -117,8 +119,13 @@
 
                 </div>
             </t>
+        </xpath>
 
-
+       <xpath expr="//t[@t-set='layout_document_title']/span[@t-field='doc.name']" position="replace">
+            <span>
+                <t t-esc="doc.name"/>
+                <t t-if="doc.state in ['draft', 'sent', 'to approve']">/ R<t t-esc="doc.revision_number or 0"/></t>
+            </span>
         </xpath>
 
 

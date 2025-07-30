@@ -30,6 +30,8 @@ class PurchaseOrder(models.Model):
                             'battery_sno': ml.battery_sno,
                             'docking_station_sno': ml.docking_station_sno,
                             'lot_id': ml.lot_id.id,
+
+
                         })
                         new_lines.append((0, 0, new_line._convert_to_write(new_line._cache)))
 

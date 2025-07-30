@@ -1,6 +1,6 @@
 {
     'name': 'Entech Components Tracking',
-    'version': '1.7',
+    'version': '1.8',
     'category': 'Custom',
     'depends': ['base', 'sale', 'purchase', 'product', 'stock', 'account'],
     'data': [

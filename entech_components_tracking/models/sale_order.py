@@ -29,6 +29,7 @@ class SaleOrder(models.Model):
                             'battery_sno': ml.battery_sno,
                             'docking_station_sno': ml.docking_station_sno,
                             'lot_id': ml.lot_id.id,
+                            'sale_line_ids': [(6, 0, [sol.id])],
                         })
                         new_lines.append((0, 0, new_line._convert_to_write(new_line._cache)))
 

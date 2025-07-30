@@ -12,6 +12,12 @@ class SaleOrder(models.Model):
     For_Company=fields.Char(string="Company Name")
     delivery_schedule = fields.Char(string='Delivery Schedule', default='0')
     # poc_name = fields.Char(string="POC")
+    revision_number = fields.Integer(
+        string="Revision Number",
+        readonly=True,
+        default=0,
+        tracking=True
+    )
     poc_id = fields.Many2one('res.partner', string='Point of Contact',
                              domain="[('parent_id', '=', partner_id), ('type', '=', 'contact')]")
 
@@ -31,6 +37,18 @@ class SaleOrder(models.Model):
                     order.poc_id = child_contact or False
             else:
                 order.poc_id = False
+
+    def write(self, vals):
+        for order in self:
+            if (order.state in ['draft', 'sent', 'to approve']
+                    and not self._context.get('skip_revision_increment')
+                    and 'revision_number' not in vals):
+                super(SaleOrder, order).write(
+                    dict(vals, revision_number=order.revision_number + 1)
+                )
+            else:
+                super(SaleOrder, order).write(vals)
+        return True
 
 
 
