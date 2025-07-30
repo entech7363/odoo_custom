@@ -13,6 +13,8 @@ class AccountMove(models.Model):
 
     sale_order_date = fields.Datetime(string="Sale Order Date", compute="_compute_sale_order_date", store=False)
 
+
+
     @api.depends('invoice_line_ids.imei_no_1', 'invoice_line_ids.imei_no_2',
                  'invoice_line_ids.battery_sno', 'invoice_line_ids.docking_station_sno')
     def _compute_show_imei_columns(self):
@@ -21,6 +23,8 @@ class AccountMove(models.Model):
                 line.imei_no_1 or line.imei_no_2 or line.battery_sno or line.docking_station_sno
                 for line in move.invoice_line_ids
             )
+
+
 
     @api.depends('invoice_origin')
     def _compute_sale_order_date(self):

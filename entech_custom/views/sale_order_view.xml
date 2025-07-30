@@ -22,16 +22,40 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-                <xpath expr="//group[@name='sale_info']" position="before">
-                    <group string="Customer">
-                        <field name="Customer_RFQ"/>
-                        <field name="Customer_RFQ_date"/>
-                        <field name="Customer_Purchase"/>
-                        <field name="Customer_Purchase_date"/>
-                        <field name="Customer_Delivery"/>
+            <xpath expr="//group[@name='sale_info']" position="before">
+                <group string="Customer">
+                    <field name="Customer_RFQ"/>
+                    <field name="Customer_RFQ_date"/>
+                    <field name="Customer_Purchase"/>
+                    <field name="Customer_Purchase_date"/>
+                    <field name="Customer_Delivery"/>
 
-                    </group>
-                </xpath>
+                </group>
+            </xpath>
+            <!--              added lead time field-->
+            <xpath expr="//field[@name='order_line']/list/field[@name='tax_id']" position="before">
+                <field name="lead_time"/>
+            </xpath>
+            <!--             added delivery schedule field-->
+            <xpath expr="//group[@name='sale_shipping']" position="inside">
+                <label for="delivery_schedule"/>
+
+                <div class="oe_inline" style="vertical-align:baseline;">
+                    <field name="delivery_schedule" class="oe_inline"/>
+                    <span>Weeks</span>
+                </div>
+            </xpath>
+            <!--              added poc-->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="poc_id"/>
+            </xpath>
+
+<!--            added revision quotation-->
+            <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="revision_number" readonly="1"/>
+        </xpath>
+
+
         </field>
 
     </record>

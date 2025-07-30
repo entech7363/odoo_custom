@@ -1,6 +1,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo import _
+from odoo.exceptions import ValidationError
+
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
@@ -23,9 +25,12 @@ class StockMove(models.Model):
     show_battery_sno = fields.Boolean(compute='_compute_show_fields', default=True)
     show_docking_station_sno = fields.Boolean(compute='_compute_show_fields', default=True)
 
-    show_imei_fields = fields.Boolean(compute='_compute_show_imei_fields', store=False)
+    show_imei_no_1 = fields.Boolean(string="Show IMEI NO.1", compute='_compute_show_imei_fields')
+    show_imei_no_2 = fields.Boolean(string="Show IMEI NO.2", compute='_compute_show_imei_fields')
 
-    show_imei_form_fields = fields.Boolean(compute='_compute_show_imei_form_fields', store=False)
+    show_imei_form_no_1 = fields.Boolean(string="Show IMEI NO.1 Form", compute='_compute_show_imei_form_fields')
+    show_imei_form_no_2 = fields.Boolean(string="Show IMEI NO.2 Form", compute='_compute_show_imei_form_fields')
+
 
     show_vendor_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
     show_customer_warranty = fields.Boolean(compute='_compute_show_warranty_flags', store=False)
@@ -75,9 +80,11 @@ class StockMove(models.Model):
 
             line.show_battery_sno = has_battery
             line.show_docking_station_sno = has_docking
-            line.show_imei_fields = has_battery or has_docking
+            line.show_imei_no_1 = has_battery
+            line.show_imei_no_2 = has_docking
 
     # Dynamically show imeino1 and imeino2 in the form view
+
     @api.depends('product_id')
     def _compute_show_imei_form_fields(self):
         for line in self:
@@ -89,7 +96,8 @@ class StockMove(models.Model):
 
             line.show_battery_sno = has_battery
             line.show_docking_station_sno = has_docking
-            line.show_imei_form_fields = has_battery or has_docking
+            line.show_imei_form_no_1 = has_battery
+            line.show_imei_form_no_2 = has_docking
 
     @api.depends('picking_type_id.code')
     def _compute_show_warranty_flags(self):
@@ -100,7 +108,7 @@ class StockMove(models.Model):
 
     def action_transfer_serial_fields(self):
         for move in self:
-            # ✅ Validate all 5 serial-related fields are unique (if filled)
+
             values = [
                 move.serial_no,
                 move.imei_no_1,
@@ -172,3 +180,4 @@ class StockMove(models.Model):
             move.imei_no_2 = False
             move.battery_sno = False
             move.docking_station_sno = False
+

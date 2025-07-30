@@ -9,8 +9,9 @@
 
                     <!--                    <field name="show_battery_sno" invisible="1"/>-->
                     <!--                    <field name="show_docking_station_sno" invisible="1"/>-->
-                    <field name="imei_no_1" column_invisible="parent.show_imei_fields == False"/>
-                    <field name="imei_no_2" column_invisible="parent.show_imei_fields == False"/>
+                    <field name="imei_no_1" column_invisible="parent.show_imei_no_1 == False"/>
+                    <field name="imei_no_2" column_invisible="parent.show_imei_no_2 == False"/>
+
                     <field name="battery_sno" column_invisible="parent.show_battery_sno == False"/>
                     <field name="docking_station_sno" column_invisible="parent.show_docking_station_sno == False"/>
 
