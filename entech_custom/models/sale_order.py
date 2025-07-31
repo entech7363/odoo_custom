@@ -14,7 +14,6 @@ class SaleOrder(models.Model):
     # poc_name = fields.Char(string="POC")
     revision_number = fields.Integer(
         string="Revision Number",
-        readonly=True,
         default=0,
         tracking=True
     )
