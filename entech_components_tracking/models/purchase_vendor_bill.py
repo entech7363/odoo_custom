@@ -1,4 +1,5 @@
-from odoo import models, api
+from odoo import models
+from odoo.exceptions import UserError
 
 
 class PurchaseOrder(models.Model):
@@ -8,35 +9,36 @@ class PurchaseOrder(models.Model):
         res = super().action_create_invoice()
 
         for order in self:
-            for bill in order.invoice_ids:
-                new_lines = []
+            for bill in order.invoice_ids.filtered(lambda b: b.state == 'draft'):
+                new_invoice_lines = []
 
-                for pol in order.order_line:
-                    move_lines = pol.move_ids.filtered(lambda m: m.state == 'done').mapped('move_line_ids')
-                    if not move_lines:
+                for line in order.order_line:
+                    if not line.product_id.tracking or line.product_id.tracking == 'none':
                         continue
 
-                    for ml in move_lines:
-                        new_line = bill.env['account.move.line'].new({
-                            'move_id': bill.id,
-                            'product_id': pol.product_id.id,
-                            'name': pol.name,
+                    move_lines = line.move_ids.filtered(lambda m: m.state == 'done').mapped('move_line_ids')
+                    serial_lines = move_lines.filtered(lambda ml: ml.qty_done > 0 and ml.lot_id)
+
+                    for ml in serial_lines:
+                        line_vals = line._prepare_account_move_line()
+                        account = line.product_id.property_account_expense_id or \
+                                  line.product_id.categ_id.property_account_expense_categ_id
+
+                        if not account:
+                            raise UserError(f"Missing expense account for product {line.product_id.display_name}")
+
+                        line_vals.update({
                             'quantity': 1,
-                            'price_unit': pol.price_unit,
-                            'account_id': pol.product_id.property_account_expense_id.id or pol.order_id.company_id.expense_currency_exchange_account_id.id,
-                            'product_uom_id': pol.product_uom.id,
+                            'account_id': account.id,
+                            'lot_id': ml.lot_id.id,
                             'imei_no_1': ml.imei_no_1,
                             'imei_no_2': ml.imei_no_2,
                             'battery_sno': ml.battery_sno,
                             'docking_station_sno': ml.docking_station_sno,
-                            'lot_id': ml.lot_id.id,
-
-
                         })
-                        new_lines.append((0, 0, new_line._convert_to_write(new_line._cache)))
+                        new_invoice_lines.append((0, 0, line_vals))
 
-                if new_lines:
-                    bill.invoice_line_ids.unlink()
-                    bill.write({'invoice_line_ids': new_lines})
+                if new_invoice_lines:
+                    bill.write({'invoice_line_ids': [(5, 0, 0)] + new_invoice_lines})
 
         return res

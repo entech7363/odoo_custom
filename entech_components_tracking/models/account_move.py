@@ -7,6 +7,7 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
 
+
     show_delivery_serials = fields.Boolean(string="Print Serial Numbers",)
 
     show_imei_columns = fields.Boolean(string="Show IMEI Columns", compute="_compute_show_imei_columns", store=False)
