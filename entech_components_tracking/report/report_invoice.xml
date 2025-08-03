@@ -3,40 +3,40 @@
 
 
         <!-- HEADERS -->
-        <xpath expr="//th[@name='th_description']" position="after">
-            <th t-if="o.show_delivery_serials" class="text-center">Lot/Serial</th>
-            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.1</th>
-            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.2</th>
-            <th t-if="o.show_delivery_serials" class="text-center">Battery SNO</th>
-            <th t-if="o.show_delivery_serials" class="text-center">Dock SNO</th>
-        </xpath>
+<!--        <xpath expr="//th[@name='th_description']" position="after">-->
+<!--            <th t-if="o.show_delivery_serials" class="text-center">Lot/Serial</th>-->
+<!--            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.1</th>-->
+<!--            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.2</th>-->
+<!--            <th t-if="o.show_delivery_serials" class="text-center">Battery SNO</th>-->
+<!--            <th t-if="o.show_delivery_serials" class="text-center">Dock SNO</th>-->
+<!--        </xpath>-->
 
         <!-- VALUES -->
-        <xpath expr="//td[@name='account_invoice_line_name']" position="after">
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.lot_id.name"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.imei_no_1"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.imei_no_2"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.battery_sno"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.docking_station_sno"/>
-            </td>
-        </xpath>
+<!--        <xpath expr="//td[@name='account_invoice_line_name']" position="after">-->
+<!--            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">-->
+<!--                <span t-field="line.lot_id.name"/>-->
+<!--            </td>-->
+<!--            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">-->
+<!--                <span t-field="line.imei_no_1"/>-->
+<!--            </td>-->
+<!--            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">-->
+<!--                <span t-field="line.imei_no_2"/>-->
+<!--            </td>-->
+<!--            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">-->
+<!--                <span t-field="line.battery_sno"/>-->
+<!--            </td>-->
+<!--            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">-->
+<!--                <span t-field="line.docking_station_sno"/>-->
+<!--            </td>-->
+<!--        </xpath>-->
 
         <!--                  Added sale order date-->
-        <xpath expr="//div[@name='origin']" position="after">
-            <div class="col" t-if="o.sale_order_date" name="order_date">
-                <strong>Order Date</strong>
-                <div t-esc="o.sale_order_date.strftime('%Y-%m-%d')"/>
-            </div>
-        </xpath>
+<!--        <xpath expr="//div[@name='origin']" position="after">-->
+<!--            <div class="col" t-if="o.sale_order_date" name="order_date">-->
+<!--                <strong>Order Date</strong>-->
+<!--                <div t-esc="o.sale_order_date.strftime('%Y-%m-%d')"/>-->
+<!--            </div>-->
+<!--        </xpath>-->
 
     </template>
 </odoo>
