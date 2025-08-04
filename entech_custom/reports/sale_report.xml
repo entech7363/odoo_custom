@@ -3,53 +3,117 @@
     <template id="sale_report_inherit" inherit_id="sale.report_saleorder_document">
 
 
-        <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Order Date']]" position="after">
-            <t t-set="o" t-value="docs[0]"/>
+        <xpath expr="//div[@id='informations']/div[last()]" position="after">
+            <t t-set="o" t-value="doc"/>
+
+            <!-- Delivery Schedule -->
             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
                 <strong>Delivery Schedule</strong>
-               <div>
-        <t t-esc="o.delivery_schedule"/> weeks
-    </div>
+                <div>
+                    <t t-esc="o.delivery_schedule"/>
+                </div>
             </div>
 
+            <!-- PO Number -->
             <div t-if="o.Customer_Purchase" class="col" name="info_customer_purchase">
                 <strong>PO Number</strong>
-                <div t-esc="o.Customer_Purchase"/>
+                <div>
+                    <t t-esc="o.Customer_Purchase"/>
+                </div>
             </div>
+
+            <!-- PO Date -->
             <div t-if="o.Customer_Purchase_date" class="col" name="info_customer_purchase_date">
                 <strong>PO Date</strong>
-                <div t-esc="o.Customer_Purchase_date"/>
+                <div>
+                    <t t-esc="o.Customer_Purchase_date"/>
+                </div>
             </div>
+
+<!--             Expiration (Replace or add this section as needed)-->
+      <div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
+                    class="col"
+                    name="expiration_date">
+                    <strong>Expiration</strong>
+                    <div t-field="doc.validity_date">2023-12-31</div>
+                </div>
+
+
         </xpath>
 
+<!--         2nd row -->
+       <xpath expr="//div[@id='informations']" position="after">
+    <div class="row mb-4">
+        <!-- Shipping Policy -->
+        <div t-if="doc.picking_policy" class="col-3" name="info_shipping_policy">
+            <strong>Shipping Policy</strong>
+            <div>
+                <t t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>
+            </div>
+        </div>
 
-        <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Order Date']]" position="inside">
-            <t t-set="o" t-value="docs[0]"/>
-            <t t-if="o.picking_policy">
-                <br/>
-                <strong>Shipping Policy</strong>
-                <br/>
-                <span t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>
+        <!-- Payment Terms -->
+        <div t-if="doc.payment_term_id" class="col-3" name="info_payment_terms">
+            <strong>Payment Terms</strong>
+            <div t-esc="doc.payment_term_id.name"/>
+        </div>
+
+        <!-- Place of Delivery -->
+        <div t-if="doc.Customer_Delivery" class="col-3" name="info_place_of_delivery">
+            <strong>Place of Delivery</strong>
+            <div t-esc="doc.Customer_Delivery"/>
+        </div>
+
+
+        <t t-if="o.state in ('draft', 'sent') and o.Customer_RFQ">
+            <div class="col" name="Customer_RFQ_info">
+                <strong>RFQ</strong>
+                <div>
+                    <t t-esc="o.Customer_RFQ"/>
+                </div>
+            </div>
+        </t>
+
+
+<!--         RFQ Date-->
+        <t t-if="doc.state in ('draft', 'sent') and doc.Customer_RFQ_date">
+                <div class="col" name="Customer_RFQ_date_info">
+                    <strong>RFQ Date</strong>
+                    <div t-esc="doc.Customer_RFQ_date"/>
+                </div>
             </t>
-        </xpath>
+    </div>
+</xpath>
 
-        <!--        added payment terms after shipping policy-->
-        <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Delivery Schedule']]" position="inside">
-            <t t-if="o.payment_term_id">
-                <br/>
-                <strong>Payment Terms</strong>
-                <div t-esc="o.payment_term_id.name"/>
-            </t>
-        </xpath>
 
-        <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='PO Number']]" position="inside">
-            <t t-if="doc.Customer_Delivery">
-                <br/>
-                <strong>Place of Delivery</strong>
-                <br/>
-                <span t-esc="doc.Customer_Delivery"/>
-            </t>
-        </xpath>
+
+<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Order Date']]" position="inside">-->
+<!--                    <t t-set="o" t-value="docs[0]"/>-->
+<!--                    <t t-if="o.picking_policy">-->
+<!--                        <br/>-->
+<!--                        <strong>Shipping Policy</strong>-->
+<!--                        <br/>-->
+<!--                        <span t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>-->
+<!--                    </t>-->
+<!--                </xpath>-->
+
+<!--                &lt;!&ndash;        added payment terms after shipping policy&ndash;&gt;-->
+<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Delivery Schedule']]" position="inside">-->
+<!--                    <t t-if="o.payment_term_id">-->
+<!--                        <br/>-->
+<!--                        <strong>Payment Terms</strong>-->
+<!--                        <div t-esc="o.payment_term_id.name"/>-->
+<!--                    </t>-->
+<!--                </xpath>-->
+
+<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='PO Number']]" position="inside">-->
+<!--                    <t t-if="doc.Customer_Delivery">-->
+<!--                        <br/>-->
+<!--                        <strong>Place of Delivery</strong>-->
+<!--                        <br/>-->
+<!--                        <span t-esc="doc.Customer_Delivery"/>-->
+<!--                    </t>-->
+<!--                </xpath>-->
 
         <!--           replace payment terms-->
         <xpath expr="//span[@t-field='doc.payment_term_id.note']/.." position="replace"/>
@@ -66,7 +130,7 @@
             </td>
         </xpath>
 
-        <!--            added ph and email for salesperson-->
+        <!--                    remove salesperson-->
         <xpath expr="//div[@class='col'][.//strong[text()='Salesperson']]" position="replace">
 
         </xpath>
@@ -121,11 +185,18 @@
             </t>
         </xpath>
 
-       <xpath expr="//t[@t-set='layout_document_title']/span[@t-field='doc.name']" position="replace">
+        <xpath expr="//t[@t-set='layout_document_title']/span[@t-field='doc.name']" position="replace">
             <span>
                 <t t-esc="doc.name"/>
-                <t t-if="doc.state in ['draft', 'sent', 'to approve']">/ R<t t-esc="doc.revision_number or 0"/></t>
+                <t t-if="doc.state in ['draft', 'sent', 'to approve'] and doc.revision_number">
+                    / R
+                    <t t-esc="doc.revision_number"/>
+                </t>
             </span>
+        </xpath>
+
+
+        <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace">
         </xpath>
 
 

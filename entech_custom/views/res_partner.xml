@@ -1,0 +1,13 @@
+<odoo>
+   <record id="view_partner_form_inherit_company_required" model="ir.ui.view">
+    <field name="name">res.partner.form.inherit.company.required</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+        <field name="company_id" position="replace">
+            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" required="True" readonly="parent_id" force_save="1"/>
+        </field>
+    </field>
+</record>
+
+</odoo>

@@ -10,11 +10,10 @@ class SaleOrder(models.Model):
     Customer_Delivery = fields.Char(string="Place of Delivery")
     #Customer_Number = fields.Char(string="Customer Number")
     For_Company=fields.Char(string="Company Name")
-    delivery_schedule = fields.Char(string='Delivery Schedule', default='0')
+    delivery_schedule = fields.Char(string='Delivery Schedule')
     # poc_name = fields.Char(string="POC")
     revision_number = fields.Integer(
         string="Revision Number",
-        readonly=True,
         default=0,
         tracking=True
     )
@@ -38,17 +37,6 @@ class SaleOrder(models.Model):
             else:
                 order.poc_id = False
 
-    def write(self, vals):
-        for order in self:
-            if (order.state in ['draft', 'sent', 'to approve']
-                    and not self._context.get('skip_revision_increment')
-                    and 'revision_number' not in vals):
-                super(SaleOrder, order).write(
-                    dict(vals, revision_number=order.revision_number + 1)
-                )
-            else:
-                super(SaleOrder, order).write(vals)
-        return True
 
 
 
