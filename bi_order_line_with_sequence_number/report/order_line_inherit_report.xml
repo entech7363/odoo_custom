@@ -29,6 +29,22 @@
                     </td>
                 </t>
             </xpath>
+
+        </template>
+        <template id="purchase_quotation_report_inherit" inherit_id="purchase.report_purchasequotation_document">
+            <xpath expr="//tr/th[@name='th_description']" position="before">
+                <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                    <th name="th_d" class="text-start">No.</th>
+                </t>
+            </xpath>
+            <xpath expr="//td[@id='product']" position="before">
+                <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                    <td><span t-field="order_line.purchase_sequence_number" /></td></t>
+            </xpath>
+
+
+
+
         </template>
 
         <template id="invoice_report" inherit_id="account.report_invoice_document">
@@ -61,6 +77,58 @@
                 </t>
             </xpath>
         </template>
+        <template id="stock_delivery_report_inheriting" inherit_id="stock.report_delivery_document">
+            <xpath expr="//table[1]/thead/tr/th[1]" position="before">
+                <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                    <th name="th_d" class="text-start">No.</th>
+
+
+                </t>
+            </xpath>
+            <xpath expr="//table[1]//tr[1]/td[1]" position="before">
+                <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                    <td>
+                            <span t-esc="move.stock_move_sequence"/>
+                    </td>
+
+                </t>
+
+
+           </xpath>
+            <xpath expr="//table[@class='table table-borderless mt48']//thead//tr/th[1]" position="before">
+    <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+        <th class="text-start">No.</th>
+
+
+    </t>
+</xpath>
+
+
+        </template>
+
+    <template id="custom_serial_number_new" inherit_id="stock.stock_report_delivery_aggregated_move_lines">
+
+        <xpath expr="//td[1]" position="before">
+            <td>
+            <t t-if="'stock_move_sequence' in aggregated_lines[line]">
+                <span t-esc="aggregated_lines[line]['stock_move_sequence']"/>
+            </t>
+        </td>
+
+        </xpath>
+    </template>
+
+        <template id="custom_serial_number" inherit_id="stock.stock_report_delivery_has_serial_move_line">
+
+        <xpath expr="//td[1]" position="before">
+            <td>
+                            <span t-esc="move_line.move_id.stock_move_sequence"/>
+             </td>
+
+        </xpath>
+    </template>
+
+
 
 
 

@@ -74,6 +74,7 @@ class StockMove(models.Model):
             record.mrp_sequence_no = number
             number += 1
 
+
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
@@ -91,5 +92,26 @@ class PurchaseRequisition(models.Model):
         for record in self.requisition_id.line_ids:
             record.purchase_requistion_sequence = number
             number += 1
+
+
+class StockPickingInherit(models.Model):
+    _inherit = 'stock.move.line'
+
+    def _get_aggregated_product_quantities(self, **kwargs):
+
+        aggregated_move_lines = super()._get_aggregated_product_quantities(**kwargs)
+
+
+        for line_key, line in aggregated_move_lines.items():
+            move = line.get('move')
+            if move and hasattr(move, 'stock_move_sequence'):
+                line['stock_move_sequence'] = move.stock_move_sequence
+
+        return aggregated_move_lines
+
+
+
+
+
 
 
