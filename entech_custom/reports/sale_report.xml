@@ -127,6 +127,7 @@
         <xpath expr="//table[contains(@class, 'o_main_table')]//td[@name='td_taxes']" position="before">
             <td name="td_lead_time" class="text-end text-nowrap">
                 <span t-field="line.lead_time"/>
+
             </td>
         </xpath>
 
@@ -175,7 +176,7 @@
                         <t t-if="doc.poc_id">
                             <div style="margin-top:10px;">
                                 <strong>POC:</strong>
-                                <span t-esc="doc.poc_id.name"/>
+                                <span t-esc="doc.poc_id.name" style="font-weight:bold;"/>
                             </div>
                         </t>
 

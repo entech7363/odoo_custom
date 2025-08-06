@@ -34,7 +34,7 @@
             </xpath>
             <!--              added lead time field-->
             <xpath expr="//field[@name='order_line']/list/field[@name='tax_id']" position="before">
-                <field name="lead_time"/>
+                <field name="lead_time" optional="show"/>
             </xpath>
             <!--             added delivery schedule field-->
             <xpath expr="//group[@name='sale_shipping']" position="inside">
@@ -50,6 +50,7 @@
             <xpath expr="//field[@name='partner_id']" position="after">
             <field name="revision_number"/>
         </xpath>
+
 
 
         </field>
