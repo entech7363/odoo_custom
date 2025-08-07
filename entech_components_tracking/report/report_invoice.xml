@@ -1,36 +1,47 @@
 <odoo>
-    <template id="custom_invoice_add_serial_fields" inherit_id="account.report_invoice_document">
+   <data>
 
 
-        <!-- HEADERS -->
-        <xpath expr="//th[@name='th_description']" position="after">
-            <th t-if="o.show_delivery_serials" class="text-center">Lot/Serial</th>
-            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.1</th>
-            <th t-if="o.show_delivery_serials" class="text-center">IMEI NO.2</th>
-            <th t-if="o.show_delivery_serials" class="text-center">Battery SNO</th>
-            <th t-if="o.show_delivery_serials" class="text-center">Dock SNO</th>
-        </xpath>
+       <!-- Inherit the invoice report template -->
+       <template id="custom_add_serial_fields_invoice" inherit_id="account.report_invoice_document">
 
-        <!-- VALUES -->
-        <xpath expr="//td[@name='account_invoice_line_name']" position="after">
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.lot_id.name"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.imei_no_1"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.imei_no_2"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.battery_sno"/>
-            </td>
-            <td t-if="o.show_delivery_serials and line.display_type == 'product'" class="text-center">
-                <span t-field="line.docking_station_sno"/>
-            </td>
-        </xpath>
+          <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
+    <attribute name="style">width: 100%;</attribute>
+</xpath>
 
-        <!--                  Added sale order date-->
+
+          <!-- TABLE HEADER -->
+      <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[last()]" position="after">
+        <t t-if="any(l.get('imei_no_1') for l in lot_values)">
+          <th class="text-end"><span>IMEI No.1</span></th>
+        </t>
+        <t t-if="any(l.get('imei_no_2') for l in lot_values)">
+          <th class="text-end"><span>IMEI No.2</span></th>
+        </t>
+        <t t-if="any(l.get('battery_sno') for l in lot_values)">
+          <th class="text-end"><span>Battery SNO</span></th>
+        </t>
+        <t t-if="any(l.get('docking_station_sno') for l in lot_values)">
+          <th class="text-end"><span>Docking Station SNO</span></th>
+        </t>
+      </xpath>
+
+      <!-- TABLE BODY -->
+      <xpath expr="//table[@name='invoice_snln_table']/tbody/tr/td[last()]" position="after">
+        <t t-if="any(l.get('imei_no_1') for l in lot_values)">
+          <td class="text-end"><t t-esc="snln_line.get('imei_no_1') or ''"/></td>
+        </t>
+        <t t-if="any(l.get('imei_no_2') for l in lot_values)">
+          <td class="text-end"><t t-esc="snln_line.get('imei_no_2') or ''"/></td>
+        </t>
+        <t t-if="any(l.get('battery_sno') for l in lot_values)">
+          <td class="text-end"><t t-esc="snln_line.get('battery_sno') or ''"/></td>
+        </t>
+        <t t-if="any(l.get('docking_station_sno') for l in lot_values)">
+          <td class="text-end"><t t-esc="snln_line.get('docking_station_sno') or ''"/></td>
+        </t>
+      </xpath>
+<!--           Added sale order date-->
         <xpath expr="//div[@name='origin']" position="after">
             <div class="col" t-if="o.sale_order_date" name="order_date">
                 <strong>Order Date</strong>
@@ -38,5 +49,13 @@
             </div>
         </xpath>
 
-    </template>
+
+       </template>
+
+
+   </data>
+
+
+
+
 </odoo>
