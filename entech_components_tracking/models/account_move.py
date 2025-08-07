@@ -16,6 +16,7 @@ class AccountMove(models.Model):
 
 
 
+<<<<<<< HEAD
        if self.state == 'draft' or not self.invoice_date or self.move_type not in ('out_invoice', 'out_refund'):
            return res
 
@@ -136,10 +137,16 @@ class AccountMove(models.Model):
 
 
 
+=======
+>>>>>>> ae7c249829b18c71149b92e3197328285dbfe4ef
     # show_delivery_serials = fields.Boolean(string="Print Serial Numbers",)
     #
     # show_imei_columns = fields.Boolean(string="Show IMEI Columns", compute="_compute_show_imei_columns", store=False)
     #
+<<<<<<< HEAD
+=======
+    # sale_order_date = fields.Datetime(string="Sale Order Date", compute="_compute_sale_order_date", store=False)
+>>>>>>> ae7c249829b18c71149b92e3197328285dbfe4ef
     #
     #
     #
@@ -154,3 +161,11 @@ class AccountMove(models.Model):
     #
     #
     #
+<<<<<<< HEAD
+=======
+    # @api.depends('invoice_origin')
+    # def _compute_sale_order_date(self):
+    #     for record in self:
+    #         sale_order = self.env['sale.order'].search([('name', '=', record.invoice_origin)], limit=1)
+    #         record.sale_order_date = sale_order.date_order if sale_order else False
+>>>>>>> ae7c249829b18c71149b92e3197328285dbfe4ef
