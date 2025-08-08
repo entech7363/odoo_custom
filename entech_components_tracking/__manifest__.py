@@ -1,8 +1,8 @@
 {
     'name': 'Entech Components Tracking',
-    'version': '2.1',
+    'version': '2.4',
     'category': 'Custom',
-    'depends': ['base', 'sale', 'purchase', 'product', 'stock', 'account'],
+    'depends': ['sale_stock','base', 'sale', 'purchase', 'product', 'stock', 'account', 'stock_account',],
     'data': [
         'views/product_template_views.xml',
         'views/stock_move_line_wizard.xml',
@@ -18,6 +18,7 @@
         'security/ir.model.access.csv',
         'report/report_delivery.xml',
         'report/report_invoice.xml',
+
 
 
     ],

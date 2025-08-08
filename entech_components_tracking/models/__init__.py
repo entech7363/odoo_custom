@@ -7,8 +7,7 @@ from . import res_partner
 from . import stock_production_lot
 from . import stock_lot_component_line
 from . import account_move
-from . import account_move_line
-from . import sale_order
+# from . import account_move_line
+# from . import sale_order
 from . import stock_picking
-from . import purchase_vendor_bill
-# from . import invoice_report
+# from . import purchase_vendor_bill
