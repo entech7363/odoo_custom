@@ -12,6 +12,7 @@ class DeliveryOrder(models.Model):
     Customer_Purchase_date = fields.Date(string="PO Date", related="sale_id.Customer_Purchase_date")
     Customer_Delivery = fields.Char(string="Place of Delivery", related="sale_id.Customer_Delivery")
     #Customer_Number = fields.Char(string="Customer Number",related="sale_id.Customer_Number")
+    note=fields.Char(string="note")
 
 class ReceiptPurchase(models.Model):
     _inherit = "stock.picking"
@@ -23,6 +24,7 @@ class ReceiptPurchase(models.Model):
     Order_Number = fields.Char(string=" Order Number", related="purchase_id.Order_Number")
     Order_Date = fields.Date(string="Order Date", related="purchase_id.Order_Date")
     Customer_Delivery=fields.Char(string="Place of Delivery", related="purchase_id.Customer_Delivery")
+    note = fields.Char(string="note")
     #Reference_Number = fields.Char(string="Reference Number", related="purchase_id.Reference_Number")
     #Delivery_Type = fields.Char(string="Delivery Type", related="purchase_id.Delivery_Type")
     #Receipt_Number = fields.Char(string="Receipt Number", related="purchase_id.Receipt_Number")

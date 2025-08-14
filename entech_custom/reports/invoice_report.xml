@@ -20,13 +20,24 @@
 
                     <div t-if="o.Customer_Purchase_date" class="col" name="info_customer_purchase_date">
                             <strong>PO Date</strong>
-                            <div t-esc="o.Customer_Purchase_date"/>
+                            <div t-esc="o.Customer_Purchase_date.strftime('%d/%m/%Y')"/>
                     </div>
 
-                    <div t-if="o.Customer_Purchase_date" class="col" name="info_customer_purchase_date">
+                    <div t-if="o.invoice_payment_term_id" class="col" name="info_customer_purchase_date">
+                        <strong>Payment terms</strong>
+                        <div t-esc="o.invoice_payment_term_id.name"/>
+
 
                     </div>
-                    <div t-if="o.Customer_Purchase_date" class="col" name="info_customer_purchase_date">
+                    <div t-if="o.invoice_line_ids.sale_line_ids.order_id.picking_ids" class="col" name="info_customer_purchase_date">
+                            <strong>Delivery Note:</strong><br/>
+                            <t t-foreach="o.invoice_line_ids.sale_line_ids.order_id.picking_ids" t-as="picking">
+                             <t t-esc="picking.name"/>
+
+                    </t>
+
+
+
 
                     </div>
 
@@ -55,6 +66,43 @@
 
 
         </xpath>
+        <xpath expr="//div[@class='mb-3']" position="replace">
+            <div style="font-size:15px; padding15px;border:1px solid black;margin-top:30px;">
+            <span>
+                    <strong>Amount in Words (Total) :</strong>
+                </span>
+                <span t-field="o.number_to_words"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@class='col']//strong[normalize-space(text())='Source']" position="replace">
+            <strong>Quote Ref</strong>
+        </xpath>
+
+        <xpath expr="//div[@name='address_same_as_shipping']//address" position="replace">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div style="width: 48%; float: right; text-align: left; margin-right: 30px; margin-bottom: 30px;">
+
+                <span t-esc="o.user_id.name"/></div>
+            <div style="width: 58%; margin-left: -500px; margin-bottom: 10px;align-items: flex-start;  justify-content: space-between ">
+                 <strong>
+                                <span t-esc="o.partner_id.name"/>
+                            </strong>
+                  <div t-field="o.partner_id"
+                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/><br/>
+                        <p t-if="o.partner_id.vat">
+                            <t t-if="o.company_id.account_fiscal_country_id.vat_label"
+                               t-out="o.company_id.account_fiscal_country_id.vat_label"/>
+
+                        </p>
+
+            </div></div>
+
+
+
+                </xpath>
+
+
+
 
 
 

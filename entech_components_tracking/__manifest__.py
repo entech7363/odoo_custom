@@ -6,7 +6,7 @@
     'data': [
         'views/product_template_views.xml',
         'views/stock_move_line_wizard.xml',
-        'views/res_partner_view.xml',
+        #'views/res_partner_view.xml',
         'views/partner_type_context_inherit_views.xml',
         'views/product_part_menu.xml',
         'views/stock_move.xml',

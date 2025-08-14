@@ -41,13 +41,13 @@
           <td class="text-end"><t t-esc="snln_line.get('docking_station_sno') or ''"/></td>
         </t>
       </xpath>
-<!--           Added sale order date-->
+<!--           Added sale order date
         <xpath expr="//div[@name='origin']" position="after">
             <div class="col" t-if="o.sale_order_date" name="order_date">
                 <strong>Order Date</strong>
                 <div t-esc="o.sale_order_date.strftime('%Y-%m-%d')"/>
             </div>
-        </xpath>
+        </xpath>-->
 
 
        </template>

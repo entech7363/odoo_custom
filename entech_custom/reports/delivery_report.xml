@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <template id="stock_picking_document" inherit_id="stock.report_delivery_document">
-        <!--<xpath expr="//div[@name='div_sched_date']" position="before">
+        <xpath expr="//div[@name='div_sched_date']" position="before">
             <t t-set="o" t-value="docs[0]"/>
 
                     <div class="col col-3 mw-100 mb-2" id="Delivery_fields">
-                            <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
+                            <div t-if="o.sale_id.Customer_Delivery" class="col" name="info_customer_delivery">
                                     <strong>Place of Delivery</strong>
-                                    <div t-esc="o.Customer_Delivery"/>
+                                    <div t-esc="o.sale_id.Customer_Delivery"/>
                             </div>
                     </div>
-        </xpath>-->
+        </xpath>
         <xpath expr="//div[@name='div_sched_date']" position="after">
             <t t-set="o" t-value="docs[0]"/>
                 <!--<div class="col col-3 mw-100 mb-2" id="Customer_fields">
@@ -37,7 +37,14 @@
                         <strong>PO Date</strong>
                         <div t-esc="o.Customer_Purchase_date"/>
                     </div>
+
                 </div>
+                <div class="col col-3 mw-100 mb-2" id="payment_fields">
+                        <div t-if="o.sale_id.payment_term_id" class="col">
+                        <strong>Payment Terms</strong><br/>
+                        <span t-esc="o.sale_id.payment_term_id.name"/>
+                        </div></div>
+
 
                 <!--<div class="col col-3 mw-100 mb-2" id="Deliver_fields">
                     <div t-if="o.Customer_Number" class="col" name="info_customer_number">
@@ -49,12 +56,33 @@
 
 
 
+
         </xpath>
+
+
+
         <xpath expr="//div[hasclass('page')]" position="after">
              <div style="height: 30px;"></div>
+            <div style="float: left; text-align:left;">
+                <span>
+                    <strong>Received in good condition</strong><br/>
+                    <strong>Name:</strong><br/>
+                    <strong>Signature:</strong><br/>
+                    <strong>Phone Number:</strong></span>
+                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;margin-left: 400px;">
+                        <div style="text-align: center;">
+                        <strong class="text-uppercase fw-bold mb-0">NOTE</strong><br/>
+                        <span t-field="o.note"/>
+                        </div>
+                </div>
+
+
+            </div>
+
+
             <div style="float: right; text-align: right;">
                 <span>
-                    <strong>Received in good condition</strong>
+                    <strong>For Entech Industrial Supplies and Trading </strong>
                 </span>
                 <br/><br/>
                 <span>____________________________</span>
@@ -64,6 +92,33 @@
                 </span>
             </div>
 
+
         </xpath>
+        <xpath expr="//div[@class='col col-3 mw-100 mb-2']//strong[normalize-space(text())='Order']" position="replace">
+            <strong>Quote Ref</strong>
+
+        </xpath>
+         <xpath expr="//t[@t-set='address']" position="replace">
+            <t t-set="address">
+                <div style="display: flex;">
+                    <div style="width: 48%; float: right; text-align: left; margin-right: 30px; margin-bottom: 30px;">
+
+                        <span t-esc="o.sale_id.user_id.name"/>
+                    </div>
+                </div>
+                <div style="margin-left: -500px; margin-bottom: 10px; ">
+                    <div name="div_outgoing_address" class="text-left">
+                        <div name="outgoing_delivery_address" t-if="o.should_print_delivery_address()">
+                        <span><strong>Delivery Address:</strong></span>
+                        <div t-out="o.move_ids[0].partner_id or o.partner_id"
+                        t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                        </div>
+                        </div>
+                </div>
+            </t>
+         </xpath>
+
+
+
     </template>
 </odoo>

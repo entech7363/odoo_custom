@@ -4,22 +4,25 @@
     <template id="invoice_report_view_amount_in_words"
               inherit_id="account.report_invoice_document">
         <xpath expr="//div[hasclass('clearfix')]" position="after">
-            <div style="font-size:15px; padding15px;border:1px solid black;">
+            <!--<div style="font-size:15px; padding15px;border:1px solid black;">
                 <span>
                     <strong>Amount in Words (Total) :</strong>
                 </span>
                 <span t-field="o.number_to_words"/>
-            </div>
-            <div style="page-break-inside: avoid; margin-top:30px;">
+            </div>-->
+            <div style="page-break-inside: avoid; ">
 
                 <div style="float: left;">
-                    <div style="height: 45px;"></div>
 
 
-                    <span>_________________________________</span>
-                    <br/>
+
+                    <!--<span>_________________________________</span>-->
+
                     <span style="white-space: nowrap;">
-                        <strong>Receiver's Name &amp; Signature</strong>
+                        <strong>Received by,</strong><br/>
+                        <strong>Name:</strong><br/>
+                        <strong>Signature:</strong><br/>
+                        <strong>Phone Number:</strong>
                     </span>
                 </div>
                  <t t-if="o.move_type == 'out_invoice'">
