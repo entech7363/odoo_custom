@@ -35,7 +35,7 @@
                 <div class="col col-3 mw-100 mb-2" id="purchasing_fields">
                     <div t-if="o.Customer_Purchase_date" class="col" name="Customer_Purchase_date">
                         <strong>PO Date</strong>
-                        <div t-esc="o.Customer_Purchase_date"/>
+                        <div t-esc="o.Customer_Purchase_date.strftime('%d/%m/%Y')"/>
                     </div>
 
                 </div>
@@ -63,24 +63,25 @@
 
         <xpath expr="//div[hasclass('page')]" position="after">
              <div style="height: 30px;"></div>
-            <div style="float: left; text-align:left;">
+            <div style="float: left; text-align:left;margin-top:100px;">
                 <span>
+
+                        <div style="text-align: left;">
+                        <strong>Remarks:</strong><br/>
+                        <span t-field="o.remarks"/><br/>
+                        </div><br/>
+
                     <strong>Received in good condition</strong><br/>
                     <strong>Name:</strong><br/>
                     <strong>Signature:</strong><br/>
                     <strong>Phone Number:</strong></span>
-                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;margin-left: 400px;">
-                        <div style="text-align: center;">
-                        <strong class="text-uppercase fw-bold mb-0">NOTE</strong><br/>
-                        <span t-field="o.note"/>
-                        </div>
-                </div>
+
 
 
             </div>
 
 
-            <div style="float: right; text-align: right;">
+            <div style="float: right; text-align: right;margin-top:170px;">
                 <span>
                     <strong>For Entech Industrial Supplies and Trading </strong>
                 </span>
@@ -98,25 +99,106 @@
             <strong>Quote Ref</strong>
 
         </xpath>
-         <xpath expr="//t[@t-set='address']" position="replace">
-            <t t-set="address">
-                <div style="display: flex;">
-                    <div style="width: 48%; float: right; text-align: left; margin-right: 30px; margin-bottom: 30px;">
+       <xpath expr="//t[@t-set='address']" position="replace">
+            <div>
+                <t t-if="o.picking_type_id.code=='incoming' or o.picking_type_id.code == 'internal'">
+                    <h2 style="text-align:center;font-size:30px">
+                        <strong>Goods Receipt Note</strong>
+                    </h2>
+                </t>
+                <t t-if="o.picking_type_id.code=='outgoing'">
+                    <h2 style="text-align:center;font-size:30px">
+                        <strong>Delivery Note</strong>
+                    </h2>
+                </t>
+            </div>
 
-                        <span t-esc="o.sale_id.user_id.name"/>
+            <div>
+
+<!--                <span>-->
+<!--                    <strong>Buyer(Bill To):</strong>-->
+<!--                    <br/>-->
+<!--                </span>-->
+                <t t-if="o.partner_id.company_type== 'person'">
+                <div name="div_outgoing_address" style="margin-right:500px;">
+                    <div name="outgoing_delivery_address"
+                         t-if="o.should_print_delivery_address()">
+                        <span>
+                            <strong>Delivery Address:</strong>
+                        </span>
+                        <div t-field="o.move_ids[0].partner_id"
+                             t-options='{"widget": "contact",  "fields": ["address"], "phone_icons": True,"email_icons": True}'/><br/>
+                    </div>
+                    <div name="outgoing_warehouse_address"
+                         t-elif="o.picking_type_id.code != 'internal' and o.picking_type_id.warehouse_id.partner_id">
+                        <span>
+                            <strong>Warehouse Address:</strong>
+                        </span>
+                        <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                             t-options='{"widget": "contact",  "fields": ["address"], "phone_icons": True,"email_icons": True}'/><br/>
                     </div>
                 </div>
-                <div style="margin-left: -500px; margin-bottom: 10px; ">
-                    <div name="div_outgoing_address" class="text-left">
-                        <div name="outgoing_delivery_address" t-if="o.should_print_delivery_address()">
-                        <span><strong>Delivery Address:</strong></span>
-                        <div t-out="o.move_ids[0].partner_id or o.partner_id"
-                        t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                </t>
+                <t t-else="">
+                    <div name="div_outgoing_address" style="margin-right:500px;width:30%">
+                        <div name="outgoing_delivery_address"
+                             t-if="o.should_print_delivery_address()">
+                            <span>
+                                <strong>Delivery Address</strong>
+                            </span>
+                            <div t-field="o.move_ids[0].partner_id"
+                                 t-options='{"widget": "contact",  "fields": ["address", "name","phone"], "no-marker": True,"email_icons": True}'/>
+                            <br/>
                         </div>
+                        <div name="outgoing_warehouse_address"
+                             t-elif="o.picking_type_id.code != 'internal' and o.picking_type_id.warehouse_id.partner_id">
+                            <span>
+                                <strong>Warehouse Address:</strong>
+                            </span>
+                            <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                                 t-options='{"widget": "contact",  "fields": ["address""address", "name"], "phone_icons": True,"email_icons": True}'/>
+                            <br/>
                         </div>
+                    </div>
+
+                </t>
+                <div name="div_incoming_address" style="margin-right:500px;">
+                    <t t-set="show_partner" t-value="False"/>
+                    <div name="vendor_address" t-if="o.picking_type_id.code=='incoming' and partner">
+                        <span>
+                            <strong>Vendor Address:</strong>
+                        </span>
+                        <t t-set="show_partner" t-value="True"/>
+                    </div>
+<!--                    <div name="customer_address"-->
+<!--                         t-if="o.picking_type_id.code=='outgoing' and partner and partner != partner.commercial_partner_id">-->
+<!--                        <span>-->
+<!--                            <strong>Customer Address:</strong>-->
+<!--                        </span>-->
+<!--                        <t t-set="show_partner" t-value="True"/>-->
+<!--                    </div>-->
+<!--                    <div t-if="show_partner" name="partner_header">-->
+<!--                        <div t-field="partner.commercial_partner_id"-->
+<!--                             t-options='{"widget": "contact",  "fields": ["address", "name","phone","mobile","email"], "phone_icons": True,"email_icons": True}'/>-->
+<!--                    </div>-->
                 </div>
-            </t>
-         </xpath>
+            </div>
+        </xpath>
+         <xpath expr="//div[@name='div_sched_date']" position="replace">
+            <div t-if="o.state" class="col col-3 mw-100 mb-2" name="div_sched_date">
+                <strong>Delivery Date</strong>
+                <div t-if="o.state == 'done'" t-field="o.date_done" t-options='{"widget": "date"}' class="m-0"/>
+                <div t-else="" t-field="o.scheduled_date" t-options='{"widget": "date"}' class="m-0"/>
+
+            </div></xpath>
+        <xpath expr="//div[@name='div_sched_date']" position="after">
+    <div class="col col-3 mw-100 mb-2" name="div_salesperson">
+        <strong>Salesperson</strong>
+        <div t-esc="o.sale_id.user_id.name"/>
+    </div>
+</xpath>
+
+
 
 
 
