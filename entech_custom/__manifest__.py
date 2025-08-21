@@ -1,6 +1,6 @@
 {
     'name':"Entech custom changes",
-    'version':'1.11',
+    'version':'1.12',
     'summary':'Creating various fields in the sale and purchase',
     'description':"module for the management of sales and purchases",
     'author': 'AGM Global Services',

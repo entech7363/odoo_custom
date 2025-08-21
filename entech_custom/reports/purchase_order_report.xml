@@ -32,11 +32,11 @@
 
                     <div t-if="o.Quotation_date" class="col" name="Quotation_date_info">
                         <strong>Quotation Date</strong>
-                        <div t-esc="o.Quotation_date"/>
+                        <div t-esc="o.Quotation_date.strftime('%d/%m/%Y')"/>
                     </div>
                     <div t-if="o.Order_Date" class="col" name="Order_Date_info">
                         <strong>Date</strong>
-                        <div t-esc="o.Order_Date"/>
+                        <div t-esc="o.Order_Date.strftime('%d/%m/%Y')"/>
                     </div>
                     <div t-if="o.Order_Date" class="col" name="Order_Date_info">
 
@@ -56,5 +56,111 @@
 
                 </div>
         </xpath>
+
+        <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']//strong[normalize-space(text())='Your Order Reference']" position="replace">
+            <strong>Our Ref</strong><br/>
+
+
+
+        </xpath>
+        <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="before">
+            <strong>Payment Terms </strong><br/>
+            <span t-field="o.payment_term_id"></span>
+
+        </xpath>
+        <xpath expr="//t[@t-set='information_block']" position="replace"/>
+        <xpath expr="//div[@class='mt-4']" position="replace"/>
+         <xpath expr="//t[@t-set='address']" position="before">
+            <span>
+                <h2 style="text-align:center;font-size:30px;margin-top:0px;">
+                    <u>
+                        <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                        <span t-elif="o.state in ['purchase', 'done']">Purchase Order</span>
+                        <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    </u>
+                </h2>
+            </span></xpath>
+
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <span>
+                <h2 style="text-align:center;font-size:30px;margin-top:0px;visibility:hidden;">
+                    <u>
+                        <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                        <span t-elif="o.state in ['purchase', 'done']">Purchase Order</span>
+                        <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+
+                    </u>
+                </h2>
+            </span>
+            <div style=" float: right;text-align:left;margin-right: 100px;">
+                <span>
+
+                        <strong>Bill To</strong>
+                            <div t-field="o.company_id.partner_id"
+                                t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
+                                    "no_marker": True, "phone_icons": True}'/>
+                </span>
+            </div>
+            <div>
+                <strong>Vendor</strong>
+                <div t-field="o.partner_id"
+                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
+                 "no_marker": True, "phone_icons": True}'/>
+            </div>
+            <div style="text-align:right; margin-top: 20px;"><h2>
+         <t t-if="o.state in ['draft', 'sent', 'to approve']">
+            Request for Quotation #<span t-field="o.name"/>
+        </t>
+        <t t-elif="o.state in ['purchase', 'done']">
+            Purchase Order #<span t-field="o.name"/>
+        </t>
+        <t t-else="">
+            Cancelled Purchase Order #<span t-field="o.name"/>
+        </t></h2>
+    </div>
+        </xpath>
+        <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
+        <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
+
+            <br/><br/>
+            <strong>prepared by</strong>
+            <div style="margin-left:40px;text-align:right;">
+                <strong>Approved by</strong><br/>
+                <strong>Purchase Manager</strong>
+
+            </div>
+
+
+        </xpath>
+        <xpath expr="//div[@id='informations']//div[@t-field='o.user_id']" position="after"><br/><br/>
+            <div><t t-if="o.partner_ref">
+                 <strong>Vendor Ref</strong><br/>
+                <span t-esc="o.partner_ref"/>
+            </t>
+
+
+
+            </div>
+
+
+        </xpath>
+        <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]" position="inside">
+            <div style="margin-top:40px"><strong>Expected Arrival:</strong>
+                    <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/></div>
+        </xpath>
+
+         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="replace"/>
+
+
+        <xpath expr="//div[@t-if='o.incoterm_id']" position="replace"/>
+
+
+
+
+
+
     </template>
+
+
+
 </odoo>
