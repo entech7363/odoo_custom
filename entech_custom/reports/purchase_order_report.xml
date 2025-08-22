@@ -3,7 +3,7 @@
     <template id="purchase_order_document" inherit_id="purchase.report_purchaseorder_document">
         <xpath expr="//div[@class='row mb-4']" position="after">
             <t t-set="o" t-value="docs[0]"/>
-                <div class="row mb-4" id="Vendor_fields">
+                <div class="row mb-4" id="Vendor_fields" >
                     <div t-if="o.Quotation_number" class="col" name="Quotation_number_info">
                         <strong>Quotation Number</strong>
                         <div t-esc="o.Quotation_number"/>
@@ -11,7 +11,7 @@
 
 
                     <div t-if="o.Order_Number" class="col" name="Order_Number_info">
-                        <strong>Order_Number</strong>
+                        <strong>Order Number</strong>
                         <div t-esc="o.Order_Number"/>
                     </div>
                     <div t-if="o.Customer_Delivery" class="col" name="info_customer_delivery">
@@ -56,16 +56,23 @@
 
                 </div>
         </xpath>
+        <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']" position="inside">
+            <div style="margin-top:48px;">
+             <strong>Vendor Ref</strong><br/>
+                <span t-esc="o.partner_ref"/></div>
+
+        </xpath>
 
         <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']//strong[normalize-space(text())='Your Order Reference']" position="replace">
             <strong>Our Ref</strong><br/>
 
 
 
+
         </xpath>
         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="before">
             <strong>Payment Terms </strong><br/>
-            <span t-field="o.payment_term_id"></span>
+            <span t-field="o.payment_term_id"></span><br/><br/><br/><strong>Incoterm</strong><br/><span t-esc="o.incoterm_id.code"/>
 
         </xpath>
         <xpath expr="//t[@t-set='information_block']" position="replace"/>
@@ -107,7 +114,7 @@
                      t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
                  "no_marker": True, "phone_icons": True}'/>
             </div>
-            <div style="text-align:right; margin-top: 20px;"><h2>
+            <div style="text-align:right; margin-top: 70px;margin-right:30px;"><h2>
          <t t-if="o.state in ['draft', 'sent', 'to approve']">
             Request for Quotation #<span t-field="o.name"/>
         </t>
@@ -132,20 +139,9 @@
 
 
         </xpath>
-        <xpath expr="//div[@id='informations']//div[@t-field='o.user_id']" position="after"><br/><br/>
-            <div><t t-if="o.partner_ref">
-                 <strong>Vendor Ref</strong><br/>
-                <span t-esc="o.partner_ref"/>
-            </t>
 
-
-
-            </div>
-
-
-        </xpath>
         <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]" position="inside">
-            <div style="margin-top:40px"><strong>Expected Arrival:</strong>
+            <div style="margin-top:48px"><strong>Expected Arrival</strong>
                     <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/></div>
         </xpath>
 
