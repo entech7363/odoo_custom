@@ -128,14 +128,22 @@
         </xpath>
         <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
         <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
+            <div style="page-break-inside: avoid">
 
-            <br/><br/>
-            <strong>prepared by</strong>
-            <div style="margin-left:40px;text-align:right;">
+
+            <strong>Shipping Address</strong><br/>
+            <div t-field="o.company_id.partner_id"
+                                t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
+                                    "no_marker": True, "phone_icons": True}'/><br/>
+            <strong>Prepared by</strong>
+            <div style="margin-left:40px;text-align:right;margin-top:10px;">
                 <strong>Approved by</strong><br/>
                 <strong>Purchase Manager</strong>
 
             </div>
+            <div style="text-align:centre; margin-left:270px;">
+                <strong>Computer generated document. No signature is required</strong>
+            </div></div>
 
 
         </xpath>
