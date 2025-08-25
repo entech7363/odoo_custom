@@ -79,7 +79,7 @@
         <t t-if="doc.state in ('draft', 'sent') and doc.Customer_RFQ_date">
                 <div class="col" name="Customer_RFQ_date_info">
                     <strong>RFQ Date</strong>
-                    <div t-esc="doc.Customer_RFQ_date"/>
+                    <div t-esc="doc.Customer_RFQ_date.strftime('%d/%m/%Y')"/>
                 </div>
             </t>
     </div>
@@ -127,6 +127,7 @@
         <xpath expr="//table[contains(@class, 'o_main_table')]//td[@name='td_taxes']" position="before">
             <td name="td_lead_time" class="text-end text-nowrap">
                 <span t-field="line.lead_time"/>
+
             </td>
         </xpath>
 
@@ -164,8 +165,11 @@
                     </div>
 
                     <div style="margin-left: -500px; margin-bottom: 10px; ">
+                      <strong>
+                                <span t-esc="doc.partner_id.name"/>
+                            </strong>
                         <div t-field="doc.partner_id"
-                             t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                         <p t-if="doc.partner_id.vat">
                             <t t-if="doc.company_id.account_fiscal_country_id.vat_label"
                                t-out="doc.company_id.account_fiscal_country_id.vat_label"/>
@@ -175,7 +179,7 @@
                         <t t-if="doc.poc_id">
                             <div style="margin-top:10px;">
                                 <strong>POC:</strong>
-                                <span t-esc="doc.poc_id.name"/>
+                                <span t-esc="doc.poc_id.name" style="font-weight:bold;"/>
                             </div>
                         </t>
 

@@ -9,6 +9,7 @@ class SaleOrder(models.Model):
     Customer_Purchase_date = fields.Date(string="PO Date")
     Customer_Delivery = fields.Char(string="Place of Delivery")
     #Customer_Number = fields.Char(string="Customer Number")
+
     For_Company=fields.Char(string="Company Name")
     delivery_schedule = fields.Char(string='Delivery Schedule')
     # poc_name = fields.Char(string="POC")
@@ -37,6 +38,10 @@ class SaleOrder(models.Model):
             else:
                 order.poc_id = False
 
+    def _prepare_invoice(self):
+        values = super()._prepare_invoice()
+        values['narration'] = ''
+        return values
 
 
 
