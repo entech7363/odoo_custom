@@ -21,7 +21,7 @@ class ReceiptPurchase(models.Model):
 
     Quotation_number = fields.Char(string="Quotation Number", related="purchase_id.Quotation_number")
     Quotation_date = fields.Date(string="Quotation Date", related="purchase_id.Quotation_date")
-    Order_Number = fields.Char(string=" Order Number", related="purchase_id.Order_Number")
+    Order_Number = fields.Char(string="Our Ref", related="purchase_id.Order_Number")
     Order_Date = fields.Date(string="Order Date", related="purchase_id.Order_Date")
     Customer_Delivery=fields.Char(string="Place of Delivery", related="purchase_id.Customer_Delivery")
     remarks = fields.Char(string="remarks")

@@ -66,10 +66,14 @@
         <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']//strong[normalize-space(text())='Your Order Reference']" position="replace">
             <strong>Our Ref</strong><br/>
 
-
-
-
         </xpath>
+        <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']" position="replace">
+             <strong t-attf-style="margin-left:-100px;">Our Ref</strong><br/>
+<span t-field="o.Order_Number" t-attf-style="margin-left:-100px;"/>
+<br/><br/><br/>
+<strong t-attf-style="margin-left:-100px;">Vendor Ref</strong><br/>
+<span t-field="o.partner_ref" t-attf-style="margin-left:-100px;"/>
+</xpath>
         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="before">
             <strong>Payment Terms </strong><br/>
             <span t-field="o.payment_term_id"></span><br/><br/><br/><strong>Incoterm</strong><br/><span t-esc="o.incoterm_id.code"/>
@@ -80,38 +84,54 @@
          <xpath expr="//t[@t-set='address']" position="before">
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;">
-                    <u>
+
                         <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
-                        <span t-elif="o.state in ['purchase', 'done']">Purchase Order</span>
+                        <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
                         <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
-                    </u>
+
                 </h2>
             </span></xpath>
 
         <xpath expr="//t[@t-set='address']" position="replace">
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;visibility:hidden;">
-                    <u>
+
                         <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
-                        <span t-elif="o.state in ['purchase', 'done']">Purchase Order</span>
+                        <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
                         <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
 
-                    </u>
+
                 </h2>
             </span>
             <div style=" float: right;text-align:left;margin-right: 100px;">
                 <span>
 
-                        <strong>Bill To</strong>
-                            <div t-field="o.company_id.partner_id"
-                                t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
-                                    "no_marker": True, "phone_icons": True}'/>
+                        <strong>BILL TO</strong>
+                            <!--<div t-field="o.company_id.partner_id"
+                                t-options='{"widget": "contact", "fields": ["address","name","phone"],
+                                    "no_marker": True, "phone_icons": True}'/>-->
+                   <div>
+                       <b><t t-esc="o.company_id.name" style="font-weight:bold;"/></b>
+                    <br/>
+
+                <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/></t><br/>
+
+
+            <t t-if="o.company_id.city"><t t-esc="o.company_id.city"/>-</t>
+
+            <t t-if="o.company_id.country_id"><t t-esc="o.company_id.country_id.name"/></t>
+            <br/>
+                <t t-if="o.company_id.phone">
+                <span><i class="fa fa-phone"></i> <t t-esc="o.company_id.phone"/></span>
+                </t></div>
+
                 </span>
             </div>
             <div>
-                <strong>Vendor</strong>
+                <strong>VENDOR</strong><br/>
+                <span style="font-weight: bold; font-size: 20px;"><t t-esc="o.partner_id.name"/></span><br/>
                 <div t-field="o.partner_id"
-                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
+                     t-options='{"widget": "contact", "fields": ["address", "phone", "vat"],
                  "no_marker": True, "phone_icons": True}'/>
             </div>
             <div style="text-align:right; margin-top: 70px;margin-right:30px;"><h2>
@@ -132,16 +152,25 @@
 
 
             <strong>Shipping Address</strong><br/>
-            <div t-field="o.company_id.partner_id"
+                <strong>En Tech Industrial Supplies Trading</strong><br/>
+                <strong> Building No: 1, Shop No: 39</strong><br/>
+                 <strong>Barwa Village, Al Wakra</strong><br/>
+                 <strong>Doha Qatar</strong><br/>
+                 <strong>An: Mrs. Hafsath</strong><br/>
+                 <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
+                    <strong>accounts@entechqa.com</strong>
+            <!--<div t-field="o.company_id.partner_id"
                                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
-                                    "no_marker": True, "phone_icons": True}'/><br/>
-            <strong>Prepared by</strong>
+                                    "no_marker": True, "phone_icons": True}'/>-->
+
             <div style="margin-left:40px;text-align:right;margin-top:10px;">
+                <div style="display:inline-block; text-align:left;">
                 <strong>Approved by</strong><br/>
-                <strong>Purchase Manager</strong>
+                    <strong>Purchase Manager</strong></div>
 
             </div>
-            <div style="text-align:centre; margin-left:270px;">
+                <strong>Prepared by</strong><br/><span t-field="o.create_uid.name"/>
+            <div style="text-align:centre; margin-left:280px;">
                 <strong>Computer generated document. No signature is required</strong>
             </div></div>
 
