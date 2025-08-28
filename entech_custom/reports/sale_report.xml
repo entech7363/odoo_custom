@@ -5,12 +5,20 @@
 
         <xpath expr="//div[@id='informations']/div[last()]" position="after">
             <t t-set="o" t-value="doc"/>
+             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+                <strong>Incoterm</strong>
+                <div>
+                    <span t-field="doc.incoterm.code"/>,
+                    <span t-field="doc.incoterm_location"/>
+                </div>
+            </div>
 
 
             <!-- Delivery Schedule -->
             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
-                <strong>Expiration Date</strong>
-                <div>
+
+                <div t-if="doc.validity_date and doc.state in ['draft', 'sent']">
+                    <strong>Expiration</strong><br/>
                     <t t-esc="doc.validity_date.strftime('%d/%m/%Y')"/>
                 </div>
             </div>
@@ -48,6 +56,7 @@
 
 
         </xpath>
+
 
 <!--         2nd row -->
        <xpath expr="//div[@id='informations']" position="after">
@@ -206,7 +215,7 @@
         </xpath>
 
 
-        <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace"/>
+
         <xpath expr="//div[@name='so_total_summary']" position="after">
         <div style="margin-top:40px; text-align:right;"><div style="display:inline-block; text-align:left;">
             <strong>Prepared by</strong><br/>
@@ -221,7 +230,28 @@
 
 
 
-
     </template>
+
+
+    <!--<template id="report_saleorder_document_inherit_remove_incoterm"
+              inherit_id="sale.report_saleorder_document_inherit_sale_stock">
+
+
+      <xpath expr="//div[@class='col'][@t-if='doc.incoterm']" position="replace"/>
+
+    </template>-->
+    <template id="report_saleorder_document_remove_incoterm" inherit_id="sale.report_saleorder_document">
+
+        <xpath expr="//div[@name='expiration_date']/following-sibling::div[@t-if='doc.incoterm']" position="replace"/>
+        <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace"/>
+    </template>
+
+
+
+
+
+
+
+
 </odoo>
 

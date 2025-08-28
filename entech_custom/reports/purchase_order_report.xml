@@ -134,7 +134,7 @@
                      t-options='{"widget": "contact", "fields": ["address", "phone", "vat"],
                  "no_marker": True, "phone_icons": True}'/>
             </div>
-            <div style="text-align:right; margin-top: 70px;margin-right:30px;"><h2>
+            <div style="text-align:right; margin-top: 50px;margin-right:40px;"><h2>
          <t t-if="o.state in ['draft', 'sent', 'to approve']">
             Request for Quotation #<span t-field="o.name"/>
         </t>
@@ -144,38 +144,43 @@
         <t t-else="">
             Cancelled Purchase Order #<span t-field="o.name"/>
         </t></h2>
-    </div>
+    </div><br/><br/>
         </xpath>
         <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
-        <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
-            <div style="page-break-inside: avoid">
+       <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
+    <div style="page-break-inside: avoid">
+        <strong>Shipping Address</strong><br/>
+        <strong>En Tech Industrial Supplies Trading</strong><br/>
+        <strong> Building No: 1, Shop No: 39</strong><br/>
+        <strong>Barwa Village, Al Wakra</strong><br/>
+        <strong>Doha Qatar</strong><br/>
+        <strong>An: Mrs. Hafsath</strong><br/>
+        <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
+        <strong>accounts@entechqa.com</strong><br/><br/>
+
+        <!-- Prepared by & Approved by in same row -->
+              <div style="width:100%; margin-top:20px;">
+    <div style="width:48%; display:inline-block; vertical-align:top;">
+        <strong>Prepared by</strong><br/>
+        <span t-field="o.create_uid.name"/>
+    </div>
+    <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
+        <div style="display:inline-block;text-align:left">
+        <strong>Approved by</strong><br/>
+            <strong>Purchase Manager</strong></div>
+    </div>
+</div>
 
 
-            <strong>Shipping Address</strong><br/>
-                <strong>En Tech Industrial Supplies Trading</strong><br/>
-                <strong> Building No: 1, Shop No: 39</strong><br/>
-                 <strong>Barwa Village, Al Wakra</strong><br/>
-                 <strong>Doha Qatar</strong><br/>
-                 <strong>An: Mrs. Hafsath</strong><br/>
-                 <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
-                    <strong>accounts@entechqa.com</strong>
-            <!--<div t-field="o.company_id.partner_id"
-                                t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"],
-                                    "no_marker": True, "phone_icons": True}'/>-->
-
-            <div style="margin-left:40px;text-align:right;margin-top:10px;">
-                <div style="display:inline-block; text-align:left;">
-                <strong>Approved by</strong><br/>
-                    <strong>Purchase Manager</strong></div>
-
-            </div>
-                <strong>Prepared by</strong><br/><span t-field="o.create_uid.name"/>
-            <div style="text-align:centre; margin-left:280px;">
-                <strong>Computer generated document. No signature is required</strong>
-            </div></div>
 
 
-        </xpath>
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+        <strong>Computer generated document. No signature is required</strong>
+    </div>
+</xpath>
+
 
         <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]" position="inside">
             <div style="margin-top:48px"><strong>Expected Arrival</strong>
