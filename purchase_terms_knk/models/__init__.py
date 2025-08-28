@@ -13,4 +13,4 @@
 # If not, see <https://www.kanakinfosystems.com/license>
 ###############################################################################
 
-from . import purchase
+# from . import purchase
