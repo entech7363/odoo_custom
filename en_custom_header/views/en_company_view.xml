@@ -8,7 +8,6 @@
             <field name="website" position="after">
                 <field name="report_header_image" widget="image" class="oe_avatar"
                        options="{'no_open': True, 'no_create': True, 'delete': true}"/>
-                
             </field>
         </field>
     </record>
@@ -19,18 +18,6 @@
     <field name="arch" type="xml">
         <xpath expr="//field[@name='report_header_image']" position="after">
             <field name="report_footer_image" widget="image" class="oe_avatar" options="{'preview_image': 'report_footer_image'}"/>
-
-        </xpath>
-    </field>
-    </record>
-     <record id="custom_terms" model="ir.ui.view">
-    <field name="name">res.company.footer.image</field>
-    <field name="model">res.company</field>
-    <field name="inherit_id" ref="base.view_company_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//field[@name='report_footer_image']" position="after">
-            <field name="purchase_terms" widget="image" class="oe_avatar" options="{'preview_image': 'purchase_terms'}"/>
-
         </xpath>
     </field>
     </record>

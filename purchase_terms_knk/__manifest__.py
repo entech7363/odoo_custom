@@ -18,8 +18,8 @@
     ''',
     'depends': ['base', 'purchase'],
     'images': ['static/description/banner.jpg'],
-    # 'data': [
-    #     'views/purchase_view.xml',
-    # ],
+    'data': [
+        'views/purchase_view.xml',
+    ],
     'installable': True,
 }

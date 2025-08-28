@@ -6,12 +6,9 @@ class ResCompany(models.Model):
 
     report_header_image = fields.Binary(string="Header Image", attachment=False)
     report_footer_image = fields.Binary(string="Footer Image", attachment=False)
-    purchase_terms=fields.Binary(string="Purchase Terms", attachment=False)
 
 class BaseDocumentLayout(models.TransientModel):
     _inherit = "base.document.layout"
 
     report_header_image = fields.Binary(string="Header Image", attachment=False)
     report_footer_image = fields.Binary(string="Footer Image", attachment=False)
-    purchase_terms = fields.Binary(string="Purchase Terms", attachment=False)
-
