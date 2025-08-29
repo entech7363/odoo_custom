@@ -5,14 +5,30 @@
 
         <xpath expr="//div[@id='informations']/div[last()]" position="after">
             <t t-set="o" t-value="doc"/>
+             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+                <strong>Incoterm</strong>
+                <div>
+                    <span t-field="doc.incoterm.code"/>,
+                    <span t-field="doc.incoterm_location"/>
+                </div>
+            </div>
+
 
             <!-- Delivery Schedule -->
+            <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+
+                <div t-if="doc.validity_date and doc.state in ['draft', 'sent']">
+                    <strong>Expiration</strong><br/>
+                    <t t-esc="doc.validity_date.strftime('%d/%m/%Y')"/>
+                </div>
+            </div>
             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
                 <strong>Delivery Schedule</strong>
                 <div>
                     <t t-esc="o.delivery_schedule"/>
                 </div>
             </div>
+
 
             <!-- PO Number -->
             <div t-if="o.Customer_Purchase" class="col" name="info_customer_purchase">
@@ -31,38 +47,37 @@
             </div>
 
 <!--             Expiration (Replace or add this section as needed)-->
-      <div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
+      <!--<div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
                     class="col"
                     name="expiration_date">
                     <strong>Expiration</strong>
                     <div t-field="doc.validity_date">2023-12-31</div>
-                </div>
+                </div>-->
 
 
         </xpath>
+
 
 <!--         2nd row -->
        <xpath expr="//div[@id='informations']" position="after">
     <div class="row mb-4">
         <!-- Shipping Policy -->
         <div t-if="doc.picking_policy" class="col-3" name="info_shipping_policy">
-            <strong>Shipping Policy</strong>
-            <div>
-                <t t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>
-            </div>
+             <strong>Payment Terms</strong>
+            <div t-esc="doc.payment_term_id.name"/>
         </div>
 
         <!-- Payment Terms -->
         <div t-if="doc.payment_term_id" class="col-3" name="info_payment_terms">
-            <strong>Payment Terms</strong>
-            <div t-esc="doc.payment_term_id.name"/>
+           <strong>Place of Delivery</strong>
+            <div t-esc="doc.Customer_Delivery"/>
         </div>
 
-        <!-- Place of Delivery -->
+        <!--
         <div t-if="doc.Customer_Delivery" class="col-3" name="info_place_of_delivery">
             <strong>Place of Delivery</strong>
             <div t-esc="doc.Customer_Delivery"/>
-        </div>
+        </div>-->
 
 
         <t t-if="o.state in ('draft', 'sent') and o.Customer_RFQ">
@@ -157,19 +172,26 @@
 
                         <t t-if="doc.user_id.partner_id.email">
                             <p>
-                                <strong>Email:</strong>
+                                <strong>Email</strong>
                                 <span t-esc="doc.user_id.partner_id.email" style="white-space: nowrap;"/>
                             </p>
                         </t>
 
                     </div>
 
-                    <div style="margin-left: -500px; margin-bottom: 10px; ">
+                    <div style="margin-left: -522px; margin-bottom: 10px; ">
                       <strong>
-                                <span t-esc="doc.partner_id.name"/>
-                            </strong>
-                        <div t-field="doc.partner_id"
-                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                          <span style="font-weight: bold; font-size: 20px;"><t t-esc="doc.partner_id.name"/></span>
+                            </strong><br/>
+                        <span t-esc="doc.partner_id.street"/><br/>
+                        <t t-if="doc.partner_id.street2">
+                        <span t-esc="doc.partner_id.street2"/><br/>
+                        </t>
+                            <!-- City + Country in same line -->
+                     <span>
+                        <t t-esc="doc.partner_id.city"/>
+                         <t t-if="doc.partner_id.country_id">, <t t-esc="doc.partner_id.country_id.name"/></t>
+                        </span>
                         <p t-if="doc.partner_id.vat">
                             <t t-if="doc.company_id.account_fiscal_country_id.vat_label"
                                t-out="doc.company_id.account_fiscal_country_id.vat_label"/>
@@ -200,10 +222,43 @@
         </xpath>
 
 
-        <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace">
-        </xpath>
+
+        <xpath expr="//div[@name='so_total_summary']" position="after">
+        <div style="margin-top:40px; text-align:right;"><div style="display:inline-block; text-align:left;">
+            <strong>Prepared by</strong><br/>
+            <span t-esc="doc.user_id.name"/></div>
+        </div>
+    </xpath>
+
+
+
+
+
+
 
 
     </template>
+
+
+    <!--<template id="report_saleorder_document_inherit_remove_incoterm"
+              inherit_id="sale.report_saleorder_document_inherit_sale_stock">
+
+
+      <xpath expr="//div[@class='col'][@t-if='doc.incoterm']" position="replace"/>
+
+    </template>-->
+    <template id="report_saleorder_document_remove_incoterm" inherit_id="sale.report_saleorder_document">
+
+        <xpath expr="//div[@name='expiration_date']/following-sibling::div[@t-if='doc.incoterm']" position="replace"/>
+        <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace"/>
+    </template>
+
+
+
+
+
+
+
+
 </odoo>
 
