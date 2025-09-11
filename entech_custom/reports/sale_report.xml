@@ -170,7 +170,7 @@
                         </t>
 
 
-                        <t t-if="doc.user_id.partner_id.email">
+                        <t t-if="doc.company_id.id == 3 and doc.user_id.partner_id.email">
                             <p>
                                 <strong>Email</strong>
                                 <span t-esc="doc.user_id.partner_id.email" style="white-space: nowrap;"/>

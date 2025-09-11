@@ -148,6 +148,7 @@
         </xpath>
         <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
        <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
+           <t t-if="o.company_id.id == 3">
     <div style="page-break-inside: avoid">
         <strong>Shipping Address</strong><br/>
         <strong>En Tech Industrial Supplies Trading</strong><br/>
@@ -179,6 +180,7 @@
     <div style="text-align:center; margin-top:20px;">
         <strong>Computer generated document. No signature is required</strong>
     </div>
+            </t>
 </xpath>
 
 
