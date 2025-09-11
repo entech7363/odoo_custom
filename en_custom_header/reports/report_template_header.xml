@@ -45,7 +45,7 @@
         </xpath>
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
             <t t-if="company.report_footer_image">
-                <div class="footer" style="text-align: center; margin: 0; padding: 0; position:relative; bottom:30px;">
+                <div class="footer" style="text-align: center; margin: 0; padding: 0; position:relative; bottom:23px;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
                 </div>
