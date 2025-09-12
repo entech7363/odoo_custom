@@ -5,7 +5,7 @@
 
         <xpath expr="//div[@id='informations']/div[last()]" position="after">
             <t t-set="o" t-value="doc"/>
-             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+            <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
                 <strong>Incoterm</strong>
                 <div>
                     <span t-field="doc.incoterm.code"/>,
@@ -18,7 +18,8 @@
             <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
 
                 <div t-if="doc.validity_date and doc.state in ['draft', 'sent']">
-                    <strong>Expiration</strong><br/>
+                    <strong>Expiration</strong>
+                    <br/>
                     <t t-esc="doc.validity_date.strftime('%d/%m/%Y')"/>
                 </div>
             </div>
@@ -46,89 +47,88 @@
                 </div>
             </div>
 
-<!--             Expiration (Replace or add this section as needed)-->
-      <!--<div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
-                    class="col"
-                    name="expiration_date">
-                    <strong>Expiration</strong>
-                    <div t-field="doc.validity_date">2023-12-31</div>
-                </div>-->
+            <!--             Expiration (Replace or add this section as needed)-->
+            <!--<div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
+                          class="col"
+                          name="expiration_date">
+                          <strong>Expiration</strong>
+                          <div t-field="doc.validity_date">2023-12-31</div>
+                      </div>-->
 
 
         </xpath>
 
 
-<!--         2nd row -->
-       <xpath expr="//div[@id='informations']" position="after">
-    <div class="row mb-4">
-        <!-- Shipping Policy -->
-        <div t-if="doc.picking_policy" class="col-3" name="info_shipping_policy">
-             <strong>Payment Terms</strong>
-            <div t-esc="doc.payment_term_id.name"/>
-        </div>
-
-        <!-- Payment Terms -->
-        <div t-if="doc.payment_term_id" class="col-3" name="info_payment_terms">
-           <strong>Place of Delivery</strong>
-            <div t-esc="doc.Customer_Delivery"/>
-        </div>
-
-        <!--
-        <div t-if="doc.Customer_Delivery" class="col-3" name="info_place_of_delivery">
-            <strong>Place of Delivery</strong>
-            <div t-esc="doc.Customer_Delivery"/>
-        </div>-->
-
-
-        <t t-if="o.state in ('draft', 'sent') and o.Customer_RFQ">
-            <div class="col" name="Customer_RFQ_info">
-                <strong>RFQ</strong>
-                <div>
-                    <t t-esc="o.Customer_RFQ"/>
+        <!--         2nd row -->
+        <xpath expr="//div[@id='informations']" position="after">
+            <div class="row mb-4">
+                <!-- Shipping Policy -->
+                <div t-if="doc.picking_policy" class="col-3" name="info_shipping_policy">
+                    <strong>Payment Terms</strong>
+                    <div t-esc="doc.payment_term_id.name"/>
                 </div>
+
+                <!-- Payment Terms -->
+                <div t-if="doc.payment_term_id" class="col-3" name="info_payment_terms">
+                    <strong>Place of Delivery</strong>
+                    <div t-esc="doc.Customer_Delivery"/>
+                </div>
+
+                <!--
+                <div t-if="doc.Customer_Delivery" class="col-3" name="info_place_of_delivery">
+                    <strong>Place of Delivery</strong>
+                    <div t-esc="doc.Customer_Delivery"/>
+                </div>-->
+
+
+                <t t-if="o.state in ('draft', 'sent') and o.Customer_RFQ">
+                    <div class="col" name="Customer_RFQ_info">
+                        <strong>RFQ</strong>
+                        <div>
+                            <t t-esc="o.Customer_RFQ"/>
+                        </div>
+                    </div>
+                </t>
+
+
+                <!--         RFQ Date-->
+                <t t-if="doc.state in ('draft', 'sent') and doc.Customer_RFQ_date">
+                    <div class="col" name="Customer_RFQ_date_info">
+                        <strong>RFQ Date</strong>
+                        <div t-esc="doc.Customer_RFQ_date.strftime('%d/%m/%Y')"/>
+                    </div>
+                </t>
             </div>
-        </t>
+        </xpath>
 
 
-<!--         RFQ Date-->
-        <t t-if="doc.state in ('draft', 'sent') and doc.Customer_RFQ_date">
-                <div class="col" name="Customer_RFQ_date_info">
-                    <strong>RFQ Date</strong>
-                    <div t-esc="doc.Customer_RFQ_date.strftime('%d/%m/%Y')"/>
-                </div>
-            </t>
-    </div>
-</xpath>
+        <!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Order Date']]" position="inside">-->
+        <!--                    <t t-set="o" t-value="docs[0]"/>-->
+        <!--                    <t t-if="o.picking_policy">-->
+        <!--                        <br/>-->
+        <!--                        <strong>Shipping Policy</strong>-->
+        <!--                        <br/>-->
+        <!--                        <span t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>-->
+        <!--                    </t>-->
+        <!--                </xpath>-->
 
+        <!--                &lt;!&ndash;        added payment terms after shipping policy&ndash;&gt;-->
+        <!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Delivery Schedule']]" position="inside">-->
+        <!--                    <t t-if="o.payment_term_id">-->
+        <!--                        <br/>-->
+        <!--                        <strong>Payment Terms</strong>-->
+        <!--                        <div t-esc="o.payment_term_id.name"/>-->
+        <!--                    </t>-->
+        <!--                </xpath>-->
 
-
-<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Order Date']]" position="inside">-->
-<!--                    <t t-set="o" t-value="docs[0]"/>-->
-<!--                    <t t-if="o.picking_policy">-->
-<!--                        <br/>-->
-<!--                        <strong>Shipping Policy</strong>-->
-<!--                        <br/>-->
-<!--                        <span t-esc="dict(doc.fields_get(allfields=['picking_policy'])['picking_policy']['selection'])[doc.picking_policy]"/>-->
-<!--                    </t>-->
-<!--                </xpath>-->
-
-<!--                &lt;!&ndash;        added payment terms after shipping policy&ndash;&gt;-->
-<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='Delivery Schedule']]" position="inside">-->
-<!--                    <t t-if="o.payment_term_id">-->
-<!--                        <br/>-->
-<!--                        <strong>Payment Terms</strong>-->
-<!--                        <div t-esc="o.payment_term_id.name"/>-->
-<!--                    </t>-->
-<!--                </xpath>-->
-
-<!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='PO Number']]" position="inside">-->
-<!--                    <t t-if="doc.Customer_Delivery">-->
-<!--                        <br/>-->
-<!--                        <strong>Place of Delivery</strong>-->
-<!--                        <br/>-->
-<!--                        <span t-esc="doc.Customer_Delivery"/>-->
-<!--                    </t>-->
-<!--                </xpath>-->
+        <!--                <xpath expr="//div[@class='row mb-4']//div[.//strong[text()='PO Number']]" position="inside">-->
+        <!--                    <t t-if="doc.Customer_Delivery">-->
+        <!--                        <br/>-->
+        <!--                        <strong>Place of Delivery</strong>-->
+        <!--                        <br/>-->
+        <!--                        <span t-esc="doc.Customer_Delivery"/>-->
+        <!--                    </t>-->
+        <!--                </xpath>-->
 
         <!--           replace payment terms-->
         <xpath expr="//span[@t-field='doc.payment_term_id.note']/.." position="replace"/>
@@ -154,44 +154,42 @@
         <!--    move client details from right to left and fetch poc -->
         <xpath expr="//t[@t-set='address']" position="replace">
             <t t-set="address">
-                <div style="display: flex;">
-                    <div style="width: 48%; float: right; text-align: left; margin-right: 30px; margin-bottom: 30px;">
-                        <p>
-                            <strong>Sales Person</strong>
-                        </p>
-                        <p t-esc="doc.user_id.name"/>
-
-
-                        <t t-if="doc.user_id.partner_id.phone">
+                <div style="display: flex; ">
+                    <t t-if="doc.state not in ['draft','sent']">
+                        <div style="width: 48%; float: right; text-align: left; margin-right: 30px; margin-bottom: 30px;">
                             <p>
-                                <strong>Phone:</strong>
+                                <strong>Sales Person</strong>
                             </p>
-                            <p t-esc="doc.user_id.partner_id.phone"/>
-                        </t>
+                            <p t-esc="doc.user_id.name"/>
 
 
-                        <t t-if="doc.user_id.partner_id.email">
-                            <p>
-                                <strong>Email</strong>
-                                <span t-esc="doc.user_id.partner_id.email" style="white-space: nowrap;"/>
-                            </p>
-                        </t>
+                            <t t-if="doc.user_id.partner_id.phone">
+                                <p>
+                                    <strong>Phone:</strong>
+                                </p>
+                                <p t-esc="doc.user_id.partner_id.phone"/>
+                            </t>
 
-                    </div>
 
-                    <div style="margin-left: -522px; margin-bottom: 10px; ">
-                      <strong>
-                          <span style="font-weight: bold; font-size: 20px;"><t t-esc="doc.partner_id.name"/></span>
-                            </strong><br/>
-                        <span t-esc="doc.partner_id.street"/><br/>
-                        <t t-if="doc.partner_id.street2">
-                        <span t-esc="doc.partner_id.street2"/><br/>
-                        </t>
-                            <!-- City + Country in same line -->
-                     <span>
-                        <t t-esc="doc.partner_id.city"/>
-                         <t t-if="doc.partner_id.country_id">, <t t-esc="doc.partner_id.country_id.name"/></t>
-                        </span>
+                            <t t-if="doc.company_id.id == 3 and doc.user_id.partner_id.email">
+                                <p>
+                                    <strong>Email</strong>
+                                    <span t-esc="doc.user_id.partner_id.email" style="white-space: nowrap;"/>
+                                </p>
+                            </t>
+
+
+                        </div>
+                    </t>
+
+                    <div style="margin-left: -530px; margin-bottom: 10px; ">
+                        <strong>
+                            <span style="font-weight: bold; font-size: 20px;">
+                                <t t-esc="doc.partner_id.name"/>
+                            </span>
+                        </strong>
+                        <div t-field="doc.partner_id"
+                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                         <p t-if="doc.partner_id.vat">
                             <t t-if="doc.company_id.account_fiscal_country_id.vat_label"
                                t-out="doc.company_id.account_fiscal_country_id.vat_label"/>
@@ -221,20 +219,63 @@
             </span>
         </xpath>
 
-
-
         <xpath expr="//div[@name='so_total_summary']" position="after">
-        <div style="margin-top:40px; text-align:right;"><div style="display:inline-block; text-align:left;">
-            <strong>Prepared by</strong><br/>
-            <span t-esc="doc.user_id.name"/></div>
-        </div>
-    </xpath>
+            <t t-if="doc.state in ['draft','sent']">
+                <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 40px;">
+
+                    <div style="text-align: right; margin-left: auto; width: 20%; height: auto; line-height: 0.7;">
+                        <p>
+                            <strong>Prepared by</strong>
+                        </p>
+                        <p t-esc="doc.user_id.name"/>
+                    </div>
+
+                    <div style="text-align: left; width: 48%; height: auto; position: relative; bottom: 55px; line-height: 0.7; ">
+                        <p>
+                            <strong>Sales Person</strong>
+                        </p>
+                        <p t-esc="doc.user_id.name"/>
+
+                        <t t-if="doc.user_id.partner_id.phone">
+                            <p>
+                                <strong>Phone:</strong>
+                            </p>
+                            <p t-esc="doc.user_id.partner_id.phone"/>
+                        </t>
+
+                        <t t-if="doc.company_id.id == 3 and doc.user_id.partner_id.email">
+                            <p>
+                                <strong>Email:</strong>
+                                <span t-esc="doc.user_id.partner_id.email" style="white-space: nowrap;"/>
+                            </p>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <t t-if="doc.state not in ['draft','sent']">
+                <div style="margin-top:40px; text-align:right;">
+                    <div style="display:inline-block; text-align:left;">
+                        <strong>Prepared by</strong>
+                        <br/>
+                        <span t-esc="doc.user_id.name"/>
+                    </div>
+                </div>
+            </t>
+
+        </xpath>
 
 
+        <!--        <xpath expr="//div[@name='so_total_summary']" position="after">-->
 
-
-
-
+        <!--                <div style="margin-top:40px; text-align:right;">-->
+        <!--                    <div style="display:inline-block; text-align:left;">-->
+        <!--                        <strong>Prepared by</strong>-->
+        <!--                        <br/>-->
+        <!--                        <span t-esc="doc.user_id.name"/>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--        </xpath>-->
 
 
     </template>
@@ -252,12 +293,6 @@
         <xpath expr="//div[@name='expiration_date']/following-sibling::div[@t-if='doc.incoterm']" position="replace"/>
         <xpath expr="//div[@id='informations']/div[@name='expiration_date']" position="replace"/>
     </template>
-
-
-
-
-
-
 
 
 </odoo>

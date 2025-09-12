@@ -86,7 +86,7 @@
 
             <div style="float: right; text-align: right;margin-top:170px;">
 
-               <span>
+                             <span>
     <strong>For <t t-esc="o.company_id.name"/></strong>
 </span>
                 <br/><br/>
