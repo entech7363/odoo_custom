@@ -1,0 +1,50 @@
+<odoo>
+    <record id="sale_order_approval_inherited_view" model="ir.ui.view">
+        <field name="name">sale.order.approval.inherited.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_quotation_send']" position="after">
+                <button name="button_approve" string="Approve"
+                        class="oe_highlight" type="object"
+                        groups="base.group_user"
+                        modifiers='{"invisible": [["show_approve_button", "=", false]]}'/>
+
+                <button name="action_cancel" string="Cancel"
+                        class="oe_highlight" type="object"
+                        modifiers='{"invisible": [["state", "!=", "to_approve"]]}'/>
+
+                <field name="show_approve_button" invisible="1"/>
+                <field name="approval_step_sequence" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_my_approvals" model="ir.actions.act_window">
+        <field name="name">My Approvals</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'to_approve'), ('user_id', '=', uid)]</field>
+    </record>
+
+    <menuitem id="menu_sale_approvals"
+              name="My Approvals"
+              parent="sale.sale_order_menu"
+              action="action_my_approvals"
+              sequence="41"/>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

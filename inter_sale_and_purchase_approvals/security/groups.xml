@@ -1,0 +1,6 @@
+<odoo>
+     <record id="group_approval" model="res.groups">
+        <field name="name"> Approval</field>
+
+     </record>
+</odoo>

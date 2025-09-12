@@ -1,0 +1,46 @@
+<odoo>
+    <record id="purchase_order_approval_inherited_view" model="ir.ui.view">
+        <field name="name">purchase.order.approval.inherited.view</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_confirm']" position="after">
+                <button name="button_approve_po" string="Approve"
+                        class="oe_highlight" type="object"
+                        groups="base.group_user"
+                        modifiers='{"invisible": [["show_approve_button", "=", false]]}'/>
+
+                <button name="button_cancel" string="Cancel"
+                        class="oe_highlight" type="object"
+                        modifiers='{"invisible": [["state", "!=", "to_approve"]]}'/>
+
+                <field name="show_approve_button" invisible="1"/>
+                <field name="approval_step_sequence" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_my_po_approvals" model="ir.actions.act_window">
+        <field name="name">My Approvals</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'to_approve'), ('user_id', '=', uid)]</field>
+    </record>
+
+    <menuitem id="menu_purchase_approvals"
+              name="My Approvals"
+              parent="purchase.menu_procurement_management"
+              action="action_my_po_approvals"
+              sequence="41"/>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+

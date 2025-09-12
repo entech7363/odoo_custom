@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_approval_steps_tree" model="ir.ui.view">
+            <field name="name">approval.steps.tree</field>
+            <field name="model">approval.steps</field>
+
+            <field name="arch" type="xml">
+                <list string="Approval Steps" editable="bottom">
+                    <field name="type"/>
+                    <field name="sequence"/>
+                    <field name="user_id"/>
+                    <field name="minimum_amount"/>
+                    <field name="currency_id" invisible="True"/>
+<!--                    <field name="is_final_approval"/>-->
+                </list>
+            </field>
+        </record>
+
+        <record id="action_view_approval_steps" model="ir.actions.act_window">
+            <field name="name">Approval Steps</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">approval.steps</field>
+          <field name="view_mode">list</field>
+        <!--<field name="view_id" ref="view_approval_steps_tree"/>-->
+<!--         <field name="context">{}</field>-->
+
+        </record>
+
+        <menuitem name="Approval Management"
+                  id="menu_approval_management"
+
+
+                  sequence="20"/>
+
+        <menuitem name="Approval Steps"
+                  id="menu_approval_steps"
+                 parent="menu_approval_management"
+                  action="action_view_approval_steps"/>
+    </data>
+</odoo>
