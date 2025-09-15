@@ -9,9 +9,15 @@ class ProductCategory(models.Model):
         comodel_name="res.company",
         string="Company",
         index=True,
-        default=lambda self: self.env.company,
+
     )
     parent_id = fields.Many2one(check_company=True)
+
+    @api.model
+    def create(self, vals):
+        if not vals.get("company_id"):
+            vals["company_id"] = self.env.company.id
+        return super().create(vals)
 
     @api.constrains("parent_id", "company_id")
     def check_company_restriction(self):
