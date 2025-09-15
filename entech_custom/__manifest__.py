@@ -1,6 +1,6 @@
 {
     'name':"Entech custom changes",
-    'version':'2.1',
+    'version':'2.2',
     'summary':'Creating various fields in the sale and purchase',
     'description':"module for the management of sales and purchases",
     'author': 'AGM Global Services',
@@ -12,15 +12,14 @@
              'views/purchase_order_view.xml',
              'views/account_move_view.xml',
              'views/res_partner.xml',
-             # 'views/product_category.xml',
+             'views/product_category.xml',
              'reports/sale_report.xml',
             'reports/invoice_report.xml',
             'reports/delivery_report.xml',
             'reports/purchase_order_report.xml',
             'reports/receipt_report.xml',
             'reports/bill_report.xml',
-
-
+            'security/ir_rule.xml',
             ],
     'installable':True,
     'application':False,

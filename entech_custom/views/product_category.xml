@@ -1,20 +1,20 @@
 <odoo>
-<!--   <record id="view_product_category_form_inherit_company" model="ir.ui.view">-->
-<!--    <field name="name">product.category.form.inherit.company</field>-->
-<!--    <field name="model">product.category</field>-->
-<!--    <field name="inherit_id" ref="product.product_category_form_view"/>-->
-<!--    <field name="arch" type="xml">-->
-<!--        <xpath expr="//field[@name='parent_id']" position="after">-->
-<!--            <field name="company_id"/>-->
-<!--        </xpath>-->
-<!--    </field>-->
-<!--</record>-->
 
 
-<!--    <record id="product_category_company_rule" model="ir.rule">-->
-<!--        <field name="name">Product Categories: Company Specific</field>-->
-<!--        <field name="model_id" ref="product.model_product_category"/>-->
-<!--        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', '=', user.company_id.id)]</field>-->
-<!--        <field name="global" eval="True"/>-->
-<!--    </record>-->
+    <record id="product_category_form_view" model="ir.ui.view">
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view" />
+        <field name="arch" type="xml">
+            <field name="parent_id" position="after">
+                <field name="company_id" />
+            </field>
+            <field name="parent_id" position="attributes">
+                <attribute
+                    name="domain"
+                >['|', ('company_id', '=', False), ('company_id', '=', company_id)]</attribute>
+            </field>
+        </field>
+    </record>
+
+
 </odoo>
