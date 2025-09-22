@@ -147,41 +147,74 @@
     </div><br/><br/>
         </xpath>
         <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
-       <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace">
-           <t t-if="o.company_id.id == 3">
-    <div style="page-break-inside: avoid">
-        <strong>Shipping Address</strong><br/>
-        <strong>En Tech Industrial Supplies Trading</strong><br/>
-        <strong> Building No: 1, Shop No: 39</strong><br/>
-        <strong>Barwa Village, Al Wakra</strong><br/>
-        <strong>Doha Qatar</strong><br/>
-        <strong>An: Mrs. Hafsath</strong><br/>
-        <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
-        <strong>accounts@entechqa.com</strong><br/><br/>
+     <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace"/>
+<!--           <t t-if="o.company_id.id == 3">-->
+<!--    <div style="page-break-inside: avoid">-->
+<!--        <strong>Shipping Address</strong><br/>-->
+<!--        <strong>En Tech Industrial Supplies Trading</strong><br/>-->
+<!--        <strong> Building No: 1, Shop No: 39</strong><br/>-->
+<!--        <strong>Barwa Village, Al Wakra</strong><br/>-->
+<!--        <strong>Doha Qatar</strong><br/>-->
+<!--        <strong>An: Mrs. Hafsath</strong><br/>-->
+<!--        <strong>+974 3024 7195 / +974 4437 0906</strong><br/>-->
+<!--        <strong>accounts@entechqa.com</strong><br/><br/>-->
 
-        <!-- Prepared by & Approved by in same row -->
-              <div style="width:100%; margin-top:20px;">
-    <div style="width:48%; display:inline-block; vertical-align:top;">
-        <strong>Prepared by</strong><br/>
-        <span t-field="o.create_uid.name"/>
-    </div>
-    <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
-        <div style="display:inline-block;text-align:left">
-        <strong>Approved by</strong><br/>
-            <strong>Purchase Manager</strong></div>
-    </div>
-</div>
-
-
+<!--        &lt;!&ndash; Prepared by & Approved by in same row &ndash;&gt;-->
+<!--              <div style="width:100%; margin-top:20px;">-->
+<!--    <div style="width:48%; display:inline-block; vertical-align:top;">-->
+<!--        <strong>Prepared by</strong><br/>-->
+<!--        <span t-field="o.create_uid.name"/>-->
+<!--    </div>-->
+<!--    <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">-->
+<!--        <div style="display:inline-block;text-align:left">-->
+<!--        <strong>Approved by</strong><br/>-->
+<!--            <strong>Purchase Manager</strong></div>-->
+<!--    </div>-->
+<!--</div>-->
 
 
-    </div>
 
-    <div style="text-align:center; margin-top:20px;">
-        <strong>Computer generated document. No signature is required</strong>
-    </div>
-            </t>
+
+<!--    </div>-->
+
+<!--    <div style="text-align:center; margin-top:20px;">-->
+<!--        <strong>Computer generated document. No signature is required</strong>-->
+<!--    </div>-->
+<!--            </t>-->
+<!--</xpath>-->
+        <xpath expr="//p[@t-field='o.notes']" position="before">
+    <t t-if="o.company_id.id == 3">
+        <div style="page-break-inside: avoid; margin-top:20px;">
+            <strong>Shipping Address</strong><br/>
+            <strong>En Tech Industrial Supplies Trading</strong><br/>
+            <strong>Building No: 1, Shop No: 39</strong><br/>
+            <strong>Barwa Village, Al Wakra</strong><br/>
+            <strong>Doha Qatar</strong><br/>
+            <strong>An: Mrs. Hafsath</strong><br/>
+            <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
+            <strong>accounts@entechqa.com</strong><br/><br/>
+
+            <!-- Prepared by & Approved by in same row -->
+            <div style="width:100%; margin-top:20px;">
+                <div style="width:48%; display:inline-block; vertical-align:top;">
+                    <strong>Prepared by</strong><br/>
+                    <span t-field="o.create_uid.name"/>
+                </div>
+                <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
+                    <div style="display:inline-block;text-align:left">
+                        <strong>Approved by</strong><br/>
+                        <strong>Purchase Manager</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+            <strong>Computer generated document. No signature is required</strong>
+        </div>
+    </t>
 </xpath>
+
 
 
         <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]" position="inside">
