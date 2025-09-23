@@ -182,7 +182,7 @@
                         </div>
                     </t>
 
-                    <div style="margin-left: -530px; margin-bottom: 10px; ">
+                    <div style="margin-left: -530px; margin-bottom: 10px; width:350px; word-wrap: break-word ">
                         <strong>
                             <span style="font-weight: bold; font-size: 20px;">
                                 <t t-esc="doc.partner_id.name"/>
