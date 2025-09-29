@@ -68,11 +68,11 @@
 
         </xpath>
         <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']" position="replace">
-             <strong t-attf-style="margin-left:-100px;">Our Ref</strong><br/>
-<span t-field="o.Order_Number" t-attf-style="margin-left:-100px;"/>
+             <strong t-attf-style="margin-left:-180px;">Our Ref</strong><br/>
+<span t-field="o.Order_Number" t-attf-style="margin-left:-180px;"/>
 <br/><br/><br/>
-<strong t-attf-style="margin-left:-100px;">Vendor Ref</strong><br/>
-<span t-field="o.partner_ref" t-attf-style="margin-left:-100px;"/>
+<strong t-attf-style="margin-left:-180px;">Vendor Ref</strong><br/>
+<span t-field="o.partner_ref" t-attf-style="margin-left:-180px;"/>
 </xpath>
         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="before">
             <strong>Payment Terms </strong><br/>
@@ -152,7 +152,7 @@
            <t t-if="o.company_id.id == 3">
     <div style="page-break-inside: avoid">
         <strong>Shipping Address</strong><br/>
-        <strong>En Tech Industrial Supplies Trading</strong><br/>
+        <strong>Entech Industrial Supplies Trading</strong><br/>
         <strong> Building No: 1, Shop No: 39</strong><br/>
         <strong>Barwa Village, Al Wakra</strong><br/>
         <strong>Doha Qatar</strong><br/>
