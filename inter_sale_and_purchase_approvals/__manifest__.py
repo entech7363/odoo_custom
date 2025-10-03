@@ -1,6 +1,6 @@
 {
     'name': "Intergulf Sale and Purchase Approvals",
-    'version': '1.0',
+    'version': '1.1',
     'author': 'AGM Global Services',
     'depends': ['base','sale_management','sale','purchase'],
     'data': [
