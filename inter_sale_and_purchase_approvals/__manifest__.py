@@ -1,6 +1,6 @@
 {
     'name': "Intergulf Sale and Purchase Approvals",
-    'version': '1.1',
+    'version': '1.3',
     'author': 'AGM Global Services',
     'depends': ['base','sale_management','sale','purchase'],
     'data': [
@@ -9,6 +9,7 @@
         'views/approvals.xml',
          #'views/sale_order.xml',
          'views/purchase_order.xml',
+
 
     ],
     'installable': True,

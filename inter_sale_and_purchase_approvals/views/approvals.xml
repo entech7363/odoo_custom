@@ -12,6 +12,7 @@
                     <field name="user_id"/>
                     <field name="minimum_amount"/>
                     <field name="currency_id" invisible="True"/>
+                    <field name="company_id"/>
 <!--                    <field name="is_final_approval"/>-->
                 </list>
             </field>
@@ -29,8 +30,7 @@
 
         <menuitem name="Approval Management"
                   id="menu_approval_management"
-
-
+                  parent="base.menu_custom"
                   sequence="20"/>
 
         <menuitem name="Approval Steps"

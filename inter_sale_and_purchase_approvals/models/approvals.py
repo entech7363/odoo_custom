@@ -10,11 +10,13 @@ class ApprovalSteps(models.Model):
     minimum_amount = fields.Monetary(string='Minimum Amount', currency_field='currency_id', required=True)
     currency_id = fields.Many2one('res.currency', string='Currency', compute='_compute_currency', store=True, readonly=True)
     # is_final_approval = fields.Boolean(string='Final Approval')
+    company_id = fields.Many2one('res.company', string='Company', required=True)
 
     @api.depends('minimum_amount')
     def _compute_currency(self):
         for record in self:
             company = record.env.company
             record.currency_id = company.currency_id
+
 
 
