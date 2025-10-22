@@ -79,6 +79,18 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     sequence1 = fields.Char(string='Sequence Number')
+class StockMoveLine(models.Model):
+    _inherit = 'stock.move.line'
+
+    delivery_line_sequence = fields.Integer(string='No.', compute='_compute_delivery_line_sequence')
+
+    @api.depends('picking_id')
+    def _compute_delivery_line_sequence(self):
+        for picking in self.mapped('picking_id'):
+            number = 1
+            for line in picking.move_line_ids:
+                line.delivery_line_sequence = number
+                number += 1
 
 
 class PurchaseRequisition(models.Model):

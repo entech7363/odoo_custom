@@ -2,7 +2,7 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 {
     'name': "Order line Sequence Number",
-    'version': '18.0.0.1',
+    'version': '18.0.0.2',
     'category': 'Extra Tools',
     'summary': "Sales order line sequence number in order line with sequence number report purchase order line sequence sale order line sequence   purchase agreement order line report sales stock order line sequence sale order line number order line sequence number report",
     'description': """

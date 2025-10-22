@@ -121,9 +121,17 @@
         <template id="custom_serial_number" inherit_id="stock.stock_report_delivery_has_serial_move_line">
 
         <xpath expr="//td[1]" position="before">
+<!--            <td>-->
+<!--                            <span t-esc="move_line.move_id.stock_move_sequence"/>-->
+<!--             </td>-->
+<!--            <td>-->
+<!--            <t t-if="move_line == move_line.move_id.move_line_ids[0]">-->
+<!--                <span t-esc="move_line.move_id.stock_move_sequence"/>-->
+<!--            </t>-->
+<!--        </td>-->
             <td>
-                            <span t-esc="move_line.move_id.stock_move_sequence"/>
-             </td>
+        <span t-esc="move_line.delivery_line_sequence"/>
+    </td>
 
         </xpath>
     </template>
