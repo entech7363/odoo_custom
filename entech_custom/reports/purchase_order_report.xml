@@ -58,47 +58,63 @@
         </xpath>-->
         <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']" position="inside">
             <div style="margin-top:48px;">
-             <strong>Vendor Ref</strong><br/>
-                <span t-esc="o.partner_ref"/></div>
+                <strong>Vendor Ref</strong>
+                <br/>
+                <span t-esc="o.partner_ref"/>
+            </div>
 
         </xpath>
 
-        <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']//strong[normalize-space(text())='Your Order Reference']" position="replace">
-            <strong>Our Ref</strong><br/>
+        <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']//strong[normalize-space(text())='Your Order Reference']"
+               position="replace">
+            <strong>Our Ref</strong>
+            <br/>
 
         </xpath>
         <xpath expr="//div[@id='informations']/div[@t-if='o.partner_ref']" position="replace">
-             <strong t-attf-style="margin-left:-100px;">Our Ref</strong><br/>
-<span t-field="o.Order_Number" t-attf-style="margin-left:-100px;"/>
-<br/><br/><br/>
-<strong t-attf-style="margin-left:-100px;">Vendor Ref</strong><br/>
-<span t-field="o.partner_ref" t-attf-style="margin-left:-100px;"/>
-</xpath>
+            <strong t-attf-style="margin-left:-180px;">Our Ref</strong>
+            <br/>
+            <span t-field="o.Order_Number" t-attf-style="margin-left:-180px;"/>
+            <br/>
+            <br/>
+            <br/>
+            <strong t-attf-style="margin-left:-180px;">Vendor Ref</strong>
+            <br/>
+            <span t-field="o.partner_ref" t-attf-style="margin-left:-180px;"/>
+        </xpath>
         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="before">
-            <strong>Payment Terms </strong><br/>
-            <span t-field="o.payment_term_id"></span><br/><br/><br/><strong>Incoterm</strong><br/><span t-esc="o.incoterm_id.code"/>
+            <strong>Payment Terms</strong>
+            <br/>
+            <span t-field="o.payment_term_id"></span>
+            <br/>
+            <br/>
+            <br/>
+            <strong>Incoterm</strong>
+            <br/>
+            <span t-esc="o.incoterm_id.code"/>
 
         </xpath>
         <xpath expr="//t[@t-set='information_block']" position="replace"/>
         <xpath expr="//div[@class='mt-4']" position="replace"/>
-         <xpath expr="//t[@t-set='address']" position="before">
+        <xpath expr="//t[@t-set='address']" position="before">
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;">
 
-                        <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
-                        <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
-                        <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                    <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
+                    <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
 
                 </h2>
-            </span></xpath>
+            </span>
+        </xpath>
 
         <xpath expr="//t[@t-set='address']" position="replace">
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;visibility:hidden;">
 
-                        <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
-                        <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
-                        <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                    <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
+                    <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
 
 
                 </h2>
@@ -106,102 +122,221 @@
             <div style=" float: right;text-align:left;margin-right: 100px;">
                 <span>
 
-                        <strong>BILL TO</strong>
-                            <!--<div t-field="o.company_id.partner_id"
-                                t-options='{"widget": "contact", "fields": ["address","name","phone"],
-                                    "no_marker": True, "phone_icons": True}'/>-->
-                   <div>
-                       <b><t t-esc="o.company_id.name" style="font-weight:bold;"/></b>
-                    <br/>
+                    <strong>BILL TO</strong>
+                    <!--<div t-field="o.company_id.partner_id"
+                        t-options='{"widget": "contact", "fields": ["address","name","phone"],
+                            "no_marker": True, "phone_icons": True}'/>-->
+                    <div>
+                        <b>
+                            <t t-esc="o.company_id.name" style="font-weight:bold;"/>
+                        </b>
+                        <br/>
 
-                <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/></t><br/>
+                        <t t-if="o.company_id.street">
+                            <t t-esc="o.company_id.street"/>
+                        </t>
+                        <br/>
 
 
-            <t t-if="o.company_id.city"><t t-esc="o.company_id.city"/>-</t>
+                        <t t-if="o.company_id.city"><t t-esc="o.company_id.city"/>-
+                        </t>
 
-            <t t-if="o.company_id.country_id"><t t-esc="o.company_id.country_id.name"/></t>
-            <br/>
-                <t t-if="o.company_id.phone">
-                <span><i class="fa fa-phone"></i> <t t-esc="o.company_id.phone"/></span>
-                </t></div>
+                        <t t-if="o.company_id.country_id">
+                            <t t-esc="o.company_id.country_id.name"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.company_id.phone">
+                            <span>
+                                <i class="fa fa-phone"></i>
+                                <t t-esc="o.company_id.phone"/>
+                            </span>
+                        </t>
+                    </div>
 
                 </span>
             </div>
             <div>
-                <strong>VENDOR</strong><br/>
-                <span style="font-weight: bold; font-size: 20px;"><t t-esc="o.partner_id.name"/></span><br/>
+                <strong>VENDOR</strong>
+                <br/>
+                <span style="font-weight: bold; font-size: 20px;">
+                    <t t-esc="o.partner_id.name"/>
+                </span>
+                <br/>
                 <div t-field="o.partner_id"
                      t-options='{"widget": "contact", "fields": ["address", "phone", "vat"],
                  "no_marker": True, "phone_icons": True}'/>
             </div>
-            <div style="text-align:right; margin-top: 50px;margin-right:40px;"><h2>
-         <t t-if="o.state in ['draft', 'sent', 'to approve']">
-            Request for Quotation #<span t-field="o.name"/>
-        </t>
-        <t t-elif="o.state in ['purchase', 'done']">
-            Purchase Order #<span t-field="o.name"/>
-        </t>
-        <t t-else="">
-            Cancelled Purchase Order #<span t-field="o.name"/>
-        </t></h2>
-    </div><br/><br/>
+            <div style="text-align:right; margin-top: 50px;margin-right:40px;">
+                <h2>
+                    <t t-if="o.state in ['draft', 'sent', 'to approve']">
+                        Request for Quotation #
+                        <span t-field="o.name"/>
+                    </t>
+                    <t t-elif="o.state in ['purchase', 'done']">
+                        Purchase Order #
+                        <span t-field="o.name"/>
+                    </t>
+                    <t t-else="">
+                        Cancelled Purchase Order #
+                        <span t-field="o.name"/>
+                    </t>
+                </h2>
+            </div>
+            <br/>
+            <br/>
         </xpath>
         <xpath expr="//div[@class='page']/span[@t-field='o.payment_term_id']" position="replace"/>
-       <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace"/>
+        <xpath expr="//div[@class='page']//strong[normalize-space(text())='Payment Terms:']" position="replace"/>
         <xpath expr="//p[@t-field='o.notes']" position="before">
-           <t t-if="o.company_id.id == 3">
-    <div style="page-break-inside: avoid">
-        <strong>Shipping Address</strong><br/>
-        <strong>En Tech Industrial Supplies Trading</strong><br/>
-        <strong> Building No: 1, Shop No: 39</strong><br/>
-        <strong>Barwa Village, Al Wakra</strong><br/>
-        <strong>Doha Qatar</strong><br/>
-        <strong>An: Mrs. Hafsath</strong><br/>
-        <strong>+974 3024 7195 / +974 4437 0906</strong><br/>
-        <strong>accounts@entechqa.com</strong><br/><br/>
+            <t t-if="o.company_id.id == 3">
+                <div style="page-break-inside: avoid">
+                    <strong>Shipping Address</strong>
+                    <br/>
+                    <strong>Entech Industrial Supplies Trading</strong>
+                    <br/>
+                    <strong>Building No: 1, Shop No: 39</strong>
+                    <br/>
+                    <strong>Barwa Village, Al Wakra</strong>
+                    <br/>
+                    <strong>Doha Qatar</strong>
+                    <br/>
+                    <strong>An: Mrs. Hafsath</strong>
+                    <br/>
+                    <strong>+974 3024 7195 / +974 4437 0906</strong>
+                    <br/>
+                    <strong>accounts@entechqa.com</strong>
+                    <br/>
+                    <br/>
 
-        <!-- Prepared by & Approved by in same row -->
-              <div style="width:100%; margin-top:20px;">
-    <div style="width:48%; display:inline-block; vertical-align:top;">
-        <strong>Prepared by</strong><br/>
-        <span t-field="o.create_uid.name"/>
-    </div>
-    <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
-        <div style="display:inline-block;text-align:left">
-        <strong>Approved by</strong><br/>
-            <strong>Purchase Manager</strong></div>
-    </div>
-</div>
+                    <!-- Prepared by & Approved by in same row -->
+                    <div style="width:100%; margin-top:20px;">
+                        <div style="width:48%; display:inline-block; vertical-align:top;">
+                            <strong>Prepared by</strong>
+                            <br/>
+                            <span t-field="o.create_uid.name"/>
+                        </div>
+                        <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
+                            <div style="display:inline-block;text-align:left">
+                                <strong>Approved by</strong>
+                                <br/>
+                                <strong>Purchase Manager</strong>
+                            </div>
+                        </div>
+                    </div>
 
 
+                </div>
 
-
-    </div>
-
-    <div style="text-align:center; margin-top:20px;">
-        <strong>Computer generated document. No signature is required</strong>
-    </div>
+                <div style="text-align:center; margin-top:20px;">
+                    <strong>Computer generated document. No signature is required</strong>
+                </div>
             </t>
-</xpath>
-
-
-        <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]" position="inside">
-            <div style="margin-top:48px"><strong>Expected Arrival</strong>
-                    <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/></div>
         </xpath>
 
-         <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="replace"/>
+
+        <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]"
+               position="inside">
+            <div style="margin-top:48px">
+                <strong>Expected Arrival</strong>
+                <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="replace"/>
 
 
         <xpath expr="//div[@t-if='o.incoterm_id']" position="replace"/>
 
 
+        <xpath expr="//p[@t-field='o.notes']" position="after">
+
+            <div style="margin-top:40px; page-break-inside:avoid;">
+                <table style="width:100%; text-align:center; border-collapse:collapse;">
+
+                    <tr>
+                        <th>Originated</th>
+                        <th>Reviewed</th>
+                        <th>Verified</th>
+                        <th>Authorized</th>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <t t-esc="o.create_uid.name"/>
+                            <br/>
+
+                            <t t-set="emp"
+                               t-value="env['hr.employee'].sudo().search([('user_id','=',o.create_uid.id)], limit=1)"/>
+                            <t t-if="emp and emp.job_title">
+                                <t t-esc="emp.job_title"/>
+                                <br/>
+                            </t>
+
+                            <t t-if="emp and emp.barcode">
+                                ID:
+                                <t t-esc="emp.barcode"/>
+                                <br/>
+                            </t>
+
+                            <t t-if="o.create_date"
+                               t-esc="o.create_date.strftime('%d/%m/%Y')"/>
+                        </td>
 
 
+                        <t t-set="histories"
+                           t-value="o.approval_history_ids.sorted(key=lambda h: h.sequence)"/>
+
+                        <t t-foreach="range(3)" t-as="i">
+                            <td>
+                                <t t-if="i &lt; len(histories)">
+                                    <t t-set="h" t-value="histories[i]"/>
+
+                                    <t t-esc="h.user_id.name"/>
+                                    <br/>
+
+                                    <t t-set="emp"
+                                       t-value="env['hr.employee'].sudo().search([('user_id','=',h.user_id.id)], limit=1)"/>
+
+                                    <t t-if="emp and emp.job_title">
+                                        <t t-esc="emp.job_title"/>
+                                        <br/>
+                                    </t>
+
+                                    <t t-if="emp and emp.barcode">
+                                        ID:
+                                        <t t-esc="emp.barcode"/>
+                                        <br/>
+                                    </t>
+
+                                    <t t-esc="h.date.strftime('%d/%m/%Y')"/>
+                                </t>
+                            </td>
+                        </t>
+
+                    </tr>
+
+                </table>
+
+                <div style="margin-top:15px; text-align:center;">
+                    <strong>Purchase Order Digitally signed</strong>
+                </div>
+                <!-- SUPPLIER ACKNOWLEDGMENT -->
+                <div style="margin-top:40px; page-break-inside:avoid;">
+
+                    <strong>Supplier Acknowledgment</strong>
+
+                    <div style="margin-top:10px;">Name</div>
+                    <div style="margin-top:6px;">Designation</div>
+                    <div style="margin-top:6px;">Signature</div>
+                    <div style="margin-top:6px;">Date</div>
+
+                </div>
+            </div>
+
+        </xpath>
 
 
     </template>
-
 
 
 </odoo>

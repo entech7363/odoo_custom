@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
+
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
@@ -9,11 +10,15 @@ class PurchaseOrder(models.Model):
                               ('sent',)], ondelete={'to_approve': 'cascade'})
     show_approve_button = fields.Boolean(compute='_compute_show_approve_button')
     approval_step_sequence = fields.Integer(string='Approval Step Sequence', default=0)
+    approval_history_ids = fields.One2many(
+        'purchase.approval.history',
+        'purchase_id'
+    )
+
 
     @api.depends('state', 'user_id')
     def _compute_show_approve_button(self):
         for order in self:
-
             steps = self.env['approval.steps'].search([
                 ('type', '=', 'purchase'),
                 ('sequence', '=', order.approval_step_sequence),
@@ -47,7 +52,7 @@ class PurchaseOrder(models.Model):
         for order in self:
             steps = self.env['approval.steps'].search([
                 ('type', '=', 'purchase'),
-                ('minimum_amount', '<=', order.amount_total),('company_id', '=', order.company_id.id)
+                ('minimum_amount', '<=', order.amount_total), ('company_id', '=', order.company_id.id)
             ], order='sequence asc')
 
             if steps:
@@ -64,36 +69,56 @@ class PurchaseOrder(models.Model):
     def button_approve_po(self):
         for order in self:
 
+            # ✅ Get current step
+            step = self.env['approval.steps'].search([
+                ('type', '=', 'purchase'),
+                ('sequence', '=', order.approval_step_sequence),
+                ('company_id', '=', order.company_id.id)
+            ], limit=1)
 
-            is_admin = self.env.user.has_group('inter_sale_and_purchase_approvals.group_approval')  # here the admin
-            # print(f"Is current user admin? {is_admin}")
-            # print(f"Current user: {self.env.user.name}")
+            # ✅ Prevent duplicate history
+            if step:
+                existing = self.env['purchase.approval.history'].search([
+                    ('purchase_id', '=', order.id),
+                    ('sequence', '=', step.sequence)
+                ], limit=1)
 
-            # If admin,then approving the sales
+                if not existing:
+                    self.env['purchase.approval.history'].create({
+                        'purchase_id': order.id,
+                        'step_id': step.id,
+                        'user_id': self.env.user.id,
+                        'sequence': step.sequence,
+                        'date': fields.Datetime.now(),
+                    })
+
+            # ✅ Admin bypass logic (DO NOT return)
+            is_admin = self.env.user.has_group(
+                'inter_sale_and_purchase_approvals.group_approval'
+            )
+
             if is_admin:
                 super(PurchaseOrder, order).button_approve()
-                # print("Admin detected → Directly approving purchase order.")
-                return
+                continue
 
+            # ✅ Next step logic
             next_sequence = order.approval_step_sequence + 1
+
             next_steps = self.env['approval.steps'].search([
                 ('type', '=', 'purchase'),
                 ('sequence', '=', next_sequence),
-                ('minimum_amount', '<=', order.amount_total),('company_id', '=', order.company_id.id)
+                ('minimum_amount', '<=', order.amount_total),
+                ('company_id', '=', order.company_id.id)
             ])
 
-
             if next_steps:
-
                 order.write({
                     'state': 'to_approve',
                     'approval_step_sequence': next_sequence
                 })
             else:
-                # print(f"Moving to next approval step: {next_sequence}")
                 order.write({'state': 'purchase'})
                 super(PurchaseOrder, order).button_approve()
-
 
     def button_cancel(self):
         self.write({'state': 'cancel'})
