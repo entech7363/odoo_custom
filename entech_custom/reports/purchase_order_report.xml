@@ -206,49 +206,31 @@
                     <br/>
                     <strong>accounts@entechqa.com</strong>
                     <br/>
-                    <br/>
+
 
                     <!-- Prepared by & Approved by in same row -->
-                    <div style="width:100%; margin-top:20px;">
-                        <div style="width:48%; display:inline-block; vertical-align:top;">
-                            <strong>Prepared by</strong>
-                            <br/>
-                            <span t-field="o.create_uid.name"/>
-                        </div>
-                        <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">
-                            <div style="display:inline-block;text-align:left">
-                                <strong>Approved by</strong>
-                                <br/>
-                                <strong>Purchase Manager</strong>
-                            </div>
-                        </div>
-                    </div>
+                    <!--                    <div style="width:100%; margin-top:20px;">-->
+                    <!--                        <div style="width:48%; display:inline-block; vertical-align:top;">-->
+                    <!--                            <strong>Prepared by</strong>-->
+                    <!--                            <br/>-->
+                    <!--                            <span t-field="o.create_uid.name"/>-->
+                    <!--                        </div>-->
+                    <!--                        <div style="width:48%; display:inline-block; text-align:right; vertical-align:top;">-->
+                    <!--                            <div style="display:inline-block;text-align:left">-->
+                    <!--                                <strong>Approved by</strong>-->
+                    <!--                                <br/>-->
+                    <!--                                <strong>Purchase Manager</strong>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
 
 
                 </div>
 
-                <div style="text-align:center; margin-top:20px;">
-                    <strong>Computer generated document. No signature is required</strong>
-                </div>
+                <!--                <div style="text-align:center; margin-top:20px;">-->
+                <!--                    <strong>Computer generated document. No signature is required</strong>-->
+                <!--                </div>-->
             </t>
-        </xpath>
-
-
-        <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]"
-               position="inside">
-            <div style="margin-top:48px">
-                <strong>Expected Arrival</strong>
-                <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/>
-            </div>
-        </xpath>
-
-        <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="replace"/>
-
-
-        <xpath expr="//div[@t-if='o.incoterm_id']" position="replace"/>
-
-
-        <xpath expr="//p[@t-field='o.notes']" position="after">
 
             <div style="margin-top:40px; page-break-inside:avoid;">
                 <table style="width:100%; text-align:center; border-collapse:collapse;">
@@ -333,7 +315,110 @@
                 </div>
             </div>
 
+
         </xpath>
+
+
+        <xpath expr="//div[@id='informations']//div[@t-if=&quot;o.state in ['purchase','done'] and o.date_approve&quot;]"
+               position="inside">
+            <div style="margin-top:48px">
+                <strong>Expected Arrival</strong>
+                <p t-field="o.date_planned" t-options="{'date_only': 'true'}"/>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@id='informations']//div[@t-if='o.date_planned']" position="replace"/>
+
+
+        <xpath expr="//div[@t-if='o.incoterm_id']" position="replace"/>
+
+
+<!--        <xpath expr="//p[@t-field='o.notes']" position="after">-->
+
+<!--            <div style="margin-top:40px; page-break-inside:avoid;">-->
+<!--                <table style="width:100%; text-align:center; border-collapse:collapse;">-->
+
+<!--                    <tr>-->
+<!--                        <th>Originated</th>-->
+<!--                        <th>Reviewed</th>-->
+<!--                        <th>Verified</th>-->
+<!--                        <th>Authorized</th>-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                        <td>-->
+<!--                            <t t-esc="o.create_uid.name"/>-->
+<!--                            <br/>-->
+
+<!--                            <t t-set="emp"-->
+<!--                               t-value="env['hr.employee'].sudo().search([('user_id','=',o.create_uid.id)], limit=1)"/>-->
+<!--                            <t t-if="emp and emp.job_title">-->
+<!--                                <t t-esc="emp.job_title"/>-->
+<!--                                <br/>-->
+<!--                            </t>-->
+
+<!--                            <t t-if="emp and emp.barcode">-->
+<!--                                ID:-->
+<!--                                <t t-esc="emp.barcode"/>-->
+<!--                                <br/>-->
+<!--                            </t>-->
+
+<!--                            <t t-if="o.create_date"-->
+<!--                               t-esc="o.create_date.strftime('%d/%m/%Y')"/>-->
+<!--                        </td>-->
+
+
+<!--                        <t t-set="histories"-->
+<!--                           t-value="o.approval_history_ids.sorted(key=lambda h: h.sequence)"/>-->
+
+<!--                        <t t-foreach="range(3)" t-as="i">-->
+<!--                            <td>-->
+<!--                                <t t-if="i &lt; len(histories)">-->
+<!--                                    <t t-set="h" t-value="histories[i]"/>-->
+
+<!--                                    <t t-esc="h.user_id.name"/>-->
+<!--                                    <br/>-->
+
+<!--                                    <t t-set="emp"-->
+<!--                                       t-value="env['hr.employee'].sudo().search([('user_id','=',h.user_id.id)], limit=1)"/>-->
+
+<!--                                    <t t-if="emp and emp.job_title">-->
+<!--                                        <t t-esc="emp.job_title"/>-->
+<!--                                        <br/>-->
+<!--                                    </t>-->
+
+<!--                                    <t t-if="emp and emp.barcode">-->
+<!--                                        ID:-->
+<!--                                        <t t-esc="emp.barcode"/>-->
+<!--                                        <br/>-->
+<!--                                    </t>-->
+
+<!--                                    <t t-esc="h.date.strftime('%d/%m/%Y')"/>-->
+<!--                                </t>-->
+<!--                            </td>-->
+<!--                        </t>-->
+
+<!--                    </tr>-->
+
+<!--                </table>-->
+
+<!--                <div style="margin-top:15px; text-align:center;">-->
+<!--                    <strong>Purchase Order Digitally signed</strong>-->
+<!--                </div>-->
+<!--                &lt;!&ndash; SUPPLIER ACKNOWLEDGMENT &ndash;&gt;-->
+<!--                <div style="margin-top:40px; page-break-inside:avoid;">-->
+
+<!--                    <strong>Supplier Acknowledgment</strong>-->
+
+<!--                    <div style="margin-top:10px;">Name</div>-->
+<!--                    <div style="margin-top:6px;">Designation</div>-->
+<!--                    <div style="margin-top:6px;">Signature</div>-->
+<!--                    <div style="margin-top:6px;">Date</div>-->
+
+<!--                </div>-->
+<!--            </div>-->
+
+<!--        </xpath>-->
 
 
     </template>
