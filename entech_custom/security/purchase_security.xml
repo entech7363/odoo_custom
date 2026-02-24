@@ -1,0 +1,22 @@
+<odoo>
+
+    <record id="purchase_order_user_own_rule" model="ir.rule">
+        <field name="name">Purchase: user own PO</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">
+            ['|',
+            ('user_id','=',user.id),
+            ('create_uid','=',user.id)
+            ]
+        </field>
+    </record>
+
+    <record id="purchase_order_manager_all_rule" model="ir.rule">
+        <field name="name">Purchase: manager all PO</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_manager'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+    </record>
+
+</odoo>
