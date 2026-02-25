@@ -236,10 +236,10 @@
 
                 <!-- HEADER -->
                 <div style="width:100%;">
-                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Originated</div>
-                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Reviewed</div>
-                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Verified</div>
-                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Authorized</div>
+                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Originated By:</div>
+                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Reviewed By:</div>
+                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Verified By:</div>
+                    <div style="display:inline-block; width:24%; font-weight:bold; font-size:16px;">Authorized By:</div>
                 </div>
 
                 <!-- DATA -->
@@ -247,16 +247,16 @@
 
                     <!-- Originated -->
                     <div style="display:inline-block; width:24%; vertical-align:top;">
-<!--                        <t t-esc="o.create_uid.name"/>-->
-<!--                        <br/>-->
+                        <t t-esc="o.create_uid.name"/>
+                        <br/>
 
-                        <t t-set="emp"
-                           t-value="env['hr.employee'].sudo().search([('user_id','=',o.create_uid.id)], limit=1)"/>
+<!--                        <t t-set="emp"-->
+<!--                           t-value="env['hr.employee'].sudo().search([('user_id','=',o.create_uid.id)], limit=1)"/>-->
 
-                        <t t-if="emp and emp.job_title">
-                            <t t-esc="emp.job_title"/>
-                            <br/>
-                        </t>
+<!--                        <t t-if="emp and emp.job_title">-->
+<!--                            <t t-esc="emp.job_title"/>-->
+<!--                            <br/>-->
+<!--                        </t>-->
 
 <!--                        <t t-if="emp and emp.barcode">-->
 <!--                            ID:-->

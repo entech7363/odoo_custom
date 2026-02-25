@@ -227,7 +227,7 @@
                         <p>
                             <strong>Prepared by</strong>
                         </p>
-                        <p t-esc="doc.user_id.name"/>
+                        <p t-esc="doc.create_uid.name"/>
                     </div>
 
                     <div style="text-align: left; width: 48%; height: auto; position: relative; bottom: 55px; line-height: 0.7; ">
