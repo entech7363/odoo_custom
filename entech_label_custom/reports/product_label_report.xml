@@ -7,7 +7,7 @@
                 <t t-if="barcode or alternative_barcode_ids">
                     <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
 
-                        <div style="padding:0; font-family: 'Roboto', sans-serif !important; margin:auto; position: relative; bottom:28px; right:5px;">
+                        <div style="padding:0; font-family: 'Roboto', sans-serif !important; margin:auto; position: relative; right:5px; margin-top: 10px !important;">
 
                             <t t-if="product.default_code">
                                 <div style="text-align:center; font-size:6px; font-weight:bold;">
