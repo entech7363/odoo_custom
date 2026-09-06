@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_inherit_entech_mail" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.entech.mail</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Outgoing Mail Sender" name="outgoing_mail_sender_settings">
+                    <group string="Company Email Sender Overrides">
+                        <field name="email_from_company_sale"/>
+                        <field name="email_from_company_account"/>
+                        <field name="email_from_company_purchase"/>
+                        <field name="email_from_company_stock"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

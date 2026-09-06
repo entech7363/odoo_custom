@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_compose_message_wizard_form_inherit_entech" model="ir.ui.view">
+        <field name="name">mail.compose.message.form.inherit.entech</field>
+        <field name="model">mail.compose.message</field>
+        <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+        <field name="arch" type="xml">
+            <!-- Core hides "From" outside mass mailing; show it so the sender
+                 forced by the company toggles can be reviewed before sending. -->
+            <xpath expr="//field[@name='email_from']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
