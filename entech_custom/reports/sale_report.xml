@@ -5,11 +5,13 @@
 
         <xpath expr="//div[@id='informations']/div[last()]" position="after">
             <t t-set="o" t-value="doc"/>
-            <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+            <div t-if="doc.incoterm" class="col" name="info_incoterm">
                 <strong>Incoterm</strong>
                 <div>
-                    <span t-field="doc.incoterm.code"/>,
-                    <span t-field="doc.incoterm_location"/>
+                    <span t-field="doc.incoterm.code"/>
+                    <t t-if="doc.incoterm_location">
+                        , <span t-field="doc.incoterm_location"/>
+                    </t>
                 </div>
             </div>
 
@@ -227,7 +229,7 @@
                         <p>
                             <strong>Prepared by</strong>
                         </p>
-                        <p t-esc="doc.user_id.name"/>
+                        <p t-esc="doc.create_uid.name"/>
                     </div>
 
                     <div style="text-align: left; width: 48%; height: auto; position: relative; bottom: 55px; line-height: 0.7; ">
@@ -261,6 +263,11 @@
                         <span t-esc="doc.user_id.name"/>
                     </div>
                 </div>
+            </t>
+            <t>
+    <div style="margin-top: 20px; text-align: center; font-size: 16px;">
+        <em>This document is computer-generated and does not require a signature.</em>
+    </div>
             </t>
 
         </xpath>

@@ -12,7 +12,7 @@ class InvoiceCreate(models.Model):
 
     def compute_sale_details(self):
         for k in self:
-            order=self.env['sale.order'].search([('name','=',k.invoice_origin)],limit=1)
+            order = k.line_ids.sale_line_ids.order_id[:1] or self.env['sale.order'].search([('name', '=', k.invoice_origin)], limit=1)
             if order:
                 k.Customer_RFQ = order.Customer_RFQ
                 k.Customer_RFQ_date = order.Customer_RFQ_date
@@ -21,6 +21,10 @@ class InvoiceCreate(models.Model):
                 k.Customer_Delivery = order.Customer_Delivery
                 #k.Customer_Number = order.Customer_Number
                 k.For_Company = order.For_Company
+                if order.incoterm and not k.invoice_incoterm_id:
+                    k.invoice_incoterm_id = order.incoterm
+                if order.incoterm_location and not k.incoterm_location:
+                    k.incoterm_location = order.incoterm_location
             else:
 
                 k.Customer_RFQ = ''
@@ -44,22 +48,26 @@ class BillsCreate(models.Model):
     #Receipt_Number = fields.Char(string="Receipt Number",compute='_compute_Quotation')
     def _compute_Quotation(self):
         for record in self:
-            bill_new=self.env['purchase.order'].search([('name','=',record.invoice_origin)],limit=1)
+            bill_new = record.line_ids.purchase_line_id.order_id[:1] or self.env['purchase.order'].search([('name', '=', record.invoice_origin)], limit=1)
             if bill_new:
-                record.Quotation_number=bill_new.Quotation_number
-                record.Quotation_date=bill_new.Quotation_date
-                record.Order_Number=bill_new.Order_Number
-                record.Order_Date=bill_new.Order_Date
-                record.Customer_Delivery=bill_new.Customer_Delivery
+                record.Quotation_number = bill_new.Quotation_number
+                record.Quotation_date = bill_new.Quotation_date
+                record.Order_Number = bill_new.Order_Number
+                record.Order_Date = bill_new.Order_Date
+                record.Customer_Delivery = bill_new.Customer_Delivery
                 #record.Reference_Number=bill_new.Reference_Number
                 #record.Delivery_Type=bill_new.Delivery_Type
                 #record.Receipt_Number=bill_new.Receipt_Number
+                if hasattr(bill_new, 'incoterm_id') and bill_new.incoterm_id and not record.invoice_incoterm_id:
+                    record.invoice_incoterm_id = bill_new.incoterm_id
+                if hasattr(bill_new, 'incoterm_location') and bill_new.incoterm_location and not record.incoterm_location:
+                    record.incoterm_location = bill_new.incoterm_location
             else:
-                record.Quotation_number=''
-                record.Quotation_date=False
-                record.Order_Number=''
-                record.Order_Date=False
-                record.Customer_Delivery=''
+                record.Quotation_number = ''
+                record.Quotation_date = False
+                record.Order_Number = ''
+                record.Order_Date = False
+                record.Customer_Delivery = ''
                 #record.Reference_Number=''
                 #record.Delivery_Type=''
                 #record.Receipt_Number=''

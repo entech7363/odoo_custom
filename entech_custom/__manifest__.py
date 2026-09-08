@@ -1,12 +1,12 @@
 {
     'name': "Entech custom changes",
-    'version': '2.12',
+    'version': '2.15',
     'summary': 'Creating various fields in the sale and purchase',
     'description': "module for the management of sales and purchases",
     'author': 'AGM Global Services',
     'website': 'https://www.agmglobal.co/',
     'licence': 'OPL-1',
-    'depends': ['base', 'sale', 'stock', 'account', 'purchase', 'sale_stock', 'product', 'hr'],
+    'depends': ['base', 'sale', 'stock', 'account', 'purchase', 'sale_stock', 'purchase_stock', 'product', 'hr'],
     'data': [
         'security/ir_rule.xml',
         'security/sale_security.xml',
