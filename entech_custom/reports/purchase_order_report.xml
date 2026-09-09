@@ -89,9 +89,14 @@
             <br/>
             <br/>
             <br/>
-            <strong>Incoterm</strong>
-            <br/>
-            <span t-esc="o.incoterm_id.code"/>
+            <t t-if="o.incoterm_id">
+                <strong>Incoterm</strong>
+                <br/>
+                <span t-esc="o.incoterm_id.code"/>
+                <t t-if="o.incoterm_location">
+                    , <span t-field="o.incoterm_location"/>
+                </t>
+            </t>
 
         </xpath>
         <xpath expr="//t[@t-set='information_block']" position="replace"/>
@@ -100,9 +105,11 @@
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;">
 
-                    <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                    <span t-if="o.state in ['draft', 'sent']">Request for Quotation</span>
+                    <span t-elif="o.state in ['to_approve', 'to approve']">Draft Purchase Order</span>
                     <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
-                    <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-elif="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-else="">Draft Purchase Order</span>
 
                 </h2>
             </span>
@@ -112,9 +119,11 @@
             <span>
                 <h2 style="text-align:center;font-size:30px;margin-top:0px;visibility:hidden;">
 
-                    <span t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation</span>
+                    <span t-if="o.state in ['draft', 'sent']">Request for Quotation</span>
+                    <span t-elif="o.state in ['to_approve', 'to approve']">Draft Purchase Order</span>
                     <span t-elif="o.state in ['purchase', 'done']">PURCHASE ORDER</span>
-                    <span t-else="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-elif="o.state == 'cancel'">Cancelled Purchase Order</span>
+                    <span t-else="">Draft Purchase Order</span>
 
 
                 </h2>
@@ -168,16 +177,24 @@
             </div>
             <div style="text-align:right; margin-top: 50px;margin-right:40px;">
                 <h2>
-                    <t t-if="o.state in ['draft', 'sent', 'to approve']">
+                    <t t-if="o.state in ['draft', 'sent']">
                         Request for Quotation #
+                        <span t-field="o.name"/>
+                    </t>
+                    <t t-elif="o.state in ['to_approve', 'to approve']">
+                        Draft Purchase Order #
                         <span t-field="o.name"/>
                     </t>
                     <t t-elif="o.state in ['purchase', 'done']">
                         Purchase Order #
                         <span t-field="o.name"/>
                     </t>
-                    <t t-else="">
+                    <t t-elif="o.state == 'cancel'">
                         Cancelled Purchase Order #
+                        <span t-field="o.name"/>
+                    </t>
+                    <t t-else="">
+                        Draft Purchase Order #
                         <span t-field="o.name"/>
                     </t>
                 </h2>

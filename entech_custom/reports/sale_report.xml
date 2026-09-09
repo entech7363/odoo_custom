@@ -5,11 +5,13 @@
 
         <xpath expr="//div[@id='informations']/div[last()]" position="after">
             <t t-set="o" t-value="doc"/>
-            <div t-if="o.delivery_schedule" class="col" name="info_delivery_schedule">
+            <div t-if="doc.incoterm" class="col" name="info_incoterm">
                 <strong>Incoterm</strong>
                 <div>
-                    <span t-field="doc.incoterm.code"/>,
-                    <span t-field="doc.incoterm_location"/>
+                    <span t-field="doc.incoterm.code"/>
+                    <t t-if="doc.incoterm_location">
+                        , <span t-field="doc.incoterm_location"/>
+                    </t>
                 </div>
             </div>
 
