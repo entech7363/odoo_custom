@@ -6,7 +6,7 @@
        <template id="custom_add_serial_fields_invoice" inherit_id="account.report_invoice_document">
 
           <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
-    <attribute name="style">width: 100%;</attribute>
+    <attribute name="style">width: 100%; clear: both;</attribute>
 </xpath>
 
 
