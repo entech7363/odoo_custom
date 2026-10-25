@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_repair_quotation_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="address">
+            <div t-field="doc.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+        </t>
+        <t t-set="layout_document_title">
+            <span>Repair Quotation # </span><span t-field="doc.name"/>
+        </t>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <div class="row mb-3">
+                    <div class="col"><strong>RMA</strong><div t-field="doc.rma_id.name"/></div>
+                    <div class="col"><strong>Date</strong><div t-field="doc.date_order" t-options='{"widget": "date"}'/></div>
+                    <div class="col" t-if="doc.client_order_ref"><strong>PO Number</strong><div t-field="doc.client_order_ref"/></div>
+                </div>
+
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-end">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="section_total" t-value="0"/>
+                        <t t-foreach="doc.order_line" t-as="line">
+                            <t t-if="line.display_type == 'line_section'">
+                                <tr class="bg-light fw-bold">
+                                    <td colspan="4">SECTION: <span t-field="line.name"/></td>
+                                </tr>
+                            </t>
+                            <t t-elif="not line.display_type">
+                                <tr>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                        <span t-if="line.is_spare_part" class="badge text-bg-secondary ms-1">Replaced Part - Cost Absorbed in Service Charge</span>
+                                    </td>
+                                    <td class="text-end"><span t-field="line.product_uom_qty"/></td>
+                                    <td class="text-end"><span t-field="line.price_unit"/></td>
+                                    <td class="text-end"><span t-field="line.price_subtotal"/></td>
+                                </tr>
+                            </t>
+                            <t t-set="next_line" t-value="doc.order_line[line_index + 1] if line_index + 1 &lt; len(doc.order_line) else False"/>
+                            <tr t-if="line.rma_line_id and (not next_line or next_line.display_type == 'line_section')" class="fw-bold">
+                                <td colspan="3" class="text-end">Device Subtotal</td>
+                                <td class="text-end">
+                                    <span t-out="sum(doc.order_line.filtered(lambda l: l.rma_line_id == line.rma_line_id).mapped('price_subtotal'))"
+                                          t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="row justify-content-end">
+                    <div class="col-5">
+                        <table class="table table-sm">
+                            <tr><td>Untaxed Amount</td><td class="text-end"><span t-field="doc.amount_untaxed"/></td></tr>
+                            <tr><td>Taxes</td><td class="text-end"><span t-field="doc.amount_tax"/></td></tr>
+                            <tr class="fw-bold"><td>Grand Total</td><td class="text-end"><span t-field="doc.amount_total"/></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-2 border" style="page-break-inside: avoid;">
+                    <strong>Single PO Acceptance</strong>
+                    <p class="mb-2">One single PO number covers the grand total of all devices in this RMA.</p>
+                    <div class="row">
+                        <div class="col-3">PO Number: __________</div>
+                        <div class="col-3">Signature: __________</div>
+                        <div class="col-3">Stamp: __________</div>
+                        <div class="col-3">Date: __________</div>
+                    </div>
+                </div>
+
+                <div t-if="doc.note" class="mt-4 small" style="page-break-inside: avoid;">
+                    <h6>Terms &amp; Conditions</h6>
+                    <div t-field="doc.note"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_repair_quotation">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="safex_rma_reports.report_repair_quotation_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

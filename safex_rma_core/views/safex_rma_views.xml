@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_rma_form" model="ir.ui.view">
+        <field name="name">safex.rma.form</field>
+        <field name="model">safex.rma</field>
+        <field name="arch" type="xml">
+            <form string="RMA">
+                <header>
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_confirm_receipt" type="object" string="Confirm Receipt" class="btn-primary"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_complete_physical_inspection" type="object" string="Complete Physical Inspection"
+                            class="btn-primary" invisible="state != 'received'"/>
+                    <button name="action_submit_po" type="object" string="Confirm PO Number" class="btn-primary"
+                            invisible="not has_po_pending"/>
+                    <button name="action_dispatch" type="object" string="Dispatch" class="btn-primary"
+                            invisible="state not in ('inspection', 'processing') or not can_dispatch"/>
+                    <button name="action_close" type="object" string="Close" invisible="state != 'dispatched'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state in ('dispatched', 'closed', 'cancel')"/>
+                    <button name="action_reset_draft" type="object" string="Reset to Draft" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,received,inspection,processing,dispatched,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <div class="alert alert-warning" role="alert" invisible="not has_po_pending">
+                        Repair work is paused: waiting for the dealer's PO number.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="user_id"/>
+                            <field name="created_from_portal" invisible="not created_from_portal"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="submitted_date"/>
+                            <field name="received_date"/>
+                            <field name="receiving_user_id"/>
+                            <field name="has_po_pending" invisible="1"/>
+                            <field name="can_dispatch" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="devices" string="Devices">
+                            <field name="line_ids" readonly="state in ('dispatched', 'closed', 'cancel')">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="lot_id"/>
+                                    <field name="product_id"/>
+                                    <field name="imei_1" optional="show"/>
+                                    <field name="end_customer_name" optional="hide"/>
+                                    <field name="complaint_description" optional="show"/>
+                                    <field name="is_repeat_device" widget="boolean_icon" options="{'icon': 'history'}"/>
+                                    <field name="accessory_discrepancy" optional="show"/>
+                                    <field name="warranty_classification" widget="badge" optional="show"/>
+                                    <field name="technician_id" optional="show"/>
+                                    <field name="state" widget="badge"
+                                           decoration-warning="state in ('quoted', 'po_pending')"
+                                           decoration-success="state == 'ready'"
+                                           decoration-muted="state == 'rejected'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="inbound" string="Inbound Logistics &amp; Carton">
+                            <group>
+                                <group string="Freight &amp; Carrier">
+                                    <field name="shipment_mode"/>
+                                    <field name="forwarder_id"/>
+                                    <field name="inbound_awb"/>
+                                    <field name="customer_doc_ref"/>
+                                </group>
+                                <group string="Package Condition on Arrival">
+                                    <field name="package_condition"/>
+                                    <field name="package_photo_ids" widget="many2many_binary"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="receiving_remarks"/>
+                            </group>
+                        </page>
+                        <page name="po" string="Quotation &amp; PO">
+                            <group>
+                                <group>
+                                    <field name="po_number"/>
+                                    <field name="po_date"/>
+                                    <field name="po_pending_since"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="dispatch" string="Dispatch">
+                            <group>
+                                <group string="Return Shipment">
+                                    <field name="outbound_shipment_mode"/>
+                                    <field name="outbound_forwarder_id"/>
+                                    <field name="outbound_awb"/>
+                                    <field name="outbound_doc_ref"/>
+                                    <field name="dispatch_date"/>
+                                </group>
+                                <group string="Shipping Cost">
+                                    <field name="freight_payer"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="terms" string="Terms &amp; Conditions">
+                            <field name="terms"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_list" model="ir.ui.view">
+        <field name="name">safex.rma.list</field>
+        <field name="model">safex.rma</field>
+        <field name="arch" type="xml">
+            <list string="RMAs">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="submitted_date" optional="show"/>
+                <field name="received_date" optional="show"/>
+                <field name="device_count" string="Devices"/>
+                <field name="po_number" optional="show"/>
+                <field name="has_po_pending" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('submitted', 'received')"
+                       decoration-warning="state in ('inspection', 'processing')"
+                       decoration-success="state in ('dispatched', 'closed')"
+                       decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_search" model="ir.ui.view">
+        <field name="name">safex.rma.search</field>
+        <field name="model">safex.rma</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="inbound_awb"/>
+                <field name="po_number"/>
+                <field name="line_ids" string="Serial Number" filter_domain="[('line_ids.lot_id.name', 'ilike', self)]"/>
+                <filter name="to_receive" string="To Receive" domain="[('state', '=', 'submitted')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', 'in', ('received', 'inspection', 'processing'))]"/>
+                <filter name="po_pending" string="PO Pending" domain="[('has_po_pending', '=', True)]"/>
+                <filter name="ready" string="Ready to Dispatch" domain="[('can_dispatch', '=', True), ('state', 'in', ('inspection', 'processing'))]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_partner" string="Dealer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_safex_rma" model="ir.actions.act_window">
+        <field name="name">RMAs</field>
+        <field name="res_model">safex.rma</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_safex_rma_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create an RMA on behalf of a dealer</p>
+            <p>RMAs created here appear immediately on the dealer's portal.</p>
+        </field>
+    </record>
+
+</odoo>

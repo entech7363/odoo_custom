@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Home cards (DES00103): always shown, before the standard cards, so a new dealer sees where
+         to verify a device and raise the first RMA even with no RMA yet. -->
+    <template id="portal_my_home_safex_rma" name="Show RMA &amp; Repairs" inherit_id="portal.portal_my_home"
+              customize_show="True" priority="30">
+        <div id="portal_client_category" position="before">
+            <div class="o_portal_category row g-2 mt-3" id="safex_rma_category">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/safex_portal_rma/static/src/img/rma.svg'"/>
+                    <t t-set="title">RMA &amp; Repairs</t>
+                    <t t-set="url" t-value="'/my/rma'"/>
+                    <t t-set="text">Create and track repair requests, review quotations and enter PO numbers</t>
+                    <t t-set="placeholder_count" t-value="'rma_count'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/safex_portal_rma/static/src/img/verify.svg'"/>
+                    <t t-set="title">Verify a Device</t>
+                    <t t-set="url" t-value="'/my/verify'"/>
+                    <t t-set="text">Check a Serial Number and IMEI before raising an RMA</t>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <template id="portal_breadcrumbs_safex_rma" name="Portal layout: RMA entries" inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'safex_rma'" class="breadcrumb-item active">RMA &amp; Repairs</li>
+            <li t-if="page_name in ('safex_rma_detail', 'safex_rma_new')" class="breadcrumb-item">
+                <a href="/my/rma">RMA &amp; Repairs</a>
+            </li>
+            <li t-if="page_name == 'safex_rma_detail'" class="breadcrumb-item active" t-out="rma.name"/>
+            <li t-if="page_name == 'safex_rma_new'" class="breadcrumb-item active">New RMA</li>
+            <li t-if="page_name == 'safex_verify'" class="breadcrumb-item active">Verify a Device</li>
+        </xpath>
+    </template>
+
+    <template id="rma_state_badge" name="RMA State Badge">
+        <t t-set="badge_class" t-value="{
+            'submitted': 'text-bg-info', 'received': 'text-bg-info', 'inspection': 'text-bg-warning',
+            'processing': 'text-bg-primary', 'dispatched': 'text-bg-success', 'closed': 'text-bg-secondary',
+        }.get(state, 'text-bg-light')"/>
+        <span t-attf-class="badge rounded-pill #{badge_class}" t-out="label"/>
+    </template>
+
+    <!-- RMA list -->
+    <template id="portal_my_rmas" name="My RMAs">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">RMA &amp; Repairs</t>
+            </t>
+            <div class="d-flex justify-content-end gap-2 mb-3">
+                <a href="/my/verify" class="btn btn-secondary">Verify a Device</a>
+                <a href="/my/rma/new" class="btn btn-primary">New RMA</a>
+            </div>
+            <div t-if="not rmas" class="alert alert-info" role="alert">
+                You have no RMA yet.
+            </div>
+            <t t-if="rmas" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>RMA #</th>
+                        <th>Submitted</th>
+                        <th>Received</th>
+                        <th class="text-center">Devices</th>
+                        <th>PO Number</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="rmas" t-as="rma">
+                        <td><a t-att-href="rma.access_url" t-out="rma.name"/></td>
+                        <td><span t-field="rma.submitted_date" t-options="{'widget': 'date'}"/></td>
+                        <td><span t-field="rma.received_date" t-options="{'widget': 'date'}"/></td>
+                        <td class="text-center" t-out="rma.device_count"/>
+                        <td>
+                            <span t-if="rma.po_number" t-out="rma.po_number"/>
+                            <span t-elif="rma.has_po_pending" class="badge text-bg-warning">PO Pending</span>
+                        </td>
+                        <td class="text-end">
+                            <t t-call="safex_portal_rma.rma_state_badge">
+                                <t t-set="state" t-value="rma.state"/>
+                                <t t-set="label" t-value="dict(rma._fields['state']._description_selection(rma.env))[rma.state]"/>
+                            </t>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- New multi-device RMA -->
+    <template id="portal_rma_new" name="New RMA">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">New RMA</t>
+            </t>
+            <div t-if="error == 'device'" class="alert alert-danger" role="alert">
+                Every device must be verified and have a complaint description.
+            </div>
+            <div t-if="error == 'empty'" class="alert alert-danger" role="alert">
+                Add at least one verified device.
+            </div>
+            <form action="/my/rma/new" method="post" class="o_safex_rma_new_form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Add a device</h5>
+                        <p class="text-muted small">Each device must pass the Serial Number + IMEI check before it is added.</p>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label" for="safex_new_serial">Serial Number</label>
+                                <input type="text" class="form-control" id="safex_new_serial"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="safex_new_imei">IMEI 1 or IMEI 2</label>
+                                <input type="text" class="form-control" id="safex_new_imei"/>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-secondary w-100 o_safex_add_device">Verify &amp; Add</button>
+                            </div>
+                        </div>
+                        <div class="o_safex_verify_result mt-2"/>
+                    </div>
+                </div>
+
+                <div class="o_safex_device_rows"/>
+
+                <div class="d-none o_safex_device_template">
+                    <div class="card mb-3 o_safex_device_card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <strong class="o_safex_device_title"/>
+                            <button type="button" class="btn btn-sm btn-link text-danger o_safex_remove_device">Remove</button>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" name="device_index" class="o_safex_index"/>
+                            <input type="hidden" data-name="serial"/>
+                            <input type="hidden" data-name="imei"/>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Customer Name (optional)</label>
+                                    <input type="text" class="form-control" data-name="customer_name"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Customer Company (optional)</label>
+                                    <input type="text" class="form-control" data-name="customer_company"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Complaint Description</label>
+                                    <textarea class="form-control" rows="2" data-name="complaint" data-required="1"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label d-block">Accessories sent</label>
+                                    <t t-foreach="[('charger', 'Charger'), ('dock', 'Docking Station'), ('battery', 'Battery'), ('screwdriver', 'Screwdriver'), ('cable', 'Cable'), ('box', 'With Box')]" t-as="acc">
+                                        <div class="form-check form-check-inline">
+                                            <input type="checkbox" class="form-check-input" t-att-data-name="'acc_%s' % acc[0]" value="1"/>
+                                            <label class="form-check-label" t-out="acc[1]"/>
+                                        </div>
+                                    </t>
+                                    <input type="text" class="form-control mt-2" placeholder="Other accessories" data-name="acc_other"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-muted small">Complaint photos are optional and can be emailed to SafeX with the RMA number.</p>
+                <button type="submit" class="btn btn-primary o_safex_submit_rma" disabled="disabled">Submit RMA</button>
+            </form>
+        </t>
+    </template>
+
+    <!-- RMA detail -->
+    <template id="portal_rma_detail" name="RMA Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title" t-value="rma.name"/>
+            </t>
+
+            <div t-if="message == 'created'" class="alert alert-success" role="alert">
+                Your RMA has been submitted. Print the RMA Reference Document and place it inside the parcel.
+            </div>
+            <div t-if="message == 'po'" class="alert alert-success" role="alert">PO number received: repair work resumes.</div>
+            <div t-if="message == 'approve'" class="alert alert-success" role="alert">Quotation approved. Please enter your PO number.</div>
+            <div t-if="message in ('reject', 'clarify')" class="alert alert-success" role="alert">Your request was sent to SafeX.</div>
+            <div t-if="error" class="alert alert-danger" role="alert">
+                The action could not be completed. A reason is mandatory to reject or ask for clarification.
+            </div>
+
+            <!-- Logistics & status banner -->
+            <div class="card mb-3">
+                <div class="card-body d-flex flex-wrap justify-content-between gap-3">
+                    <div>
+                        <h4 class="mb-1" t-out="rma.name"/>
+                        <t t-call="safex_portal_rma.rma_state_badge">
+                            <t t-set="state" t-value="rma.state"/>
+                            <t t-set="label" t-value="dict(rma._fields['state']._description_selection(rma.env))[rma.state]"/>
+                        </t>
+                        <span t-if="rma.has_po_pending" class="badge rounded-pill text-bg-warning ms-1">PO Pending</span>
+                    </div>
+                    <div class="small">
+                        <div t-if="rma.inbound_awb">Inbound: <t t-out="rma.forwarder_id.name or ''"/> AWB <t t-out="rma.inbound_awb"/></div>
+                        <div t-if="rma.outbound_awb">Outbound: <t t-out="rma.outbound_forwarder_id.name or ''"/> AWB <t t-out="rma.outbound_awb"/></div>
+                        <div t-if="rma.po_number">PO Number: <strong t-out="rma.po_number"/></div>
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        <a t-attf-href="/my/rma/#{rma.id}/report/reference" class="btn btn-sm btn-secondary">RMA Reference PDF</a>
+                        <a t-if="rma.state in ('dispatched', 'closed')" t-attf-href="/my/rma/#{rma.id}/report/packing_list"
+                           class="btn btn-sm btn-secondary">Packing List PDF</a>
+                        <a t-foreach="invoices" t-as="invoice" t-attf-href="/my/rma/#{rma.id}/report/invoice?order_id=#{invoice.id}"
+                           class="btn btn-sm btn-secondary">Invoice <t t-out="invoice.name"/></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PO entry, always available while a device waits for it -->
+            <div t-if="rma.has_po_pending" class="card mb-3 border-warning">
+                <div class="card-body">
+                    <h5>Enter your PO Number</h5>
+                    <p class="small text-muted">One PO number covers the grand total of all devices. Email the PO document to SafeX.</p>
+                    <form t-attf-action="/my/rma/#{rma.id}/submit_po" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="text" name="po_number" class="form-control" required="required" placeholder="PO Number"/>
+                        <button type="submit" class="btn btn-primary">Submit PO</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Device cards -->
+            <h5>Devices</h5>
+            <div class="row">
+                <div t-foreach="rma.line_ids" t-as="line" class="col-md-6 mb-3">
+                    <div class="card h-100 o_safex_device_card">
+                        <div class="card-header d-flex justify-content-between">
+                            <strong><t t-out="line.product_id.name"/> - <t t-out="line.lot_id.name"/></strong>
+                            <span class="badge text-bg-light" t-out="dict(line._fields['state']._description_selection(line.env))[line.state]"/>
+                        </div>
+                        <div class="card-body small">
+                            <p class="mb-1"><strong>Complaint: </strong><t t-out="line.complaint_description"/></p>
+                            <p t-if="line.warranty_classification" class="mb-1"><strong>Classification: </strong>
+                                <t t-out="dict(line._fields['warranty_classification']._description_selection(line.env))[line.warranty_classification]"/>
+                            </p>
+                            <p t-if="line.dealer_facing_report" class="mb-1"><strong>Diagnostic: </strong><t t-out="line.dealer_facing_report"/></p>
+                            <p t-if="line.rejection_reason" class="mb-1"><strong>Rejection reason: </strong><t t-out="line.rejection_reason"/></p>
+                            <div>
+                                <t t-foreach="rma.get_accessory_labels(line, 'acc_declared')" t-as="acc">
+                                    <span class="badge text-bg-secondary me-1" t-out="acc"/>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sectioned quotation -->
+            <t t-foreach="orders" t-as="order">
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between">
+                        <strong>Quotation <t t-out="order.name"/></strong>
+                        <a t-attf-href="/my/rma/#{rma.id}/report/quotation?order_id=#{order.id}">Download PDF</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Amount</th></tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="order.order_line" t-as="sol">
+                                    <tr t-if="sol.display_type == 'line_section'" class="table-light fw-bold">
+                                        <td colspan="4">SECTION: <t t-out="sol.name"/></td>
+                                    </tr>
+                                    <tr t-elif="not sol.display_type">
+                                        <td>
+                                            <t t-out="sol.name"/>
+                                            <span t-if="sol.is_spare_part" class="badge text-bg-light ms-1">Replaced part - included</span>
+                                        </td>
+                                        <td class="text-end" t-out="sol.product_uom_qty"/>
+                                        <td class="text-end"><span t-field="sol.price_unit"/></td>
+                                        <td class="text-end"><span t-field="sol.price_subtotal"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold"><td colspan="3" class="text-end">Total</td><td class="text-end"><span t-field="order.amount_total"/></td></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Quotation actions -->
+            <div t-if="quotation_open" class="card mb-3">
+                <div class="card-body">
+                    <h5>Your decision</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <form t-attf-action="/my/rma/#{rma.id}/action" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="action" value="approve"/>
+                            <button type="submit" class="btn btn-primary">Approve Quotation</button>
+                        </form>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#safex_reject_modal">Reject a Device</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#safex_clarify_modal">Request Clarification</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="safex_reject_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form class="modal-content" t-attf-action="/my/rma/#{rma.id}/action" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="action" value="reject"/>
+                        <div class="modal-header"><h5 class="modal-title">Decline repair for a device</h5></div>
+                        <div class="modal-body">
+                            <label class="form-label">Device</label>
+                            <select name="line_id" class="form-select mb-2" required="required">
+                                <t t-foreach="rma.line_ids.filtered(lambda l: l.state in ('quoted', 'po_pending'))" t-as="line">
+                                    <option t-att-value="line.id"><t t-out="line.product_id.name"/> - <t t-out="line.lot_id.name"/></option>
+                                </t>
+                            </select>
+                            <label class="form-label">Reason (mandatory)</label>
+                            <textarea name="reason" class="form-control" required="required"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Reject Device</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal fade" id="safex_clarify_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form class="modal-content" t-attf-action="/my/rma/#{rma.id}/action" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="action" value="clarify"/>
+                        <div class="modal-header"><h5 class="modal-title">Ask the SafeX technical team</h5></div>
+                        <div class="modal-body">
+                            <label class="form-label">Your question (mandatory)</label>
+                            <textarea name="reason" class="form-control" required="required"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Communication history</h5>
+                <t t-call="portal.message_thread"/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

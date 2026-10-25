@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_safex_rma_user,safex.rma internal user,model_safex_rma,base.group_user,1,0,0,0
+access_safex_rma_stock_user,safex.rma stock user,model_safex_rma,stock.group_stock_user,1,1,1,0
+access_safex_rma_stock_manager,safex.rma stock manager,model_safex_rma,stock.group_stock_manager,1,1,1,1
+access_safex_rma_line_user,safex.rma.line internal user,model_safex_rma_line,base.group_user,1,0,0,0
+access_safex_rma_line_stock_user,safex.rma.line stock user,model_safex_rma_line,stock.group_stock_user,1,1,1,1
+access_safex_rma_line_part_user,safex.rma.line.part internal user,model_safex_rma_line_part,base.group_user,1,0,0,0
+access_safex_rma_line_part_stock_user,safex.rma.line.part stock user,model_safex_rma_line_part,stock.group_stock_user,1,1,1,1
+access_safex_inspection_item_user,safex.inspection.item internal user,model_safex_inspection_item,base.group_user,1,0,0,0
+access_safex_inspection_item_manager,safex.inspection.item stock manager,model_safex_inspection_item,stock.group_stock_manager,1,1,1,1
+access_safex_inspection_option_user,safex.inspection.option internal user,model_safex_inspection_option,base.group_user,1,0,0,0
+access_safex_inspection_option_manager,safex.inspection.option stock manager,model_safex_inspection_option,stock.group_stock_manager,1,1,1,1
+access_safex_rma_line_inspection_user,safex.rma.line.inspection internal user,model_safex_rma_line_inspection,base.group_user,1,0,0,0
+access_safex_rma_line_inspection_stock_user,safex.rma.line.inspection stock user,model_safex_rma_line_inspection,stock.group_stock_user,1,1,1,1

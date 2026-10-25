@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- One "SafeX" tab on the company form; the RMA modules add their settings inside it. -->
+    <record id="view_company_form_safex_settings" model="ir.ui.view">
+        <field name="name">res.company.form.safex.settings</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <page name="general_info" position="after">
+                <page name="safex_settings" string="SafeX">
+                    <group name="safex_warranty" string="Warranty Periods">
+                        <field name="safex_dealer_warranty_months"/>
+                        <field name="safex_factory_warranty_months"/>
+                        <div class="text-muted" colspan="2">
+                            Used for new serial numbers. A product can override them; existing serial
+                            numbers keep their own value.
+                        </div>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

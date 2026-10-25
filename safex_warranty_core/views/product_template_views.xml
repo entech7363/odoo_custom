@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_template_form_view_safex_warranty" model="ir.ui.view">
+        <field name="name">product.template.form.safex.warranty</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="safex_warranty" string="SafeX Warranty" groups="base.group_user"
+                      invisible="type != 'consu'">
+                    <group>
+                        <group string="Warranty Override">
+                            <field name="safex_dealer_warranty_months"/>
+                            <field name="safex_factory_warranty_months"/>
+                        </group>
+                        <div class="text-muted">
+                            Leave 0 to use the company default (Company &#8594; SafeX tab).
+                            Applies to serial numbers created after the change.
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

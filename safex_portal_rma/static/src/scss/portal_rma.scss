@@ -1,0 +1,9 @@
+.o_safex_device_card {
+    .card-header {
+        background-color: rgba($primary, 0.06);
+    }
+}
+
+.o_safex_verify_result:empty {
+    display: none;
+}

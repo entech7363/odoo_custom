@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="mail_template_rma_submitted" model="mail.template">
+        <field name="name">SafeX RMA: Submission Confirmation</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }} registered - shipping instructions</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent when an RMA is submitted, with the RMA reference PDF</field>
+        <field name="report_template_ids" eval="[(4, ref('safex_rma_reports.action_report_rma_reference'))]"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>Your RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> covering
+       <t t-out="object.device_count">1</t> device(s) has been registered.</p>
+    <p>Please print the attached RMA Reference Document, place it inside the parcel and ship it to:</p>
+    <p t-out="object.company_id.partner_id._display_address() or ''">SafeX Service Center</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_quotation_ready" model="mail.template">
+        <field name="name">SafeX RMA: Quotation Ready for Review</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }}: repair quotation ready for your review</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent when the sectioned repair quotation is published to the portal</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>Inspection of RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> is complete.
+       The repair quotation total is
+       <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 0.00</strong>.</p>
+    <p>Please review it on the dealer portal to approve, reject a device, or ask for clarification,
+       then enter your PO number.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_rma_dispatched" model="mail.template">
+        <field name="name">SafeX RMA: Dispatch Tracking</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }} dispatched - AWB {{ object.outbound_awb or '' }}</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent on dispatch, with the consolidated packing list</field>
+        <field name="report_template_ids" eval="[(4, ref('safex_rma_reports.action_report_outbound_packing_list'))]"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>All devices of RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> are returning together.</p>
+    <p>Courier: <t t-out="object.outbound_forwarder_id.name or '-'">DHL</t><br/>
+       AWB: <t t-out="object.outbound_awb or '-'">123</t></p>
+    <p>The consolidated packing list is attached.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

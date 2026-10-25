@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_safex_rma_salesman,safex.rma salesman,safex_rma_core.model_safex_rma,sales_team.group_sale_salesman,1,1,0,0
+access_safex_rma_line_salesman,safex.rma.line salesman,safex_rma_core.model_safex_rma_line,sales_team.group_sale_salesman,1,1,0,0
+access_safex_rma_line_part_salesman,safex.rma.line.part salesman,safex_rma_core.model_safex_rma_line_part,sales_team.group_sale_salesman,1,0,0,0

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_production_lot_form_safex_warranty" model="ir.ui.view">
+        <field name="name">stock.lot.form.safex.warranty</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_rmas" type="object" class="oe_stat_button" icon="fa-wrench"
+                        invisible="rma_count == 0">
+                    <field name="rma_count" widget="statinfo" string="RMAs"/>
+                </button>
+            </div>
+            <xpath expr="//div[hasclass('oe_title')]" position="inside">
+                <div class="d-flex gap-3">
+                    <field name="imei_1" placeholder="IMEI 1"/>
+                    <field name="imei_2" placeholder="IMEI 2"/>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="safex_warranty" string="SafeX Warranty &amp; Service" groups="base.group_user">
+                    <group>
+                        <group string="SafeX Dealer Warranty (Sales-Side)">
+                            <field name="dealer_delivery_date"/>
+                            <field name="dealer_warranty_months"/>
+                            <field name="dealer_warranty_expiry" widget="badge"/>
+                            <field name="warranty_classification" widget="badge"/>
+                        </group>
+                        <group string="Factory Warranty (Manufacturer-Side)">
+                            <field name="factory_grn_date"/>
+                            <field name="factory_warranty_months"/>
+                            <field name="factory_warranty_expiry" widget="badge"/>
+                        </group>
+                    </group>
+                    <group string="Service Traceability">
+                        <group>
+                            <field name="last_repair_date"/>
+                            <field name="last_rma_number"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_production_lot_tree_safex_warranty" model="ir.ui.view">
+        <field name="name">stock.lot.list.safex.warranty</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <field name="ref" position="after">
+                <field name="imei_1" optional="show"/>
+                <field name="imei_2" optional="hide"/>
+                <field name="dealer_warranty_expiry" optional="show" groups="base.group_user"/>
+                <field name="warranty_classification" optional="hide" widget="badge" groups="base.group_user"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="search_product_lot_filter_safex_warranty" model="ir.ui.view">
+        <field name="name">stock.lot.search.safex.warranty</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|', ('name', 'ilike', self), ('ref', 'ilike', self), ('imei_1', 'ilike', self), ('imei_2', 'ilike', self)]</attribute>
+            </field>
+            <field name="name" position="after">
+                <field name="imei_1"/>
+                <field name="imei_2"/>
+            </field>
+            <filter name="on_hand" position="after">
+                <separator/>
+                <filter string="Under Dealer Warranty" name="under_dealer_warranty"
+                        domain="[('dealer_warranty_expiry', '&gt;=', 'today')]" groups="base.group_user"/>
+                <filter string="Out of Dealer Warranty" name="out_dealer_warranty"
+                        domain="[('dealer_warranty_expiry', '&lt;', 'today')]" groups="base.group_user"/>
+                <filter string="Under Factory Warranty" name="under_factory_warranty"
+                        domain="[('factory_warranty_expiry', '&gt;=', 'today')]" groups="base.group_user"/>
+            </filter>
+            <filter name="group_by_product" position="after">
+                <filter name="group_by_warranty_classification" string="Warranty Classification"
+                        context="{'group_by': 'warranty_classification'}" groups="base.group_user"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

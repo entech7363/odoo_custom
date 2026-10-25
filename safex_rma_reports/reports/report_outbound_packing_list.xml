@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_outbound_packing_list_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="address">
+            <strong>Consignee</strong>
+            <div t-field="doc.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+        </t>
+        <t t-set="layout_document_title">
+            <span>Consolidated Packing List - </span><span t-field="doc.name"/>
+        </t>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <div class="row mb-3">
+                    <div class="col"><strong>Courier</strong><div t-field="doc.outbound_forwarder_id"/></div>
+                    <div class="col"><strong>AWB</strong>
+                        <div t-if="doc.outbound_awb" t-field="doc.outbound_awb"
+                             t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 600, 'height': 100, 'img_style': 'width:240px;height:40px;'}"/>
+                        <div t-field="doc.outbound_awb"/>
+                    </div>
+                    <div class="col"><strong>Dispatch Date</strong><div t-field="doc.dispatch_date"/></div>
+                    <div class="col"><strong>Shipping Borne By</strong><div t-field="doc.freight_payer"/></div>
+                </div>
+
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Model</th>
+                            <th>Serial Number</th>
+                            <th>Resolution</th>
+                            <th>Accessories Returned</th>
+                            <th>QC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="doc.line_ids" t-as="line">
+                            <td><t t-out="line_index + 1"/></td>
+                            <td><span t-field="line.product_id.name"/></td>
+                            <td>
+                                <div t-field="line.lot_id.name"
+                                     t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 400, 'height': 80, 'img_style': 'width:160px;height:30px;'}"/>
+                                <span t-field="line.lot_id.name"/>
+                            </td>
+                            <td>
+                                <span t-field="line.warranty_classification"/>
+                                <div t-if="line.state == 'rejected'" class="small">Returned as-is</div>
+                                <div t-elif="line.repair_work_done" class="small" t-field="line.repair_work_done"/>
+                            </td>
+                            <td>
+                                <t t-set="accessories" t-value="doc.get_accessory_labels(line, 'acc_received')"/>
+                                <span t-foreach="accessories" t-as="acc" class="badge text-bg-light me-1" t-out="acc"/>
+                                <span t-if="not accessories">None</span>
+                            </td>
+                            <td>
+                                <span t-if="line.quality_check == 'passed'" class="badge text-bg-success">QC PASS</span>
+                                <div t-if="line.quality_check_user_id" class="small" t-field="line.quality_check_user_id"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="row mt-5" style="page-break-inside: avoid;">
+                    <div class="col-4">SafeX Quality Assurance: __________</div>
+                    <div class="col-4">Dispatch Inspector: __________</div>
+                    <div class="col-4">Courier Driver: __________</div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_outbound_packing_list">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="safex_rma_reports.report_outbound_packing_list_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

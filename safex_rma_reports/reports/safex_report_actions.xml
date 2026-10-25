@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_rma_reference" model="ir.actions.report">
+        <field name="name">RMA Reference Document</field>
+        <field name="model">safex.rma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">safex_rma_reports.report_rma_reference</field>
+        <field name="print_report_name">'RMA Reference - %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_safex_a4"/>
+        <field name="binding_model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_sectioned_repair_quotation" model="ir.actions.report">
+        <field name="name">Repair Quotation (Sectioned)</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">safex_rma_reports.report_repair_quotation</field>
+        <field name="print_report_name">'Repair Quotation - %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_safex_a4"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+        <field name="domain">[('rma_id', '!=', False)]</field>
+    </record>
+
+    <record id="action_report_outbound_packing_list" model="ir.actions.report">
+        <field name="name">Consolidated Packing List</field>
+        <field name="model">safex.rma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">safex_rma_reports.report_outbound_packing_list</field>
+        <field name="print_report_name">'Packing List - %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_safex_a4"/>
+        <field name="binding_model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

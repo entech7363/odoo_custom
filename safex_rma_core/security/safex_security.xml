@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="safex_rma_comp_rule" model="ir.rule">
+        <field name="name">SafeX RMA multi-company</field>
+        <field name="model_id" ref="model_safex_rma"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="safex_rma_line_comp_rule" model="ir.rule">
+        <field name="name">SafeX RMA device multi-company</field>
+        <field name="model_id" ref="model_safex_rma_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="safex_rma_line_part_comp_rule" model="ir.rule">
+        <field name="name">SafeX RMA part multi-company</field>
+        <field name="model_id" ref="model_safex_rma_line_part"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="safex_rma_line_inspection_comp_rule" model="ir.rule">
+        <field name="name">SafeX device inspection multi-company</field>
+        <field name="model_id" ref="model_safex_rma_line_inspection"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+</odoo>

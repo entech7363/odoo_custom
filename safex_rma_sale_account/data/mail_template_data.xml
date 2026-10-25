@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="mail_template_po_pending" model="mail.template">
+        <field name="name">SafeX RMA: PO Pending Notice</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }}: quotation approved - PO number required</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent to the dealer when a repair quotation is approved, asking for the PO number</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>Thank you for approving the repair quotation for RMA <strong t-out="object.name or ''">RMA/2026/00001</strong>.</p>
+    <p>Repair work is <strong>paused until we receive your PO number</strong>.
+       Please email your Purchase Order to SafeX and enter the PO number on the dealer portal.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_po_reminder" model="mail.template">
+        <field name="name">SafeX RMA: PO Pending Reminder</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">Reminder: {{ object.name }} is waiting for your PO number</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Periodic reminder while devices are PO Pending (days set on the company, SafeX tab)</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> has been waiting for your PO number for
+       <t t-out="object.po_pending_days">7</t> days.</p>
+    <p>The quotation stays open: as soon as you enter the PO number on the portal, repair work resumes.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

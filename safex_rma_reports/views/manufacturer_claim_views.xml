@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_rma_line_manufacturer_claim_list" model="ir.ui.view">
+        <field name="name">safex.rma.line.manufacturer.claim.list</field>
+        <field name="model">safex.rma.line</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <list string="Manufacturer Claims" create="0">
+                <field name="rma_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="lot_id"/>
+                <field name="product_id"/>
+                <field name="fault_category"/>
+                <field name="warranty_classification"/>
+                <field name="repair_date"/>
+                <field name="repair_work_done" optional="hide"/>
+                <field name="part_line_ids" widget="many2many_tags" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_safex_manufacturer_claims" model="ir.actions.act_window">
+        <field name="name">Manufacturer Claims</field>
+        <field name="res_model">safex.rma.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="view_id" ref="view_safex_rma_line_manufacturer_claim_list"/>
+        <field name="domain">[('is_manufacturing_defect', '=', True), ('state', '=', 'ready')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No manufacturing-defect repairs yet</p>
+            <p>Repaired devices with a manufacturing defect, to export for monthly manufacturer reimbursement.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_safex_manufacturer_claims" name="Manufacturer Claims"
+              parent="repair.repair_menu_reporting"
+              action="action_safex_manufacturer_claims" sequence="20"/>
+
+</odoo>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Default physical inspection checklist (DES00108). Editable in
+         RMA &amp; Repairs > Configuration > Inspection Checklist. -->
+
+    <record id="insp_item_overall_physical_state" model="safex.inspection.item">
+        <field name="name">Overall Condition</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_overall_physical_state_mint" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Mint</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_overall_physical_state_normal_wear" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Normal Wear</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_overall_physical_state_scratched" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Scratched</field>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="insp_opt_overall_physical_state_cracked_screen" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Cracked Screen</field>
+        <field name="sequence" eval="40"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+    <record id="insp_opt_overall_physical_state_heavy_impact" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Heavy Impact</field>
+        <field name="sequence" eval="50"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+    <record id="insp_opt_overall_physical_state_liquid_damaged" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Liquid Damaged</field>
+        <field name="sequence" eval="60"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+    <record id="insp_opt_overall_physical_state_tampered" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_overall_physical_state"/>
+        <field name="name">Tampered</field>
+        <field name="sequence" eval="70"/>
+    </record>
+
+    <record id="insp_item_screen_condition" model="safex.inspection.item">
+        <field name="name">Display / Front Glass</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_screen_condition_good" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_screen_condition"/>
+        <field name="name">Good</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_screen_condition_scratched" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_screen_condition"/>
+        <field name="name">Scratched</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_screen_condition_cracked" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_screen_condition"/>
+        <field name="name">Cracked</field>
+        <field name="sequence" eval="30"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+    <record id="insp_opt_screen_condition_shattered" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_screen_condition"/>
+        <field name="name">Shattered</field>
+        <field name="sequence" eval="40"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+    <record id="insp_opt_screen_condition_lcd_bleeding" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_screen_condition"/>
+        <field name="name">LCD Bleeding</field>
+        <field name="sequence" eval="50"/>
+    </record>
+
+    <record id="insp_item_housing_condition" model="safex.inspection.item">
+        <field name="name">Housing / Chassis</field>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="insp_opt_housing_condition_good" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_housing_condition"/>
+        <field name="name">Good</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_housing_condition_scuffed" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_housing_condition"/>
+        <field name="name">Scuffed</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_housing_condition_dented" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_housing_condition"/>
+        <field name="name">Dented</field>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="insp_opt_housing_condition_bent_frame" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_housing_condition"/>
+        <field name="name">Bent Frame</field>
+        <field name="sequence" eval="40"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+
+    <record id="insp_item_button_condition" model="safex.inspection.item">
+        <field name="name">Buttons &amp; Keys</field>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="insp_opt_button_condition_functional" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_button_condition"/>
+        <field name="name">Functional</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_button_condition_stiff" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_button_condition"/>
+        <field name="name">Stiff / Stuck</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_button_condition_broken_missing" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_button_condition"/>
+        <field name="name">Broken / Missing</field>
+        <field name="sequence" eval="30"/>
+    </record>
+
+    <record id="insp_item_port_condition" model="safex.inspection.item">
+        <field name="name">Charging / Audio Ports</field>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="insp_opt_port_condition_clean" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_port_condition"/>
+        <field name="name">Clean</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="insp_opt_port_condition_corroded" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_port_condition"/>
+        <field name="name">Corroded</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="insp_opt_port_condition_clogged" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_port_condition"/>
+        <field name="name">Clogged</field>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="insp_opt_port_condition_pins_damaged" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_port_condition"/>
+        <field name="name">Pins Damaged</field>
+        <field name="sequence" eval="40"/>
+    </record>
+
+    <record id="insp_item_liquid_indicator" model="safex.inspection.item">
+        <field name="name">Liquid Indicator</field>
+        <field name="sequence" eval="60"/>
+    </record>
+    <record id="insp_opt_liquid_indicator_normal" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_liquid_indicator"/>
+        <field name="name">Normal</field>
+        <field name="sequence" eval="10"/>
+        <field name="is_default" eval="True"/>
+    </record>
+    <record id="insp_opt_liquid_indicator_tripped" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_liquid_indicator"/>
+        <field name="name">Tripped</field>
+        <field name="sequence" eval="20"/>
+        <field name="requires_photo" eval="True"/>
+        <field name="suggested_classification">physical_damage</field>
+    </record>
+
+    <record id="insp_item_atex_seal" model="safex.inspection.item">
+        <field name="name">ATEX Seal</field>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="insp_opt_atex_seal_intact" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_atex_seal"/>
+        <field name="name">Intact</field>
+        <field name="sequence" eval="10"/>
+        <field name="is_default" eval="True"/>
+    </record>
+    <record id="insp_opt_atex_seal_broken" model="safex.inspection.option">
+        <field name="item_id" ref="insp_item_atex_seal"/>
+        <field name="name">Broken / Damaged</field>
+        <field name="sequence" eval="20"/>
+    </record>
+
+</odoo>

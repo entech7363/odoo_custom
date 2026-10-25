@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_rma_reference_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="address">
+            <strong>Dealer</strong>
+            <div t-field="doc.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
+        </t>
+        <t t-set="layout_document_title">
+            <span>OFFICIAL RMA RETURN MANIFEST &amp; INTAKE SLIP</span>
+        </t>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <h4 t-field="doc.name"/>
+                        <div><strong>Ship to: </strong><span t-field="doc.company_id.partner_id"
+                             t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/></div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div t-field="doc.name"
+                             t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 600, 'height': 100, 'img_style': 'width:300px;height:50px;'}"/>
+                        <div t-if="doc.submitted_date"><strong>Submitted: </strong><span t-field="doc.submitted_date"/></div>
+                    </div>
+                </div>
+
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Device Model</th>
+                            <th>Serial Number / IMEI</th>
+                            <th>Reported Fault</th>
+                            <th>Accessories Sent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="doc.line_ids" t-as="line">
+                            <td><t t-out="line_index + 1"/></td>
+                            <td><span t-field="line.product_id.name"/></td>
+                            <td>
+                                <span t-field="line.lot_id.name"/>
+                                <div t-if="line.imei_1" class="small">IMEI 1: <span t-field="line.imei_1"/></div>
+                                <div t-if="line.imei_2" class="small">IMEI 2: <span t-field="line.imei_2"/></div>
+                            </td>
+                            <td><span t-field="line.complaint_description"/></td>
+                            <td>
+                                <t t-set="accessories" t-value="doc.get_accessory_labels(line, 'acc_declared')"/>
+                                <span t-foreach="accessories" t-as="acc" class="badge text-bg-light me-1" t-out="acc"/>
+                                <span t-if="not accessories">None</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h6 class="mt-4">Physical Intake Inspection (SafeX Workshop)</h6>
+                <p>
+                    [ ] Box seal intact &#160;&#160; [ ] Physical damage upon arrival (photos taken)
+                    &#160;&#160; [ ] Accessory count verified against manifest
+                </p>
+                <div class="row mt-4">
+                    <div class="col-6">Receiving Technician: ____________________</div>
+                    <div class="col-6">Date: ____________________</div>
+                </div>
+
+                <div t-if="doc.terms" class="mt-4 small" style="page-break-inside: avoid;">
+                    <h6>RMA Terms &amp; Conditions</h6>
+                    <div t-field="doc.terms"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_rma_reference">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="safex_rma_reports.report_rma_reference_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

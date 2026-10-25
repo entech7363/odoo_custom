@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_rma_line_form" model="ir.ui.view">
+        <field name="name">safex.rma.line.form</field>
+        <field name="model">safex.rma.line</field>
+        <field name="arch" type="xml">
+            <form string="RMA Device">
+                <header>
+                    <button name="action_validate_physical_inspection" type="object" string="Validate Physical Inspection"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_validate_technical_inspection" type="object" string="Validate Diagnostic &amp; Route"
+                            class="btn-primary" invisible="state != 'inspected'"/>
+                    <button name="action_complete_repair" type="object" string="Complete Repair"
+                            class="btn-primary" invisible="state != 'in_repair'"/>
+                    <button name="action_qc_validate" type="object" string="Validate Final Test &amp; QC"
+                            class="btn-primary" invisible="state != 'qc_testing'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,inspected,po_pending,in_repair,qc_testing,ready"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="not is_repeat_device">
+                        <field name="repeat_repair_warning" readonly="1"/>
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="not accessory_discrepancy">
+                        Accessory discrepancy detected: an item declared by the dealer was not received.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="lot_id" placeholder="Serial Number" options="{'no_create': True}"
+                                   readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="rma_id" readonly="1"/>
+                            <field name="product_id"/>
+                            <field name="imei_1"/>
+                            <field name="imei_2"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="end_customer_name"/>
+                            <field name="end_customer_company"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="is_repeat_device" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="complaint_description"/>
+                        <field name="complaint_photo_ids" widget="many2many_binary"/>
+                    </group>
+                    <notebook>
+                        <page name="accessories" string="Accessories Audit">
+                            <group>
+                                <group string="Declared by Dealer">
+                                    <field name="acc_declared_charger"/>
+                                    <field name="acc_declared_dock"/>
+                                    <field name="acc_declared_battery"/>
+                                    <field name="acc_declared_screwdriver"/>
+                                    <field name="acc_declared_cable"/>
+                                    <field name="acc_declared_box"/>
+                                    <field name="acc_declared_other"/>
+                                </group>
+                                <group string="Verified on Receipt">
+                                    <field name="acc_received_charger"/>
+                                    <field name="acc_received_dock"/>
+                                    <field name="acc_received_battery"/>
+                                    <field name="acc_received_screwdriver"/>
+                                    <field name="acc_received_cable"/>
+                                    <field name="acc_received_box"/>
+                                    <field name="acc_received_other"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="accessory_discrepancy"/>
+                                <field name="accessory_notes"/>
+                                <field name="is_unexpected_device"/>
+                            </group>
+                        </page>
+                        <page name="physical" string="Physical &amp; Cosmetic Inspection">
+                            <group>
+                                <group>
+                                    <field name="physical_inspector_id"/>
+                                    <field name="physical_inspection_date"/>
+                                </group>
+                                <group>
+                                    <field name="physical_damage_suspected"/>
+                                </group>
+                            </group>
+                            <field name="inspection_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom" create="0" delete="0"
+                                      decoration-danger="requires_photo">
+                                    <field name="item_id" readonly="1" force_save="1"/>
+                                    <field name="required" column_invisible="1"/>
+                                    <field name="requires_photo" column_invisible="1"/>
+                                    <field name="option_id" required="required"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="notes" optional="show"/>
+                                </list>
+                            </field>
+                            <group>
+                                <field name="inspection_photo_ids" widget="many2many_binary"/>
+                                <field name="physical_inspection_notes"/>
+                            </group>
+                        </page>
+                        <page name="technical" string="Technical Diagnostic &amp; Parts">
+                            <group>
+                                <group string="Diagnostic">
+                                    <field name="technician_id"/>
+                                    <field name="diagnostic_date"/>
+                                    <field name="diagnostic_hours" widget="float_time"/>
+                                    <field name="fault_category"/>
+                                </group>
+                                <group string="Warranty Decision">
+                                    <field name="dealer_warranty_expiry" groups="base.group_user"/>
+                                    <field name="factory_warranty_expiry" groups="base.group_user"/>
+                                    <field name="under_dealer_warranty" groups="base.group_user"/>
+                                    <field name="warranty_classification" readonly="state not in ('draft', 'inspected')"/>
+                                    <field name="is_manufacturing_defect"/>
+                                    <field name="is_chargeable"/>
+                                    <field name="warranty_decision_notes"/>
+                                </group>
+                            </group>
+                            <field name="part_line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="location_id"/>
+                                    <field name="local_stock_available"/>
+                                    <field name="cost_price" groups="base.group_user"/>
+                                    <field name="consumed"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                            <group>
+                                <field name="internal_tech_notes" groups="base.group_user"/>
+                                <field name="dealer_facing_report"/>
+                            </group>
+                        </page>
+                        <page name="repair" string="Repair Execution">
+                            <group>
+                                <group>
+                                    <field name="technician_id"/>
+                                    <field name="repair_date"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="repair_work_done"/>
+                                <field name="repair_notes" groups="base.group_user"/>
+                            </group>
+                        </page>
+                        <page name="qc" string="Final Testing &amp; Quality Check">
+                            <group>
+                                <group string="Final Test">
+                                    <field name="final_test_result"/>
+                                    <field name="final_test_notes"/>
+                                </group>
+                                <group string="Quality Check">
+                                    <field name="quality_check" groups="stock.group_stock_manager"/>
+                                    <field name="quality_check" readonly="1" groups="!stock.group_stock_manager"/>
+                                    <field name="quality_check_user_id"/>
+                                    <field name="quality_check_date"/>
+                                </group>
+                            </group>
+                            <group invisible="state != 'rejected'">
+                                <field name="rejection_reason"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_line_list" model="ir.ui.view">
+        <field name="name">safex.rma.line.list</field>
+        <field name="model">safex.rma.line</field>
+        <field name="arch" type="xml">
+            <list string="RMA Devices">
+                <field name="rma_id"/>
+                <field name="partner_id"/>
+                <field name="lot_id"/>
+                <field name="product_id"/>
+                <field name="is_repeat_device" widget="boolean_icon" options="{'icon': 'history'}" optional="show"/>
+                <field name="physical_damage_suspected" optional="show"/>
+                <field name="warranty_classification" widget="badge" optional="show"
+                       decoration-success="warranty_classification == 'under_warranty'"
+                       decoration-warning="warranty_classification in ('out_of_warranty', 'no_fault_found')"
+                       decoration-danger="warranty_classification in ('physical_damage', 'warranty_rejected', 'replacement_recommended')"/>
+                <field name="technician_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('draft', 'inspected')"
+                       decoration-warning="state in ('quoted', 'po_pending')"
+                       decoration-primary="state in ('in_repair', 'qc_testing')"
+                       decoration-success="state == 'ready'"
+                       decoration-muted="state == 'rejected'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_line_search" model="ir.ui.view">
+        <field name="name">safex.rma.line.search</field>
+        <field name="model">safex.rma.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="lot_id"/>
+                <field name="imei_1"/>
+                <field name="rma_id"/>
+                <field name="partner_id"/>
+                <field name="technician_id"/>
+                <filter name="my_devices" string="My Devices" domain="[('technician_id', '=', uid)]"/>
+                <separator/>
+                <filter name="po_pending" string="PO Pending" domain="[('state', '=', 'po_pending')]"/>
+                <filter name="in_repair" string="In Repair" domain="[('state', '=', 'in_repair')]"/>
+                <filter name="qc_testing" string="QC Testing" domain="[('state', '=', 'qc_testing')]"/>
+                <separator/>
+                <filter name="repeat" string="Repeat Devices" domain="[('is_repeat_device', '=', True)]"/>
+                <filter name="discrepancy" string="Accessory Discrepancy" domain="[('accessory_discrepancy', '=', True)]"/>
+                <filter name="mfg_defect" string="Manufacturing Defect" domain="[('is_manufacturing_defect', '=', True)]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_classification" string="Warranty Classification" context="{'group_by': 'warranty_classification'}"/>
+                    <filter name="group_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_safex_rma_line" model="ir.actions.act_window">
+        <field name="name">RMA Devices</field>
+        <field name="res_model">safex.rma.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_safex_rma_line_search"/>
+    </record>
+
+</odoo>

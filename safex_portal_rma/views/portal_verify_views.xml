@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_verify_device" name="Verify a Device">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Verify a Device</t>
+            </t>
+            <div class="card o_safex_verify_tool">
+                <div class="card-body">
+                    <p class="text-muted">
+                        Enter the product Serial Number and either IMEI 1 or IMEI 2.
+                        Only devices delivered to your company can be verified.
+                    </p>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label" for="safex_verify_serial">Serial Number</label>
+                            <input type="text" class="form-control" id="safex_verify_serial"/>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="safex_verify_imei">IMEI 1 or IMEI 2</label>
+                            <input type="text" class="form-control" id="safex_verify_imei"/>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary w-100 o_safex_verify_btn">Verify</button>
+                        </div>
+                    </div>
+                    <div class="o_safex_verify_result mt-3"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

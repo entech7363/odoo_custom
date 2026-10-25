@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The RMA lives inside the existing Repairs app (one app for repair orders and RMAs). -->
+    <menuitem id="menu_safex_rma_operations" name="RMA" parent="repair.menu_repair_order" sequence="5"/>
+    <menuitem id="menu_safex_rma" name="RMAs" parent="menu_safex_rma_operations"
+              action="action_safex_rma" sequence="10"/>
+    <menuitem id="menu_safex_rma_line" name="Devices" parent="menu_safex_rma_operations"
+              action="action_safex_rma_line" sequence="20"/>
+
+    <menuitem id="menu_safex_serial_numbers" name="Serial Numbers" parent="repair.repair_menu_config"
+              action="stock.action_production_lot_form" sequence="20"/>
+    <menuitem id="menu_safex_inspection_checklist" name="Inspection Checklist" parent="repair.repair_menu_config"
+              action="action_safex_inspection_item" sequence="21"/>
+
+</odoo>

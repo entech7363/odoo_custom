@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_inspection_item_list" model="ir.ui.view">
+        <field name="name">safex.inspection.item.list</field>
+        <field name="model">safex.inspection.item</field>
+        <field name="arch" type="xml">
+            <list string="Inspection Checklist">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="option_ids" widget="many2many_tags"/>
+                <field name="required"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_safex_inspection_item_form" model="ir.ui.view">
+        <field name="name">safex.inspection.item.form</field>
+        <field name="model">safex.inspection.item</field>
+        <field name="arch" type="xml">
+            <form string="Checklist Item">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Camera"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="required"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="option_ids" context="{'active_test': False}">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="requires_photo"/>
+                            <field name="suggested_classification"/>
+                            <field name="is_default"/>
+                            <field name="active" widget="boolean_toggle" optional="hide"/>
+                        </list>
+                    </field>
+                    <div class="text-muted mt-2">
+                        <p class="mb-1"><b>Damage - Photo Required</b>: choosing this option marks the device as
+                            physically damaged; the inspector must attach at least one photo.</p>
+                        <p class="mb-1"><b>Suggested Classification</b>: pre-filled warranty classification when the
+                            device has none yet (the technician can change it).</p>
+                        <p class="mb-0"><b>Default</b>: pre-filled on new devices.</p>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safex_inspection_item_search" model="ir.ui.view">
+        <field name="name">safex.inspection.item.search</field>
+        <field name="model">safex.inspection.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_safex_inspection_item" model="ir.actions.act_window">
+        <field name="name">Inspection Checklist</field>
+        <field name="res_model">safex.inspection.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a checklist item</p>
+            <p>Items are filled in during the physical inspection of every returned device.
+               New items are added to devices that are still waiting for inspection.</p>
+        </field>
+    </record>
+
+</odoo>
