@@ -1,6 +1,6 @@
 {
     'name': 'SafeX Warranty Core',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Inventory/Warranty',
     'summary': 'Serial/IMEI registry, dual warranty clocks and cross-company device verification',
     'description': """

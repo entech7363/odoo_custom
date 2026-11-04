@@ -8,7 +8,8 @@
             <form string="RMA Device">
                 <header>
                     <button name="action_validate_physical_inspection" type="object" string="Validate Physical Inspection"
-                            class="btn-primary" invisible="state != 'draft'"/>
+                            class="btn-primary" invisible="state != 'draft' or rma_state != 'received'"/>
+                    <field name="rma_state" invisible="1"/>
                     <button name="action_validate_technical_inspection" type="object" string="Validate Diagnostic &amp; Route"
                             class="btn-primary" invisible="state != 'inspected'"/>
                     <button name="action_complete_repair" type="object" string="Complete Repair"
@@ -31,7 +32,9 @@
                     </div>
                     <group>
                         <group>
-                            <field name="rma_id" readonly="1"/>
+                            <!-- Hidden on a new device: in the RMA's Devices tab the RMA may not be saved yet,
+                                 and a visible empty required field blocks the dialog. -->
+                            <field name="rma_id" readonly="1" invisible="not id"/>
                             <field name="product_id"/>
                             <field name="imei_1"/>
                             <field name="imei_2"/>

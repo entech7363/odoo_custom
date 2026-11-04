@@ -106,12 +106,18 @@
             <div t-if="error == 'empty'" class="alert alert-danger" role="alert">
                 Add at least one verified device.
             </div>
-            <form action="/my/rma/new" method="post" class="o_safex_rma_new_form">
+            <div t-if="error == 'duplicate'" class="alert alert-danger" role="alert">
+                A device can only be added once, and cannot be on another RMA that is still open.
+            </div>
+            <div t-if="error == 'photo'" class="alert alert-danger" role="alert">
+                Complaint photos must be images (JPG, PNG, ...) of at most 5 MB each, up to 5 photos per device.
+            </div>
+            <form action="/my/rma/new" method="post" enctype="multipart/form-data" class="o_safex_rma_new_form">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Add a device</h5>
-                        <p class="text-muted small">Each device must pass the Serial Number + IMEI check before it is added.</p>
+                        <p class="text-muted small">Each device is verified before it is added: enter its Serial Number and IMEI (IMEI 1 or IMEI 2).</p>
                         <div class="row g-2 align-items-end">
                             <div class="col-md-4">
                                 <label class="form-label" for="safex_new_serial">Serial Number</label>
@@ -164,12 +170,15 @@
                                     </t>
                                     <input type="text" class="form-control mt-2" placeholder="Other accessories" data-name="acc_other"/>
                                 </div>
+                                <div class="col-12">
+                                    <label class="form-label">Complaint Photos (optional, up to 5 images, 5 MB each)</label>
+                                    <input type="file" class="form-control" data-name="photos" accept="image/*" multiple="multiple"/>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <p class="text-muted small">Complaint photos are optional and can be emailed to SafeX with the RMA number.</p>
                 <button type="submit" class="btn btn-primary o_safex_submit_rma" disabled="disabled">Submit RMA</button>
             </form>
         </t>
@@ -189,7 +198,10 @@
             <div t-if="message == 'po'" class="alert alert-success" role="alert">PO number received: repair work resumes.</div>
             <div t-if="message == 'approve'" class="alert alert-success" role="alert">Quotation approved. Please enter your PO number.</div>
             <div t-if="message in ('reject', 'clarify')" class="alert alert-success" role="alert">Your request was sent to SafeX.</div>
-            <div t-if="error" class="alert alert-danger" role="alert">
+            <div t-if="error == 'po_file'" class="alert alert-danger" role="alert">
+                The PO document must be a PDF or an image of at most 10 MB.
+            </div>
+            <div t-elif="error" class="alert alert-danger" role="alert">
                 The action could not be completed. A reason is mandatory to reject or ask for clarification.
             </div>
 
@@ -223,10 +235,12 @@
             <div t-if="rma.has_po_pending" class="card mb-3 border-warning">
                 <div class="card-body">
                     <h5>Enter your PO Number</h5>
-                    <p class="small text-muted">One PO number covers the grand total of all devices. Email the PO document to SafeX.</p>
-                    <form t-attf-action="/my/rma/#{rma.id}/submit_po" method="post" class="d-flex gap-2">
+                    <p class="small text-muted">One PO number covers the grand total of all devices. Attach the PO document (PDF or image, max 10 MB).</p>
+                    <form t-attf-action="/my/rma/#{rma.id}/submit_po" method="post" enctype="multipart/form-data"
+                          class="d-flex flex-wrap gap-2">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="text" name="po_number" class="form-control" required="required" placeholder="PO Number"/>
+                        <input type="text" name="po_number" class="form-control w-auto flex-grow-1" required="required" placeholder="PO Number"/>
+                        <input type="file" name="po_file" class="form-control w-auto flex-grow-1" accept="application/pdf,image/*"/>
                         <button type="submit" class="btn btn-primary">Submit PO</button>
                     </form>
                 </div>
@@ -239,13 +253,10 @@
                     <div class="card h-100 o_safex_device_card">
                         <div class="card-header d-flex justify-content-between">
                             <strong><t t-out="line.product_id.name"/> - <t t-out="line.lot_id.name"/></strong>
-                            <span class="badge text-bg-light" t-out="dict(line._fields['state']._description_selection(line.env))[line.state]"/>
+                            <span class="badge text-bg-light" t-out="line._get_portal_state_label()"/>
                         </div>
                         <div class="card-body small">
                             <p class="mb-1"><strong>Complaint: </strong><t t-out="line.complaint_description"/></p>
-                            <p t-if="line.warranty_classification" class="mb-1"><strong>Classification: </strong>
-                                <t t-out="dict(line._fields['warranty_classification']._description_selection(line.env))[line.warranty_classification]"/>
-                            </p>
                             <p t-if="line.dealer_facing_report" class="mb-1"><strong>Diagnostic: </strong><t t-out="line.dealer_facing_report"/></p>
                             <p t-if="line.rejection_reason" class="mb-1"><strong>Rejection reason: </strong><t t-out="line.rejection_reason"/></p>
                             <div>

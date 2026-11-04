@@ -12,9 +12,11 @@
                     <group name="safex_warranty" string="Warranty Periods">
                         <field name="safex_dealer_warranty_months"/>
                         <field name="safex_factory_warranty_months"/>
+                        <field name="safex_enforce_dealer_warranty"/>
                         <div class="text-muted" colspan="2">
                             Used for new serial numbers. A product can override them; existing serial
-                            numbers keep their own value.
+                            numbers keep their own value (Inventory > Lots/Serial Numbers > select >
+                            Actions > Recalculate SafeX Warranty resets them).
                         </div>
                     </group>
                 </page>

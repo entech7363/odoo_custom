@@ -16,6 +16,7 @@
                 <div class="d-flex gap-3">
                     <field name="imei_1" placeholder="IMEI 1"/>
                     <field name="imei_2" placeholder="IMEI 2"/>
+                    <field name="other_serial" placeholder="Other Serial"/>
                 </div>
             </xpath>
             <xpath expr="//notebook" position="inside">
@@ -25,7 +26,9 @@
                             <field name="dealer_delivery_date"/>
                             <field name="dealer_warranty_months"/>
                             <field name="dealer_warranty_expiry" widget="badge"/>
-                            <field name="warranty_classification" widget="badge"/>
+                            <field name="dealer_warranty_status" widget="badge"
+                                   decoration-success="dealer_warranty_status == 'under_warranty'"
+                                   decoration-danger="dealer_warranty_status == 'expired'"/>
                         </group>
                         <group string="Factory Warranty (Manufacturer-Side)">
                             <field name="factory_grn_date"/>
@@ -37,6 +40,7 @@
                         <group>
                             <field name="last_repair_date"/>
                             <field name="last_rma_number"/>
+                            <field name="warranty_classification" widget="badge"/>
                         </group>
                     </group>
                 </page>
@@ -84,6 +88,16 @@
                         context="{'group_by': 'warranty_classification'}" groups="base.group_user"/>
             </filter>
         </field>
+    </record>
+
+    <record id="action_apply_safex_dealer_warranty" model="ir.actions.server">
+        <field name="name">Recalculate SafeX Warranty</field>
+        <field name="model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_apply_safex_dealer_warranty()</field>
     </record>
 
 </odoo>

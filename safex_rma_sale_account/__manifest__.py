@@ -1,6 +1,6 @@
 {
     'name': 'SafeX RMA Sales & Invoicing',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Services/SafeX RMA',
     'summary': 'Sectioned repair quotations, dealer approval, PO gating, reminders and invoicing',
     'description': """

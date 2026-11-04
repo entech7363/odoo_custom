@@ -33,13 +33,20 @@ class SafexRma(models.Model):
         string="Operating Company")
     partner_id = fields.Many2one(
         'res.partner', string="Dealer", required=True, tracking=True, index=True,
-        domain="[('is_company', '=', True)]")
+        domain="['|', ('is_safex_dealer', '=', True), ('commercial_partner_id.is_safex_dealer', '=', True)]")
     commercial_partner_id = fields.Many2one(related='partner_id.commercial_partner_id', store=True, index=True)
     user_id = fields.Many2one('res.users', string="Responsible", default=lambda self: self.env.user, tracking=True)
     state = fields.Selection(RMA_STATES, default='draft', required=True, tracking=True, copy=False, index=True)
     line_ids = fields.One2many('safex.rma.line', 'rma_id', string="Devices", copy=True)
     device_count = fields.Integer(compute='_compute_device_count')
     submitted_date = fields.Datetime(readonly=True, copy=False)
+    # Manager exception to the dealer ownership check (BRD 4), logged on submission.
+    ownership_override = fields.Boolean(
+        string="Allow Devices Not Delivered to This Dealer", copy=False, tracking=True,
+        groups='stock.group_stock_manager',
+        help="Submit even if a device was not delivered to this dealer (e.g. transferred by another "
+             "dealer). A reason is mandatory and is logged on the RMA.")
+    ownership_override_reason = fields.Text(copy=False, groups='stock.group_stock_manager')
     created_from_portal = fields.Boolean(readonly=True, copy=False)
     terms = fields.Html(
         string="Terms & Conditions",
@@ -65,6 +72,9 @@ class SafexRma(models.Model):
     # PO gating (DES00112): one PO number covers the whole RMA
     po_number = fields.Char(string="PO Number", tracking=True, copy=False)
     po_date = fields.Datetime(string="PO Received On", readonly=True, copy=False)
+    po_document_ids = fields.Many2many(
+        'ir.attachment', 'safex_rma_po_document_rel', 'rma_id', 'attachment_id',
+        string="PO Documents", copy=False, help="Purchase Order documents uploaded by the dealer.")
     po_pending_since = fields.Datetime(readonly=True, copy=False)
     has_po_pending = fields.Boolean(compute='_compute_line_flags', store=True)
 
@@ -95,6 +105,14 @@ class SafexRma(models.Model):
     def _compute_device_count(self):
         for rma in self:
             rma.device_count = len(rma.line_ids)
+
+    def _get_safex_responsible(self):
+        """Internal user who receives SafeX follow-up activities (never the dealer's portal user)."""
+        self.ensure_one()
+        user = self.user_id
+        if user and not user.share:
+            return user
+        return self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse()
 
     def _get_report_base_filename(self):
         # Used by the portal report download to name the PDF file.
@@ -127,8 +145,29 @@ class SafexRma(models.Model):
                 raise UserError(self.env._("Only draft RMAs can be submitted."))
             if not rma.line_ids:
                 raise UserError(self.env._("Add at least one device before submitting the RMA."))
+            rma._check_dealer_ownership()
             rma.write({'state': 'submitted', 'submitted_date': fields.Datetime.now()})
         return True
+
+    def _check_dealer_ownership(self):
+        """Every device must have been delivered to this dealer (same rule as the portal),
+        unless a manager allowed an exception with a reason."""
+        self.ensure_one()
+        foreign = self.line_ids.filtered(lambda line: not line.lot_id._is_delivered_to_dealer(self.partner_id))
+        if not foreign:
+            return
+        rma = self.sudo()
+        devices = ", ".join(foreign.lot_id.mapped('name'))
+        if not rma.ownership_override:
+            raise UserError(self.env._(
+                "These devices were not delivered to %(dealer)s: %(devices)s.\n"
+                "Check the serial numbers, or ask an Inventory Administrator to allow the exception "
+                "with a reason.", dealer=self.partner_id.display_name, devices=devices))
+        reason = (rma.ownership_override_reason or '').strip()
+        if not reason:
+            raise UserError(self.env._("Enter the reason for allowing devices not delivered to this dealer."))
+        self.message_post(body=self.env._(
+            "Ownership exception approved for %(devices)s. Reason: %(reason)s", devices=devices, reason=reason))
 
     def action_confirm_receipt(self):
         for rma in self:
@@ -216,5 +255,8 @@ class SafexRma(models.Model):
         return True
 
     def action_reset_draft(self):
-        self.filtered(lambda rma: rma.state == 'cancel').state = 'draft'
+        rmas = self.filtered(lambda rma: rma.state == 'cancel')
+        rmas.state = 'draft'
+        # The serials may have been put on another RMA while this one was cancelled.
+        rmas.line_ids._check_open_rma_duplicates()
         return True

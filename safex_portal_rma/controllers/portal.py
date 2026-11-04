@@ -1,11 +1,20 @@
-from odoo import http
-from odoo.exceptions import AccessError, MissingError, UserError
+import time
+
+from odoo import Command, http
+from odoo.exceptions import AccessError, MissingError, UserError, ValidationError
 from odoo.http import request
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.portal.controllers.portal import pager as portal_pager
 
 RMA_PER_PAGE = 10
+# Warranty data, stock, locations and costs are never sent to dealers.
+PORTAL_VERIFY_KEYS = ('verified', 'message', 'lot_id', 'serial_no', 'product_name', 'delivery_date', 'last_rma')
+PHOTO_MAX_COUNT = 5
+PHOTO_MAX_SIZE = 5 * 1024 * 1024
+PO_MAX_SIZE = 10 * 1024 * 1024
+VERIFY_MAX_CALLS = 20  # a dealer adding devices to an RMA verifies each one
+VERIFY_WINDOW = 60  # seconds
 ACCESSORY_KEYS = ('charger', 'dock', 'battery', 'screwdriver', 'cable', 'box')
 
 
@@ -99,11 +108,47 @@ class SafexRmaPortal(CustomerPortal):
         values['page_name'] = 'safex_verify'
         return request.render('safex_portal_rma.portal_verify_device', values)
 
+    @staticmethod
+    def _safex_read_upload(upload, max_size, allowed):
+        """(name, bytes, mimetype) of an uploaded file, or None if empty. Raises ValueError when the
+        file is too big or of a type not allowed (mimetype prefixes such as 'image/')."""
+        if not upload or not upload.filename:
+            return None
+        data = upload.read(max_size + 1)
+        mimetype = (upload.mimetype or '').lower()
+        if not data:
+            return None
+        if len(data) > max_size or not any(mimetype.startswith(prefix) for prefix in allowed):
+            raise ValueError(upload.filename)
+        return upload.filename, data, mimetype
+
+    def _safex_attach(self, record, files):
+        return request.env['ir.attachment'].sudo().create([{
+            'name': name, 'raw': data, 'mimetype': mimetype,
+            'res_model': record._name, 'res_id': record.id,
+        } for name, data, mimetype in files])
+
+    def _safex_verify_throttled(self):
+        """Simple per-session limit on device verification lookups (VERIFY_MAX_CALLS per window)."""
+        now = time.time()
+        calls = [stamp for stamp in request.session.get('safex_verify_calls', []) if now - stamp < VERIFY_WINDOW]
+        throttled = len(calls) >= VERIFY_MAX_CALLS
+        if not throttled:
+            calls.append(now)
+        request.session['safex_verify_calls'] = calls
+        return throttled
+
     @http.route('/my/rma/verify_device', type='json', auth='user', methods=['POST'])
-    def portal_verify_device_json(self, serial_no, imei, **kw):
+    def portal_verify_device_json(self, serial_no=None, imei=None, **kw):
+        if self._safex_verify_throttled():
+            return {'verified': False, 'message': request.env._(
+                "Too many verification attempts. Please wait a minute and try again.")}
+        if not (serial_no or '').strip() or not (imei or '').strip():
+            return {'verified': False, 'message': request.env._(
+                "Enter both the Serial Number and the IMEI (IMEI 1 or IMEI 2) of the device.")}
         result = request.env['stock.lot'].sudo().verify_device_for_portal(serial_no, imei, self._safex_dealer().id)
         # Only these keys may ever leave the server.
-        return {key: result[key] for key in ('verified', 'lot_id', 'product_name', 'message') if key in result}
+        return {key: result[key] for key in PORTAL_VERIFY_KEYS if key in result}
 
     # ------------------------------------------------------------------
     # RMA creation
@@ -119,16 +164,31 @@ class SafexRmaPortal(CustomerPortal):
     def portal_rma_create(self, **post):
         dealer = self._safex_dealer()
         form = request.httprequest.form
+        files = request.httprequest.files
         lines = []
+        photos_by_lot = {}
+        seen_lot_ids = set()
         for idx in form.getlist('device_index'):
             serial = (post.get(f'serial_{idx}') or '').strip()
             imei = (post.get(f'imei_{idx}') or '').strip()
             complaint = (post.get(f'complaint_{idx}') or '').strip()
-            if not serial:
+            if not serial and not imei:
                 continue
             check = request.env['stock.lot'].sudo().verify_device_for_portal(serial, imei, dealer.id)
             if not check.get('verified') or not complaint:
                 return request.redirect('/my/rma/new?error=device')
+            if check['lot_id'] in seen_lot_ids:
+                return request.redirect('/my/rma/new?error=duplicate')
+            seen_lot_ids.add(check['lot_id'])
+            try:
+                photos = [photo for photo in (
+                    self._safex_read_upload(upload, PHOTO_MAX_SIZE, ('image/',))
+                    for upload in files.getlist(f'photos_{idx}')) if photo]
+            except ValueError:
+                return request.redirect('/my/rma/new?error=photo')
+            if len(photos) > PHOTO_MAX_COUNT:
+                return request.redirect('/my/rma/new?error=photo')
+            photos_by_lot[check['lot_id']] = photos
             vals = {
                 'lot_id': check['lot_id'],
                 'complaint_description': complaint,
@@ -142,13 +202,24 @@ class SafexRmaPortal(CustomerPortal):
         if not lines:
             return request.redirect('/my/rma/new?error=empty')
         lot = request.env['stock.lot'].sudo().browse(lines[0][2]['lot_id'])
-        rma = request.env['safex.rma'].sudo().create({
-            'partner_id': dealer.id,
-            'company_id': lot.company_id.id or request.env.company.id,
-            'created_from_portal': True,
-            'line_ids': lines,
-        })
-        rma.action_submit()
+        try:
+            # Savepoint: a refused RMA must not stay half-created when we redirect back to the form.
+            with request.env.cr.savepoint():
+                rma = request.env['safex.rma'].sudo().create({
+                    'partner_id': dealer.id,
+                    'company_id': lot.company_id.id or request.env.company.id,
+                    'created_from_portal': True,
+                    'user_id': False,  # the default would be the dealer's portal user
+                    'line_ids': lines,
+                })
+                for line in rma.line_ids:
+                    photos = photos_by_lot.get(line.lot_id.id)
+                    if photos:
+                        line.complaint_photo_ids = [Command.set(self._safex_attach(line, photos).ids)]
+                rma.action_submit()
+        except ValidationError:
+            # A device is already on another open RMA
+            return request.redirect('/my/rma/new?error=duplicate')
         return request.redirect(f'/my/rma/{rma.id}?message=created')
 
     # ------------------------------------------------------------------
@@ -190,6 +261,11 @@ class SafexRmaPortal(CustomerPortal):
                 line.action_reject(reason)
                 line.message_post(body=request.env._("Rejected by dealer: %s", reason),
                                   author_id=request.env.user.partner_id.id)
+                rma_sudo.activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    summary=request.env._("Device rejected by dealer"),
+                    note=request.env._("%(device)s: %(reason)s", device=line.display_name, reason=reason),
+                    user_id=rma_sudo._get_safex_responsible().id)
             elif action == 'clarify':
                 rma_sudo.action_dealer_request_clarification(reason, author=request.env.user.partner_id)
             else:
@@ -202,9 +278,20 @@ class SafexRmaPortal(CustomerPortal):
     def portal_rma_submit_po(self, rma_id, po_number=None, **kw):
         rma_sudo = self._safex_get_rma(rma_id)
         try:
+            po_file = self._safex_read_upload(
+                request.httprequest.files.get('po_file'), PO_MAX_SIZE, ('application/pdf', 'image/'))
+        except ValueError:
+            return request.redirect(f'/my/rma/{rma_id}?error=po_file')
+        try:
             rma_sudo.action_submit_po((po_number or '').strip())
         except UserError:
             return request.redirect(f'/my/rma/{rma_id}?error=po')
+        if po_file:
+            attachment = self._safex_attach(rma_sudo, [po_file])
+            rma_sudo.po_document_ids = [Command.link(attachment.id)]
+            rma_sudo.message_post(
+                body=request.env._("PO document uploaded by the dealer for PO %s.", rma_sudo.po_number),
+                attachment_ids=attachment.ids, author_id=request.env.user.partner_id.id)
         return request.redirect(f'/my/rma/{rma_id}?message=po')
 
     # ------------------------------------------------------------------

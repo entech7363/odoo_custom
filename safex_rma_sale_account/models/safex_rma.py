@@ -13,6 +13,8 @@ class SafexRma(models.Model):
     currency_id = fields.Many2one(related='company_id.currency_id')
     quote_sent_date = fields.Datetime(tracking=True, copy=False, readonly=True)
     has_quoted_lines = fields.Boolean(compute='_compute_has_quoted_lines')
+    has_quotation_to_approve = fields.Boolean(compute='_compute_button_flags')
+    has_amount_to_invoice = fields.Boolean(compute='_compute_button_flags')
     po_pending_days = fields.Integer(compute='_compute_po_pending_days')
     last_reminder_day = fields.Integer(copy=False, readonly=True)
 
@@ -24,6 +26,16 @@ class SafexRma(models.Model):
             rma.invoice_ids = orders.invoice_ids
             rma.invoice_count = len(rma.invoice_ids)
             rma.amount_total = sum(orders.mapped('amount_total'))
+
+    @api.depends('sale_order_ids.state', 'sale_order_ids.invoice_status')
+    def _compute_button_flags(self):
+        # Same conditions as action_dealer_approve / action_create_invoice, so the buttons
+        # only show when clicking them can succeed.
+        for rma in self:
+            orders = rma.sale_order_ids
+            rma.has_quotation_to_approve = any(so.state in ('draft', 'sent', 'to_approve') for so in orders)
+            rma.has_amount_to_invoice = any(
+                so.state == 'sale' and so.invoice_status == 'to invoice' for so in orders)
 
     @api.depends('line_ids.state', 'line_ids.sale_line_ids')
     def _compute_has_quoted_lines(self):
@@ -144,7 +156,7 @@ class SafexRma(models.Model):
                 'mail.mail_activity_data_todo',
                 summary=self.env._("Dealer clarification requested"),
                 note=reason,
-                user_id=rma.user_id.id or self.env.user.id)
+                user_id=rma._get_safex_responsible().id)
         return True
 
     def action_submit_po(self, po_number=None):
@@ -169,6 +181,23 @@ class SafexRma(models.Model):
             raise UserError(self.env._("There is nothing to invoice on this RMA."))
         invoices = orders._create_invoices()
         return self.action_view_invoices(invoices)
+
+    def action_dispatch(self):
+        """BRD 9 (Final Test -> QC -> Invoice -> Dispatch): an approved repair quotation must be
+        invoiced, and the invoice posted, before the devices are dispatched."""
+        for rma in self.filtered('can_dispatch'):
+            orders = rma.sale_order_ids.filtered(lambda so: so.state == 'sale')
+            uninvoiced = orders.filtered(lambda so: so.invoice_status == 'to invoice')
+            if uninvoiced:
+                raise UserError(self.env._(
+                    "Create the invoice for %(orders)s before dispatching %(rma)s.",
+                    orders=", ".join(uninvoiced.mapped('name')), rma=rma.name))
+            drafts = orders.invoice_ids.filtered(lambda move: move.state == 'draft')
+            if drafts:
+                raise UserError(self.env._(
+                    "Post invoice %(invoices)s before dispatching %(rma)s.",
+                    invoices=", ".join(drafts.mapped('display_name')), rma=rma.name))
+        return super().action_dispatch()
 
     def action_view_quotations(self):
         self.ensure_one()

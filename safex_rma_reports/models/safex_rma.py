@@ -10,8 +10,10 @@ class SafexRma(models.Model):
             return
         for rma in self:
             attachments = (attachments_by_rma or {}).get(rma.id, self.env['ir.attachment'])
-            rma.message_post_with_source(
-                template, subtype_xmlid='mail.mt_comment', attachment_ids=attachments.ids)
+            # Passing attachment_ids (even empty) overrides the composer's own attachments, which
+            # is where the template's report_template_ids PDFs are rendered: only pass extras.
+            extra = {'attachment_ids': attachments.ids} if attachments else {}
+            rma.message_post_with_source(template, subtype_xmlid='mail.mt_comment', **extra)
 
     def _render_quotation_attachments(self, orders):
         attachments = self.env['ir.attachment']

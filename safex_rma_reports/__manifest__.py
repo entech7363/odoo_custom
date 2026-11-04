@@ -1,6 +1,6 @@
 {
     'name': 'SafeX RMA Reports & Communication',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Services/SafeX RMA',
     'summary': 'RMA reference slip, sectioned repair quotation, packing list and RMA emails',
     'description': """

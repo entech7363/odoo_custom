@@ -12,7 +12,22 @@ function renderResult(container, result) {
     alert.setAttribute("role", "alert");
     if (result.verified) {
         alert.className = "alert alert-success mb-0";
-        alert.textContent = _t("Verified: %s", result.product_name);
+        const title = document.createElement("strong");
+        title.textContent = _t("Verified: %(product)s (S/N %(serial)s)", {
+            product: result.product_name,
+            serial: result.serial_no,
+        });
+        alert.append(title);
+        const details = [
+            [_t("Delivered on"), result.delivery_date],
+            [_t("Last RMA"), result.last_rma],
+        ].filter(([, value]) => value);
+        if (details.length) {
+            const list = document.createElement("div");
+            list.className = "small mt-1";
+            list.textContent = details.map(([label, value]) => `${label}: ${value}`).join(" · ");
+            alert.append(list);
+        }
     } else {
         alert.className = "alert alert-danger mb-0";
         alert.textContent = result.message || _t("Device verification failed.");
@@ -59,26 +74,25 @@ publicWidget.registry.SafexRmaNewForm = publicWidget.Widget.extend({
         const imeiInput = this.el.querySelector("#safex_new_imei");
         const serial = serialInput.value.trim();
         const imei = imeiInput.value.trim();
-        const alreadyAdded = [...this.rows.querySelectorAll('[data-name="serial"]')].some(
-            (input) => input.value === serial
-        );
-        if (alreadyAdded) {
+        const result = await verifyDevice(serial, imei);
+        if (result.verified && this.rows.querySelector(`[data-lot-id="${result.lot_id}"]`)) {
             renderResult(this.resultEl, { verified: false, message: _t("This device is already in the RMA.") });
             return;
         }
-        const result = await verifyDevice(serial, imei);
         renderResult(this.resultEl, result);
         if (!result.verified) {
             return;
         }
-        this._addRow(serial, imei, result.product_name);
+        // The device's own serial is submitted, whatever identifier the dealer typed.
+        this._addRow(result.serial_no, imei, result.product_name, result.lot_id);
         serialInput.value = "";
         imeiInput.value = "";
     },
 
-    _addRow(serial, imei, productName) {
+    _addRow(serial, imei, productName, lotId) {
         const idx = this.nextIndex++;
         const card = this.template.firstElementChild.cloneNode(true);
+        card.dataset.lotId = lotId;
         card.querySelector(".o_safex_device_title").textContent = `${productName} - ${serial}`;
         card.querySelector(".o_safex_index").value = idx;
         for (const input of card.querySelectorAll("[data-name]")) {

@@ -45,9 +45,9 @@
                                 <span t-field="line.lot_id.name"/>
                             </td>
                             <td>
-                                <span t-field="line.warranty_classification"/>
-                                <div t-if="line.state == 'rejected'" class="small">Returned as-is</div>
-                                <div t-elif="line.repair_work_done" class="small" t-field="line.repair_work_done"/>
+                                <!-- No warranty classification: dealers never see warranty details (BRD 3). -->
+                                <div t-if="line.state == 'rejected'">Returned as-is</div>
+                                <div t-elif="line.repair_work_done" t-field="line.repair_work_done"/>
                             </td>
                             <td>
                                 <t t-set="accessories" t-value="doc.get_accessory_labels(line, 'acc_received')"/>

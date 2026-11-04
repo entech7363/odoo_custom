@@ -1,7 +1,10 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.safex_warranty_core.models.stock_lot import WARRANTY_CLASSIFICATION
+
+# The device is still with (or on its way to) SafeX: it cannot be put on another RMA.
+OPEN_RMA_STATES = ('draft', 'submitted', 'received', 'inspection', 'processing')
 
 LINE_STATES = [
     ('draft', "Draft"),
@@ -34,6 +37,7 @@ class SafexRmaLine(models.Model):
     _check_company_auto = True
 
     rma_id = fields.Many2one('safex.rma', string="RMA", required=True, ondelete='cascade', index=True)
+    rma_state = fields.Selection(related='rma_id.state', string="RMA Status")
     sequence = fields.Integer(default=10)
     company_id = fields.Many2one(related='rma_id.company_id', store=True, index=True)
     partner_id = fields.Many2one(related='rma_id.partner_id', store=True, index=True, string="Dealer")
@@ -191,6 +195,30 @@ class SafexRmaLine(models.Model):
         lines._sync_inspection_lines()
         return lines
 
+    @api.constrains('lot_id', 'rma_id')
+    def _check_open_rma_duplicates(self):
+        """A serial can be on only one open RMA, and only once per RMA (rejected devices excluded)."""
+        lines = self.filtered(lambda line: line.lot_id and line.state != 'rejected'
+                              and line.rma_id.state in OPEN_RMA_STATES)
+        if not lines:
+            return
+        others = self.sudo().search([
+            ('lot_id', 'in', lines.lot_id.ids),
+            ('state', '!=', 'rejected'),
+            ('rma_id.state', 'in', OPEN_RMA_STATES),
+        ])
+        for line in lines:
+            clash = others.filtered(lambda other: other.lot_id == line.lot_id and other.id != line.id)[:1]
+            if not clash:
+                continue
+            if clash.rma_id == line.rma_id:
+                raise ValidationError(self.env._(
+                    "Serial %(serial)s is entered twice on %(rma)s.",
+                    serial=line.lot_id.name, rma=line.rma_id.name))
+            raise ValidationError(self.env._(
+                "Serial %(serial)s is already on open RMA %(rma)s.",
+                serial=line.lot_id.name, rma=clash.rma_id.name))
+
     def _sync_inspection_lines(self):
         """Add the active checklist items a device does not have yet, pre-filled with their default option."""
         items = self.env['safex.inspection.item'].search([])
@@ -213,6 +241,9 @@ class SafexRmaLine(models.Model):
         for line in self:
             if line.state != 'draft':
                 continue
+            if line.rma_id.state != 'received':
+                raise UserError(self.env._(
+                    "%s: the parcel must be received before the physical inspection.", line.display_name))
             line._sync_inspection_lines()
             missing = line.inspection_line_ids.filtered(
                 lambda result: result.item_id.active and result.item_id.required and not result.option_id
