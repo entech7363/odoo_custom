@@ -1,6 +1,6 @@
 {
     'name': 'SafeX Warranty Core',
-    'version': '18.0.1.0.1',
+    'version': '18.0.1.0.3',
     'category': 'Inventory/Warranty',
     'summary': 'Serial/IMEI registry, dual warranty clocks and cross-company device verification',
     'description': """
@@ -21,10 +21,13 @@ SafeX Warranty Core (DES00104, DES00110)
         'entech_components_tracking',
     ],
     'data': [
+        'security/ir_rule.xml',
         'views/stock_lot_views.xml',
         'views/res_partner_views.xml',
         'views/res_company_views.xml',
         'views/product_template_views.xml',
+        'views/product_category_views.xml',
+        'views/stock_move_views.xml',
     ],
     'installable': True,
     'application': False,

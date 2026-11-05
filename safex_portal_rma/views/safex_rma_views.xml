@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dealer's portal confirmation that the dispatched devices arrived -->
+    <record id="view_safex_rma_form_dealer_receipt" model="ir.ui.view">
+        <field name="name">safex.rma.form.dealer.receipt</field>
+        <field name="model">safex.rma</field>
+        <field name="inherit_id" ref="safex_rma_core.view_safex_rma_form"/>
+        <field name="arch" type="xml">
+            <field name="dispatch_date" position="after">
+                <field name="dealer_received_date" invisible="not dealer_received_date"/>
+                <field name="dealer_received_user_id" invisible="not dealer_received_date"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_list_dealer_receipt" model="ir.ui.view">
+        <field name="name">safex.rma.list.dealer.receipt</field>
+        <field name="model">safex.rma</field>
+        <field name="inherit_id" ref="safex_rma_core.view_safex_rma_list"/>
+        <field name="arch" type="xml">
+            <field name="state" position="after">
+                <field name="dealer_receipt_status" widget="badge" decoration-success="dealer_receipt_status == 'received'"/>
+                <field name="dealer_received_date" string="Dealer Received" optional="hide" widget="date"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_search_dealer_receipt" model="ir.ui.view">
+        <field name="name">safex.rma.search.dealer.receipt</field>
+        <field name="model">safex.rma</field>
+        <field name="inherit_id" ref="safex_rma_core.view_safex_rma_search"/>
+        <field name="arch" type="xml">
+            <filter name="ready" position="after">
+                <filter name="awaiting_dealer_receipt" string="Awaiting Dealer Receipt"
+                        domain="[('state', 'in', ('dispatched', 'closed')), ('dealer_received_date', '=', False)]"/>
+                <filter name="dealer_received" string="Received by Dealer"
+                        domain="[('dealer_received_date', '!=', False)]"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

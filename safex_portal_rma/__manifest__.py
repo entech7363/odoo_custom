@@ -1,6 +1,6 @@
 {
     'name': 'SafeX Dealer Portal RMA',
-    'version': '18.0.1.0.1',
+    'version': '18.0.1.0.2',
     'category': 'Website/Portal',
     'summary': 'Dealer portal: device verification, multi-device RMA, quotation review and PO entry',
     'description': """
@@ -26,6 +26,7 @@ SafeX Dealer Portal RMA (DES00103, DES00104, DES00105, DES00112)
         'security/safex_security.xml',
         'views/portal_templates.xml',
         'views/portal_verify_views.xml',
+        'views/safex_rma_views.xml',
     ],
     'assets': {
         'web.assets_frontend': [

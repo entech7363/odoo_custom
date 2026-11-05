@@ -268,6 +268,8 @@ class SafexRmaPortal(CustomerPortal):
                     user_id=rma_sudo._get_safex_responsible().id)
             elif action == 'clarify':
                 rma_sudo.action_dealer_request_clarification(reason, author=request.env.user.partner_id)
+            elif action == 'received':
+                rma_sudo.action_dealer_confirm_receipt(request.env.user)
             else:
                 raise UserError(request.env._("Unknown action."))
         except UserError:

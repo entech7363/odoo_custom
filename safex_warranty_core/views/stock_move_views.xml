@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Detailed Operations popup (entech_components_tracking): the warranty fields are optional on
+         transfers between SafeX entities, the shared serial keeps its warranty. -->
+    <record id="view_stock_move_operations_safex_intercompany" model="ir.ui.view">
+        <field name="name">stock.move.operations.form.safex.intercompany</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="entech_components_tracking.view_stock_move_operations_inherit_start_date"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='v_start_date']" position="before">
+                <field name="safex_intercompany_transfer" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='v_start_date']" position="attributes">
+                <attribute name="required">not safex_intercompany_transfer</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vendor_warranty']" position="attributes">
+                <attribute name="required">not safex_intercompany_transfer</attribute>
+            </xpath>
+            <xpath expr="//field[@name='c_start_date']" position="attributes">
+                <attribute name="required">not safex_intercompany_transfer</attribute>
+            </xpath>
+            <xpath expr="//field[@name='customer_warranty']" position="attributes">
+                <attribute name="required">not safex_intercompany_transfer</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

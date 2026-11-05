@@ -73,7 +73,10 @@
                 </thead>
                 <tbody>
                     <tr t-foreach="rmas" t-as="rma">
-                        <td><a t-att-href="rma.access_url" t-out="rma.name"/></td>
+                        <td>
+                            <a t-att-href="rma.access_url" t-out="rma.name"/>
+                            <span t-if="rma.dealer_received_date" class="badge rounded-pill text-bg-success ms-1">Received by Dealer</span>
+                        </td>
                         <td><span t-field="rma.submitted_date" t-options="{'widget': 'date'}"/></td>
                         <td><span t-field="rma.received_date" t-options="{'widget': 'date'}"/></td>
                         <td class="text-center" t-out="rma.device_count"/>
@@ -198,6 +201,7 @@
             <div t-if="message == 'po'" class="alert alert-success" role="alert">PO number received: repair work resumes.</div>
             <div t-if="message == 'approve'" class="alert alert-success" role="alert">Quotation approved. Please enter your PO number.</div>
             <div t-if="message in ('reject', 'clarify')" class="alert alert-success" role="alert">Your request was sent to SafeX.</div>
+            <div t-if="message == 'received'" class="alert alert-success" role="alert">Thank you. Receipt of the devices has been confirmed to SafeX.</div>
             <div t-if="error == 'po_file'" class="alert alert-danger" role="alert">
                 The PO document must be a PDF or an image of at most 10 MB.
             </div>
@@ -215,6 +219,7 @@
                             <t t-set="label" t-value="dict(rma._fields['state']._description_selection(rma.env))[rma.state]"/>
                         </t>
                         <span t-if="rma.has_po_pending" class="badge rounded-pill text-bg-warning ms-1">PO Pending</span>
+                        <span t-if="rma.dealer_received_date" class="badge rounded-pill text-bg-success ms-1">Received by Dealer</span>
                     </div>
                     <div class="small">
                         <div t-if="rma.inbound_awb">Inbound: <t t-out="rma.forwarder_id.name or ''"/> AWB <t t-out="rma.inbound_awb"/></div>
@@ -229,6 +234,25 @@
                            class="btn btn-sm btn-secondary">Invoice <t t-out="invoice.name"/></a>
                     </div>
                 </div>
+            </div>
+
+            <!-- Dealer acknowledgement of the returned shipment -->
+            <div t-if="rma.state in ('dispatched', 'closed') and not rma.dealer_received_date" class="card mb-3 border-success">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <h5 class="mb-1">Have you received the devices?</h5>
+                        <p class="small text-muted mb-0">Confirm once the return shipment has arrived and the devices are with you.</p>
+                    </div>
+                    <form t-attf-action="/my/rma/#{rma.id}/action" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="action" value="received"/>
+                        <button type="submit" class="btn btn-success">Confirm Receipt</button>
+                    </form>
+                </div>
+            </div>
+            <div t-if="rma.dealer_received_date" class="alert alert-light border mb-3" role="status">
+                Receipt confirmed on <span t-field="rma.dealer_received_date" t-options="{'widget': 'date'}"/>
+                by <t t-out="rma.dealer_received_user_id.name"/>.
             </div>
 
             <!-- PO entry, always available while a device waits for it -->

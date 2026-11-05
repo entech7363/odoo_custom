@@ -237,6 +237,11 @@ class SafexRmaLine(models.Model):
     # Workflow
     # ------------------------------------------------------------------
 
+    def _safex_reload_action(self):
+        """Reload the screen after a device step: the device dialog opened from the RMA closes and the
+        RMA (state, Dispatch button, banners) is read again, so no manual refresh is needed."""
+        return {'type': 'ir.actions.client', 'tag': 'soft_reload'}
+
     def action_validate_physical_inspection(self):
         for line in self:
             if line.state != 'draft':
@@ -265,7 +270,7 @@ class SafexRmaLine(models.Model):
                 if suggested:
                     vals['warranty_classification'] = suggested.suggested_classification
             line.write(vals)
-        return True
+        return self._safex_reload_action()
 
     def action_validate_technical_inspection(self):
         """Route each device: free repair, quotation (chargeable) or return as-is (NFF)."""
@@ -296,7 +301,7 @@ class SafexRmaLine(models.Model):
                 state=dict(LINE_STATES)[next_state],
             ))
         self.rma_id._update_processing_state()
-        return True
+        return self._safex_reload_action()
 
     def _set_po_pending(self):
         """Called once the dealer approved the quotation: work waits for the PO number."""
@@ -337,7 +342,7 @@ class SafexRmaLine(models.Model):
                 'repair_date': line.repair_date or fields.Date.context_today(line),
             })
         self._consume_spare_parts()
-        return True
+        return self._safex_reload_action()
 
     def action_qc_validate(self):
         """Final test + quality check both passed -> device ready for dispatch."""
@@ -357,7 +362,7 @@ class SafexRmaLine(models.Model):
                 'quality_check_date': fields.Datetime.now(),
             })
             line._update_serial_history()
-        return True
+        return self._safex_reload_action()
 
     def _update_serial_history(self):
         for line in self:

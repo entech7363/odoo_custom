@@ -62,6 +62,11 @@ class StockLot(models.Model):
         for vals in vals_list:
             product = self.env['product.product'].browse(vals.get('product_id')).sudo()
             company = self.env['res.company'].browse(vals.get('company_id')) or self.env.company
+            # Shared SafeX device (no company, restricted to SafeX entities): the serial is shared
+            # between the entities, even when the caller (e.g. the Entech Detailed Operations
+            # popup) passes the transfer's company.
+            if vals.get('company_id') and product.exists() and product.product_tmpl_id._safex_is_shared_device():
+                vals['company_id'] = False
             if not vals.get('customer_warranty') and not vals.get('dealer_warranty_months'):
                 vals['customer_warranty'] = product._safex_dealer_warranty_months(company)
             if not vals.get('vendor_warranty') and not vals.get('factory_warranty_months'):
@@ -77,22 +82,37 @@ class StockLot(models.Model):
             else:
                 lot.dealer_warranty_status = 'under_warranty' if lot.dealer_warranty_expiry >= today else 'expired'
 
-    @api.constrains('name', 'company_id')
+    def _safex_is_safex_lot(self):
+        """True for a serial of a SafeX entity: owned by a company whose partner is flagged
+        'SafeX Internal Entity', or shared (no company) on a product restricted to SafeX entities."""
+        self.ensure_one()
+        lot = self.sudo()
+        if lot.company_id:
+            return lot.company_id.partner_id.is_safex_internal_entity
+        return any(company.partner_id.is_safex_internal_entity
+                   for company in lot.product_id.product_tmpl_id.safex_company_ids)
+
+    @api.constrains('name', 'company_id', 'product_id')
     def _check_safex_serial_unique_across_entities(self):
         """BRD 2/12: a serial is registered once across the SafeX entities (companies whose
-        partner is flagged 'SafeX Internal Entity'). Other companies are not affected."""
-        lots = self.filtered(lambda lot: lot.name and lot.company_id.partner_id.is_safex_internal_entity)
+        partner is flagged 'SafeX Internal Entity'). A shared SafeX serial (no company) belongs to
+        every SafeX entity, so no SafeX entity may own another serial with the same number.
+        Other companies are not affected."""
+        lots = self.filtered(lambda lot: lot.name and lot._safex_is_safex_lot())
         for lot in lots:
+            name = lot.name.strip().lower()
             others = self.sudo().with_context(active_test=False).search([
+                ('id', '!=', lot.id),
                 ('name', 'ilike', lot.name.strip()),
                 ('company_id', '!=', lot.company_id.id),
-                ('company_id.partner_id.is_safex_internal_entity', '=', True),
-            ]).filtered(lambda other: other.name.strip().lower() == lot.name.strip().lower())
+                '|', ('company_id', '=', False), ('company_id.partner_id.is_safex_internal_entity', '=', True),
+            ]).filtered(lambda other: other.name.strip().lower() == name and other._safex_is_safex_lot())
             if others:
                 raise ValidationError(self.env._(
                     "Serial number %(serial)s is already registered in %(company)s. "
                     "A serial number can exist in only one SafeX entity.",
-                    serial=lot.name, company=others[0].company_id.name))
+                    serial=lot.name,
+                    company=others[0].company_id.name or self.env._("the shared SafeX serials")))
 
     def action_apply_safex_dealer_warranty(self):
         """Recalculate the SafeX warranties of the selected serials and log every change:
