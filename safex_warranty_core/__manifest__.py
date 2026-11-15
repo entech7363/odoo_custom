@@ -1,6 +1,6 @@
 {
     'name': 'SafeX Warranty Core',
-    'version': '18.0.1.0.3',
+    'version': '18.0.1.2.0',
     'category': 'Inventory/Warranty',
     'summary': 'Serial/IMEI registry, dual warranty clocks and cross-company device verification',
     'description': """
@@ -12,6 +12,9 @@ SafeX Warranty Core (DES00104, DES00110)
   (dealer delivery date + 16 months) defaults, visible to internal users only.
 - Warranty classification (6 BRD values) and service traceability.
 - Cross-company (SafeX Qatar / SafeX UK) verification API used by the dealer portal.
+- Each SafeX company keeps its own serial records; an inter-company receipt links the buyer's
+  serial to the seller's one (Source Device), and serial / IMEI / battery / dock numbers are
+  unique across the SafeX companies (CR-01).
     """,
     'author': 'SafeX Instruments',
     'license': 'OEEL-1',
@@ -21,13 +24,12 @@ SafeX Warranty Core (DES00104, DES00110)
         'entech_components_tracking',
     ],
     'data': [
-        'security/ir_rule.xml',
         'views/stock_lot_views.xml',
         'views/res_partner_views.xml',
         'views/res_company_views.xml',
         'views/product_template_views.xml',
-        'views/product_category_views.xml',
         'views/stock_move_views.xml',
+        'views/stock_picking_views.xml',
     ],
     'installable': True,
     'application': False,

@@ -47,6 +47,8 @@ class SafexRmaLine(models.Model):
         """Device status as worded for the dealer (internal step names mean little to them)."""
         self.ensure_one()
         rma = self.rma_id
+        if self.not_received:
+            return self.env._("Not Received")
         # Once the RMA has left SafeX, the device status follows the shipment.
         if rma.state in ('dispatched', 'closed') and self.state in ('ready', 'rejected'):
             if rma.dealer_received_date:
@@ -58,7 +60,8 @@ class SafexRmaLine(models.Model):
             'draft': self.env._("Awaiting Receipt") if rma.state != 'draft' else self.env._("Draft"),
             'inspected': self.env._("Under Inspection"),
             'quoted': self.env._("Awaiting Your Approval"),
-            'po_pending': self.env._("Awaiting Your PO"),
+            'po_pending': self.env._("PO Awaiting Verification") if rma.po_status == 'submitted'
+            else self.env._("Awaiting Your PO"),
             'in_repair': self.env._("In Repair"),
             'qc_testing': self.env._("Final Testing"),
             'ready': self.env._("Ready for Dispatch"),

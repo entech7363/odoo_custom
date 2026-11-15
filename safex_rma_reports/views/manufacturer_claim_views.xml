@@ -11,7 +11,7 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="lot_id"/>
                 <field name="product_id"/>
-                <field name="fault_category"/>
+                <field name="fault_category_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                 <field name="warranty_classification"/>
                 <field name="repair_date"/>
                 <field name="repair_work_done" optional="hide"/>

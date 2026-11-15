@@ -12,3 +12,7 @@ access_safex_inspection_option_user,safex.inspection.option internal user,model_
 access_safex_inspection_option_manager,safex.inspection.option stock manager,model_safex_inspection_option,stock.group_stock_manager,1,1,1,1
 access_safex_rma_line_inspection_user,safex.rma.line.inspection internal user,model_safex_rma_line_inspection,base.group_user,1,0,0,0
 access_safex_rma_line_inspection_stock_user,safex.rma.line.inspection stock user,model_safex_rma_line_inspection,stock.group_stock_user,1,1,1,1
+access_safex_fault_category_user,safex.fault.category internal user,model_safex_fault_category,base.group_user,1,0,0,0
+access_safex_fault_category_manager,safex.fault.category stock manager,model_safex_fault_category,stock.group_stock_manager,1,1,1,1
+access_safex_rma_po_verify_stock_user,safex.rma.po.verify stock user,model_safex_rma_po_verify,stock.group_stock_user,1,1,1,1
+access_safex_rma_po_reject_stock_user,safex.rma.po.reject stock user,model_safex_rma_po_reject,stock.group_stock_user,1,1,1,1

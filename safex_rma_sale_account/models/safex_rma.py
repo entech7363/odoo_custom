@@ -27,15 +27,16 @@ class SafexRma(models.Model):
             rma.invoice_count = len(rma.invoice_ids)
             rma.amount_total = sum(orders.mapped('amount_total'))
 
-    @api.depends('sale_order_ids.state', 'sale_order_ids.invoice_status')
+    @api.depends('sale_order_ids.state', 'sale_order_ids.invoice_status', 'sale_order_ids.amount_total',
+                 'has_po_pending')
     def _compute_button_flags(self):
         # Same conditions as action_dealer_approve / action_create_invoice, so the buttons
         # only show when clicking them can succeed.
         for rma in self:
             orders = rma.sale_order_ids
             rma.has_quotation_to_approve = any(so.state in ('draft', 'sent', 'to_approve') for so in orders)
-            rma.has_amount_to_invoice = any(
-                so.state == 'sale' and so.invoice_status == 'to invoice' for so in orders)
+            # Nothing is invoiced while devices still wait for the dealer's PO (or its verification).
+            rma.has_amount_to_invoice = not rma.has_po_pending and bool(orders._safex_filter_to_invoice())
 
     @api.depends('line_ids.state', 'line_ids.sale_line_ids')
     def _compute_has_quoted_lines(self):
@@ -58,6 +59,9 @@ class SafexRma(models.Model):
     def _prepare_quotation_lines(self, devices):
         service_product = self._get_service_charge_product()
         commands = []
+        # Units of the same model are kept together so that the documents can print the model once
+        # with each unit's serial number beneath it (CR-06).
+        devices = devices.sorted(lambda device: (device.product_id.display_name or '', device.sequence, device.id))
         for device in devices:
             imei = f" (IMEI: {device.imei_1})" if device.imei_1 else ""
             commands.append(fields.Command.create({
@@ -65,12 +69,17 @@ class SafexRma(models.Model):
                 'name': f"{device.product_id.display_name} - S/N: {device.lot_id.name}{imei}",
                 'rma_line_id': device.id,
             }))
+            # Warranty / manufacturing-defect repairs are quoted at 0.00 (CR-08). The wording never
+            # mentions the warranty decision: dealers do not see warranty details.
+            if device.is_chargeable:
+                name = self.env._("Repair Service Charge - %(report)s", report=device.dealer_facing_report or '')
+            else:
+                name = self.env._("Repair Service (No Charge) - %(report)s", report=device.dealer_facing_report or '')
             commands.append(fields.Command.create({
                 'product_id': service_product.id,
-                'name': self.env._(
-                    "Repair Service Charge - %(report)s", report=device.dealer_facing_report or ''),
+                'name': name,
                 'product_uom_qty': 1.0,
-                'price_unit': device.service_charge_amount,
+                'price_unit': device.service_charge_amount if device.is_chargeable else 0.0,
                 'rma_line_id': device.id,
                 'is_service_charge': True,
             }))
@@ -87,12 +96,13 @@ class SafexRma(models.Model):
         return commands
 
     def action_generate_quotation(self):
-        """Create one sectioned quotation for the chargeable devices not quoted yet."""
+        """Create one sectioned quotation for the devices not quoted yet: chargeable devices at their
+        service charge, warranty / manufacturing-defect devices at 0.00 (CR-08)."""
         self.ensure_one()
         devices = self.line_ids.filtered(lambda line: line.state == 'quoted' and not line.sale_line_ids)
         if not devices:
-            raise UserError(self.env._("No chargeable device is waiting for a quotation."))
-        missing_price = devices.filtered(lambda line: line.service_charge_amount <= 0)
+            raise UserError(self.env._("No device is waiting for a quotation."))
+        missing_price = devices.filtered(lambda line: line.is_chargeable and line.service_charge_amount <= 0)
         if missing_price:
             raise UserError(self.env._(
                 "Set the Repair Service Charge on: %s", ", ".join(missing_price.mapped('display_name'))))
@@ -137,7 +147,8 @@ class SafexRma(models.Model):
             rma.message_post(body=self.env._(
                 "Quotation %(orders)s approved by the dealer. %(count)s device(s) now PO Pending.",
                 orders=", ".join(orders.mapped('name')), count=len(devices)))
-            if rma.has_po_pending:
+            # No "PO required" notice when the dealer's PO is already with SafeX for verification.
+            if rma.has_po_pending and rma.po_status in ('none', 'rejected'):
                 template = self.env.ref('safex_rma_sale_account.mail_template_po_pending', raise_if_not_found=False)
                 if template:
                     rma.message_post_with_source(template, subtype_xmlid='mail.mt_comment')
@@ -159,6 +170,26 @@ class SafexRma(models.Model):
                 user_id=rma._get_safex_responsible().id)
         return True
 
+    def action_dealer_submit_po(self, po_number, attachments=None, author=None):
+        """Also email the PO (number + document) to the company's PO mailbox (CR-09)."""
+        res = super().action_dealer_submit_po(po_number, attachments=attachments, author=author)
+        template = self.env.ref('safex_rma_sale_account.mail_template_po_submitted', raise_if_not_found=False)
+        if not template:
+            return res
+        for rma in self:
+            mailbox = rma.company_id._get_safex_po_email()
+            if not mailbox:
+                rma.message_post(body=self.env._(
+                    "PO %(po)s could not be emailed: set the PO Email Address (or an email) on company %(company)s.",
+                    po=rma.po_number, company=rma.company_id.name))
+                continue
+            template.send_mail(rma.id, email_values={
+                'email_to': mailbox,
+                'attachment_ids': attachments.ids if attachments else [],
+            })
+            rma.message_post(body=self.env._("PO %(po)s emailed to %(mailbox)s.", po=rma.po_number, mailbox=mailbox))
+        return res
+
     def action_submit_po(self, po_number=None):
         res = super().action_submit_po(po_number)
         for rma in self:
@@ -176,7 +207,11 @@ class SafexRma(models.Model):
 
     def action_create_invoice(self):
         self.ensure_one()
-        orders = self.sale_order_ids.filtered(lambda so: so.state == 'sale' and so.invoice_status == 'to invoice')
+        if self.has_po_pending:
+            raise UserError(self.env._(
+                "%s: devices are still waiting for the PO (or its verification). Invoice once the PO is verified.",
+                self.name))
+        orders = self.sale_order_ids._safex_filter_to_invoice()
         if not orders:
             raise UserError(self.env._("There is nothing to invoice on this RMA."))
         invoices = orders._create_invoices()
@@ -184,10 +219,11 @@ class SafexRma(models.Model):
 
     def action_dispatch(self):
         """BRD 9 (Final Test -> QC -> Invoice -> Dispatch): an approved repair quotation must be
-        invoiced, and the invoice posted, before the devices are dispatched."""
+        invoiced, and the invoice posted, before the devices are dispatched. A 0.00 quotation
+        (warranty / manufacturing-defect repairs, CR-08) needs no invoice."""
         for rma in self.filtered('can_dispatch'):
             orders = rma.sale_order_ids.filtered(lambda so: so.state == 'sale')
-            uninvoiced = orders.filtered(lambda so: so.invoice_status == 'to invoice')
+            uninvoiced = orders._safex_filter_to_invoice()
             if uninvoiced:
                 raise UserError(self.env._(
                     "Create the invoice for %(orders)s before dispatching %(rma)s.",
@@ -224,7 +260,12 @@ class SafexRma(models.Model):
         template = self.env.ref('safex_rma_sale_account.mail_template_po_reminder', raise_if_not_found=False)
         if not template:
             return
-        for rma in self.search([('has_po_pending', '=', True), ('po_pending_since', '!=', False)]):
+        # No reminder while the dealer's PO waits for SafeX's verification; they resume if it is rejected.
+        for rma in self.search([
+            ('has_po_pending', '=', True),
+            ('po_pending_since', '!=', False),
+            ('po_status', 'in', ('none', 'rejected')),
+        ]):
             days = rma.po_pending_days
             milestones = [day for day in rma.company_id._get_safex_po_reminder_days()
                           if rma.last_reminder_day < day <= days]

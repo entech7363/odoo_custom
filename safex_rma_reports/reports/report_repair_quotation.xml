@@ -10,6 +10,8 @@
         <t t-set="layout_document_title">
             <span>Repair Quotation # </span><span t-field="doc.name"/>
         </t>
+        <!-- D1 / CR-05: letterhead, address and footer of the RMA documents branding company. -->
+        <t t-set="company" t-value="doc._get_safex_document_company() or doc.company_id.sudo()"/>
         <t t-call="web.external_layout">
             <div class="page">
                 <div class="row mb-3">
@@ -28,31 +30,52 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <t t-set="section_total" t-value="0"/>
-                        <t t-foreach="doc.order_line" t-as="line">
-                            <t t-if="line.display_type == 'line_section'">
-                                <tr class="bg-light fw-bold">
-                                    <td colspan="4">SECTION: <span t-field="line.name"/></td>
+                        <!-- CR-06: the device model is printed once, each unit's serial number / IMEI
+                             beneath it, followed by that unit's lines and subtotal. -->
+                        <t t-set="grouped" t-value="doc._get_safex_grouped_lines()"/>
+                        <t t-foreach="grouped[0]" t-as="group">
+                            <tr class="bg-light fw-bold">
+                                <td colspan="4"><span t-out="group['product'].display_name"/>
+                                    <span t-if="len(group['units']) &gt; 1" class="fw-normal"> (<t t-out="len(group['units'])"/> units)</span>
+                                </td>
+                            </tr>
+                            <t t-foreach="group['units']" t-as="unit">
+                                <t t-set="device" t-value="unit['device']"/>
+                                <tr class="fw-bold">
+                                    <td colspan="4" class="ps-3">
+                                        S/N: <span t-out="device.lot_id.name"/>
+                                        <span t-if="device.imei_1"> &#160;|&#160; IMEI: <span t-out="device.imei_1"/></span>
+                                        <span t-if="device.imei_2"> &#160;|&#160; IMEI 2: <span t-out="device.imei_2"/></span>
+                                    </td>
                                 </tr>
-                            </t>
-                            <t t-elif="not line.display_type">
-                                <tr>
-                                    <td>
+                                <tr t-foreach="unit['lines']" t-as="line">
+                                    <td class="ps-4">
+                                        <!-- The spare part line name already carries
+                                             "[Replaced Part - Cost Absorbed in Service Charge]". -->
                                         <span t-field="line.name"/>
-                                        <span t-if="line.is_spare_part" class="badge text-bg-secondary ms-1">Replaced Part - Cost Absorbed in Service Charge</span>
                                     </td>
                                     <td class="text-end"><span t-field="line.product_uom_qty"/></td>
                                     <td class="text-end"><span t-field="line.price_unit"/></td>
                                     <td class="text-end"><span t-field="line.price_subtotal"/></td>
                                 </tr>
+                                <tr class="fw-bold">
+                                    <td colspan="3" class="text-end">Device Subtotal</td>
+                                    <td class="text-end">
+                                        <span t-out="sum(unit['lines'].mapped('price_subtotal'))"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
                             </t>
-                            <t t-set="next_line" t-value="doc.order_line[line_index + 1] if line_index + 1 &lt; len(doc.order_line) else False"/>
-                            <tr t-if="line.rma_line_id and (not next_line or next_line.display_type == 'line_section')" class="fw-bold">
-                                <td colspan="3" class="text-end">Device Subtotal</td>
-                                <td class="text-end">
-                                    <span t-out="sum(doc.order_line.filtered(lambda l: l.rma_line_id == line.rma_line_id).mapped('price_subtotal'))"
-                                          t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
-                                </td>
+                        </t>
+                        <t t-foreach="grouped[1]" t-as="line">
+                            <tr t-if="line.display_type == 'line_note'" class="fst-italic">
+                                <td colspan="4"><span t-field="line.name"/></td>
+                            </tr>
+                            <tr t-else="">
+                                <td><span t-field="line.name"/></td>
+                                <td class="text-end"><span t-field="line.product_uom_qty"/></td>
+                                <td class="text-end"><span t-field="line.price_unit"/></td>
+                                <td class="text-end"><span t-field="line.price_subtotal"/></td>
                             </tr>
                         </t>
                     </tbody>

@@ -13,8 +13,12 @@
                             invisible="state != 'submitted'"/>
                     <button name="action_complete_physical_inspection" type="object" string="Complete Physical Inspection"
                             class="btn-primary" invisible="state != 'received'"/>
-                    <button name="action_submit_po" type="object" string="Confirm PO Number" class="btn-primary"
-                            invisible="not has_po_pending"/>
+                    <button name="action_open_po_verify_wizard" type="object" string="Verify PO" class="btn-primary"
+                            invisible="not has_po_pending or po_status != 'submitted'"
+                            groups="stock.group_stock_user"/>
+                    <button name="action_open_po_reject_wizard" type="object" string="Reject PO"
+                            invisible="not has_po_pending or po_status != 'submitted'"
+                            groups="stock.group_stock_user"/>
                     <button name="action_dispatch" type="object" string="Dispatch" class="btn-primary"
                             invisible="state not in ('inspection', 'processing') or not can_dispatch"/>
                     <button name="action_close" type="object" string="Close" invisible="state != 'dispatched'"/>
@@ -26,8 +30,18 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>
-                    <div class="alert alert-warning" role="alert" invisible="not has_po_pending">
-                        Repair work is paused: waiting for the dealer's PO number.
+                    <div class="alert alert-warning" role="alert" invisible="not has_po_pending or po_status not in ('none', 'rejected')">
+                        Repair work is paused: waiting for the dealer's PO.
+                        <span invisible="po_status != 'rejected'">The last PO was rejected; the dealer must submit a corrected PO.</span>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not has_po_pending or po_status != 'submitted'">
+                        PO <field name="po_number" readonly="1" class="fw-bold"/> submitted by the dealer:
+                        check it against the PO document, then click Verify PO (or Reject PO).
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="not has_other_dealer_device">
+                        <strong>Devices sold through another dealer:</strong>
+                        <field name="has_other_dealer_device" invisible="1"/>
+                        <field name="other_dealer_warning" readonly="1" class="d-block"/>
                     </div>
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
@@ -37,10 +51,6 @@
                             <field name="partner_id" readonly="state != 'draft'"/>
                             <field name="user_id"/>
                             <field name="created_from_portal" invisible="not created_from_portal"/>
-                            <field name="ownership_override" readonly="state != 'draft'" groups="stock.group_stock_manager"/>
-                            <field name="ownership_override_reason" invisible="not ownership_override"
-                                   required="ownership_override" readonly="state != 'draft'"
-                                   groups="stock.group_stock_manager"/>
                         </group>
                         <group>
                             <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
@@ -54,15 +64,22 @@
                     <notebook>
                         <page name="devices" string="Devices">
                             <field name="line_ids" readonly="state in ('dispatched', 'closed', 'cancel')">
-                                <list>
+                                <list decoration-danger="sold_through_other_dealer">
                                     <field name="sequence" widget="handle"/>
                                     <field name="lot_id"/>
                                     <field name="product_id"/>
+                                    <field name="sold_through_other_dealer" column_invisible="1"/>
+                                    <field name="channel_distributor_id" optional="show"/>
+                                    <field name="channel_status" widget="badge" optional="show"
+                                           decoration-danger="channel_status == 'other_dealer'"
+                                           decoration-warning="channel_status == 'not_sold'"
+                                           decoration-success="channel_status == 'own'"/>
                                     <field name="imei_1" optional="show"/>
                                     <field name="end_customer_name" optional="hide"/>
                                     <field name="complaint_description" optional="show"/>
-                                    <field name="is_repeat_device" widget="boolean_icon" options="{'icon': 'history'}"/>
+                                    <field name="is_repeat_device" widget="boolean_icon" options="{'icon': 'fa-history'}"/>
                                     <field name="accessory_discrepancy" optional="show"/>
+                                    <field name="not_received" optional="show"/>
                                     <field name="warranty_classification" widget="badge" optional="show"/>
                                     <field name="technician_id" optional="show"/>
                                     <field name="state" widget="badge"
@@ -92,9 +109,18 @@
                         <page name="po" string="Quotation &amp; PO">
                             <group>
                                 <group>
-                                    <field name="po_number"/>
+                                    <field name="po_number" readonly="po_status == 'verified'"/>
+                                    <field name="po_status" readonly="1" widget="badge"
+                                           decoration-info="po_status == 'submitted'"
+                                           decoration-success="po_status == 'verified'"
+                                           decoration-danger="po_status == 'rejected'"/>
+                                    <field name="po_rejection_reason" readonly="1" invisible="po_status != 'rejected'"/>
                                     <field name="po_date"/>
+                                    <field name="po_verified_date" invisible="po_status != 'verified'"/>
+                                    <field name="po_verified_user_id" invisible="po_status != 'verified'"/>
                                     <field name="po_document_ids" widget="many2many_binary"/>
+                                    <field name="po_rejected_document_ids" widget="many2many_binary"
+                                           invisible="not po_rejected_document_ids"/>
                                     <field name="po_pending_since"/>
                                 </group>
                             </group>
@@ -135,7 +161,13 @@
                 <field name="device_count" string="Devices"/>
                 <field name="po_number" optional="show"/>
                 <field name="has_po_pending" optional="show"/>
+                <field name="po_status" optional="show" widget="badge"
+                       decoration-info="po_status == 'submitted'"
+                       decoration-success="po_status == 'verified'"
+                       decoration-danger="po_status == 'rejected'"/>
                 <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="has_other_dealer_device" string="Other Dealer Devices" optional="show"
+                       widget="boolean_icon" options="{'icon': 'fa-exclamation-triangle'}"/>
                 <field name="state" widget="badge"
                        decoration-info="state in ('submitted', 'received')"
                        decoration-warning="state in ('inspection', 'processing')"
@@ -158,11 +190,17 @@
                 <filter name="to_receive" string="To Receive" domain="[('state', '=', 'submitted')]"/>
                 <filter name="in_progress" string="In Progress" domain="[('state', 'in', ('received', 'inspection', 'processing'))]"/>
                 <filter name="po_pending" string="PO Pending" domain="[('has_po_pending', '=', True)]"/>
+                <filter name="po_to_verify" string="PO to Verify"
+                        domain="[('has_po_pending', '=', True), ('po_status', '=', 'submitted')]"/>
+                <filter name="other_dealer" string="Devices from other dealers"
+                        domain="[('has_other_dealer_device', '=', True)]"/>
                 <filter name="ready" string="Ready to Dispatch" domain="[('can_dispatch', '=', True), ('state', 'in', ('inspection', 'processing'))]"/>
                 <group>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_partner" string="Dealer" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                    <filter name="group_other_dealer" string="Devices from Other Dealers"
+                            context="{'group_by': 'has_other_dealer_device'}"/>
                 </group>
             </search>
         </field>

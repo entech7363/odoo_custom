@@ -9,8 +9,11 @@
                  t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
         </t>
         <t t-set="layout_document_title">
-            <span>OFFICIAL RMA RETURN MANIFEST &amp; INTAKE SLIP</span>
+            <span>Repair Maintenance Authorisation</span>
         </t>
+        <!-- web.external_layout takes letterhead, address and footer from `company`: use the
+             branding company of the RMA's company (e.g. SafeX UK for SafeX Qatar), CR-05. -->
+        <t t-set="company" t-value="doc._get_document_company()"/>
         <t t-call="web.external_layout">
             <div class="page">
                 <div class="row mb-3">
@@ -29,29 +32,41 @@
                 <table class="table table-sm o_main_table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Device Model</th>
-                            <th>Serial Number / IMEI</th>
-                            <th>Reported Fault</th>
-                            <th>Accessories Sent</th>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 30%;">Device Model / Serial Number</th>
+                            <th style="width: 40%;">Reported Fault</th>
+                            <th style="width: 25%;">Accessories Sent</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="doc.line_ids" t-as="line">
-                            <td><t t-out="line_index + 1"/></td>
-                            <td><span t-field="line.product_id.name"/></td>
-                            <td>
-                                <span t-field="line.lot_id.name"/>
-                                <div t-if="line.imei_1" class="small">IMEI 1: <span t-field="line.imei_1"/></div>
-                                <div t-if="line.imei_2" class="small">IMEI 2: <span t-field="line.imei_2"/></div>
-                            </td>
-                            <td><span t-field="line.complaint_description"/></td>
-                            <td>
-                                <t t-set="accessories" t-value="doc.get_accessory_labels(line, 'acc_declared')"/>
-                                <span t-foreach="accessories" t-as="acc" class="badge text-bg-light me-1" t-out="acc"/>
-                                <span t-if="not accessories">None</span>
-                            </td>
-                        </tr>
+                        <!-- CR-06: the model is printed once, each unit (serial / IMEI) on its own row
+                             with its reported fault and accessories on the same row. -->
+                        <t t-set="unit_number" t-value="0"/>
+                        <t t-foreach="doc._get_lines_by_product()" t-as="group">
+                            <tr class="bg-light">
+                                <td/>
+                                <td colspan="3"><strong t-out="group[0].name"/>
+                                    <span t-if="len(group[1]) &gt; 1"> (<t t-out="len(group[1])"/> units)</span>
+                                </td>
+                            </tr>
+                            <tr t-foreach="group[1]" t-as="line">
+                                <t t-set="unit_number" t-value="unit_number + 1"/>
+                                <td><t t-out="unit_number"/></td>
+                                <td class="ps-3">
+                                    <div class="small">S/N: <span t-field="line.lot_id.name"/></div>
+                                    <div t-if="line.imei_1" class="small">IMEI 1: <span t-field="line.imei_1"/></div>
+                                    <div t-if="line.imei_2" class="small">IMEI 2: <span t-field="line.imei_2"/></div>
+                                </td>
+                                <td><span t-field="line.complaint_description"/></td>
+                                <td>
+                                    <t t-set="accessories" t-value="doc.get_accessory_labels(line, 'acc_declared')"/>
+                                    <span t-foreach="accessories" t-as="acc" class="badge text-bg-light me-1" t-out="acc"/>
+                                    <span t-if="not accessories">None</span>
+                                    <div t-if="line.acc_declared_battery_sno" class="small">Battery S/N: <span t-field="line.acc_declared_battery_sno"/></div>
+                                    <div t-if="line.acc_declared_dock_sno" class="small">Dock S/N: <span t-field="line.acc_declared_dock_sno"/></div>
+                                </td>
+                            </tr>
+                        </t>
                     </tbody>
                 </table>
 
@@ -60,14 +75,19 @@
                     [ ] Box seal intact &#160;&#160; [ ] Physical damage upon arrival (photos taken)
                     &#160;&#160; [ ] Accessory count verified against manifest
                 </p>
-                <div class="row mt-4">
-                    <div class="col-6">Receiving Technician: ____________________</div>
-                    <div class="col-6">Date: ____________________</div>
-                </div>
 
                 <div t-if="doc.terms" class="mt-4 small" style="page-break-inside: avoid;">
                     <h6>RMA Terms &amp; Conditions</h6>
                     <div t-field="doc.terms"/>
+                </div>
+
+                <div class="mt-5" style="page-break-inside: avoid;">
+                    <h6>Received by</h6>
+                    <div class="row mt-3">
+                        <div class="col-4">Name: ______________________</div>
+                        <div class="col-4">Signature: ______________________</div>
+                        <div class="col-4">Date: ______________________</div>
+                    </div>
                 </div>
             </div>
         </t>

@@ -21,6 +21,116 @@
         <field name="auto_delete" eval="True"/>
     </record>
 
+    <record id="mail_template_rma_received" model="mail.template">
+        <field name="name">SafeX RMA: Receipt Acknowledgement</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }}: your parcel has been received</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent when SafeX confirms receipt of the dealer's parcel</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>We confirm that the parcel for RMA <strong t-out="object.name or ''">RMA/2026/00001</strong>
+       has arrived at our service center.</p>
+    <p>
+        Received on: <t t-out="format_datetime(object.received_date, tz=object.partner_id.tz or user.tz, dt_format='medium') or '-'">01/01/2026</t><br/>
+        Courier / Forwarder: <t t-out="object.forwarder_id.name or '-'">DHL</t><br/>
+        AWB: <t t-out="object.inbound_awb or '-'">123</t>
+    </p>
+    <p>Devices on this RMA:</p>
+    <table style="border-collapse: collapse; font-size: 13px;" cellpadding="4">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ccc; text-align: left;">Model</th>
+                <th style="border: 1px solid #ccc; text-align: left;">Serial Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="object.line_ids" t-as="line">
+                <td style="border: 1px solid #ccc;" t-out="line.product_id.display_name or ''">Device</td>
+                <td style="border: 1px solid #ccc;" t-out="line.lot_id.name or ''">SN0001</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>This message only confirms the arrival of the parcel. The contents, including accessories,
+       will be checked during the inspection and we will contact you with the results.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_inspection_report" model="mail.template">
+        <field name="name">SafeX RMA: Inspection Report</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }}: inspection report</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent by SafeX staff (Send Inspection Report button) with the Inspection Report PDF</field>
+        <field name="report_template_ids" eval="[(4, ref('safex_rma_reports.action_report_rma_inspection'))]"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
+    <p>We have inspected the parcel of RMA <strong t-out="object.name or ''">RMA/2026/00001</strong>.
+       The full Inspection Report is attached; a summary follows.</p>
+    <t t-set="received_lines" t-value="object.line_ids.filtered(lambda line: not line.not_received)"/>
+    <p><strong>Items received</strong></p>
+    <table style="border-collapse: collapse; font-size: 13px;" cellpadding="4">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ccc; text-align: left;">Model</th>
+                <th style="border: 1px solid #ccc; text-align: left;">Serial Number</th>
+                <th style="border: 1px solid #ccc; text-align: left;">Accessories Received</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="received_lines" t-as="line">
+                <td style="border: 1px solid #ccc;" t-out="line.product_id.name or ''">Device</td>
+                <td style="border: 1px solid #ccc;" t-out="line.lot_id.name or ''">SN0001</td>
+                <td style="border: 1px solid #ccc;" t-out="', '.join(object.get_received_accessory_details(line)) or '-'">Charger</td>
+            </tr>
+        </tbody>
+    </table>
+    <t t-set="missing_devices" t-value="object.line_ids.filtered('not_received')"/>
+    <t t-set="unexpected_devices" t-value="received_lines.filtered('is_unexpected_device')"/>
+    <t t-set="accessory_lines" t-value="received_lines.filtered('accessory_discrepancy')"/>
+    <t t-set="damaged_lines" t-value="received_lines.filtered('physical_damage_suspected')"/>
+    <p><strong>Discrepancies</strong></p>
+    <ul t-if="missing_devices or unexpected_devices or accessory_lines or damaged_lines">
+        <li t-foreach="missing_devices" t-as="line">
+            <t t-out="line.product_id.name or ''">Device</t> (S/N <t t-out="line.lot_id.name or ''">SN0001</t>): declared on the RMA but not received.
+        </li>
+        <li t-foreach="unexpected_devices" t-as="line">
+            <t t-out="line.product_id.name or ''">Device</t> (S/N <t t-out="line.lot_id.name or ''">SN0001</t>): received but not declared on the RMA.
+        </li>
+        <li t-foreach="accessory_lines" t-as="line">
+            <t t-out="line.product_id.name or ''">Device</t> (S/N <t t-out="line.lot_id.name or ''">SN0001</t>): accessories not received:
+            <t t-out="', '.join(object.get_missing_accessory_labels(line))">Charger</t>.
+        </li>
+        <li t-foreach="damaged_lines" t-as="line">
+            <t t-out="line.product_id.name or ''">Device</t> (S/N <t t-out="line.lot_id.name or ''">SN0001</t>): physical damage found<t t-if="line.physical_inspection_notes">:
+            <t t-out="line.physical_inspection_notes or ''">Notes</t></t>.
+        </li>
+    </ul>
+    <p t-else="">None: the parcel content matches the RMA.</p>
+    <t t-set="part_lines" t-value="received_lines.filtered('part_line_ids')"/>
+    <t t-if="part_lines">
+        <p><strong>Spare parts that may be required</strong></p>
+        <ul>
+            <t t-foreach="part_lines" t-as="line">
+                <li t-foreach="line.part_line_ids" t-as="part">
+                    <t t-out="line.product_id.name or ''">Device</t> (S/N <t t-out="line.lot_id.name or ''">SN0001</t>):
+                    <t t-out="part.product_id.name or ''">Part</t> x <t t-out="'%g' % part.quantity">1</t>
+                </li>
+            </t>
+        </ul>
+    </t>
+    <p>Where applicable, the repair quotation will follow in a separate email.</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
     <record id="mail_template_quotation_ready" model="mail.template">
         <field name="name">SafeX RMA: Quotation Ready for Review</field>
         <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
@@ -48,14 +158,14 @@
         <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
         <field name="partner_to">{{ object.partner_id.id }}</field>
         <field name="description">Sent on dispatch, with the consolidated packing list</field>
-        <field name="report_template_ids" eval="[(4, ref('safex_rma_reports.action_report_outbound_packing_list'))]"/>
+        <field name="report_template_ids" eval="[(4, ref('safex_rma_reports.action_report_outbound_packing_list')), (4, ref('safex_rma_reports.action_report_rma_final_service'))]"/>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px; font-size: 13px;">
     <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
     <p>All devices of RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> are returning together.</p>
     <p>Courier: <t t-out="object.outbound_forwarder_id.name or '-'">DHL</t><br/>
        AWB: <t t-out="object.outbound_awb or '-'">123</t></p>
-    <p>The consolidated packing list is attached.</p>
+    <p>The consolidated packing list and the final service report are attached.</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>

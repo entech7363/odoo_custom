@@ -112,10 +112,40 @@
             <div t-if="error == 'duplicate'" class="alert alert-danger" role="alert">
                 A device can only be added once, and cannot be on another RMA that is still open.
             </div>
+            <div t-if="error == 'other_dealer'" class="alert alert-danger" role="alert">
+                Device <strong t-out="error_serial"/> was sold through another dealer: remove it and add it
+                again, then click "Proceed to RMA" to raise an RMA for it.
+            </div>
+            <div t-if="error == 'too_many'" class="alert alert-danger" role="alert">
+                An RMA can hold at most 50 devices: please raise a separate RMA for the other devices.
+            </div>
+            <div t-if="error == 'throttled'" class="alert alert-danger" role="alert">
+                Too many verification attempts. Please wait a minute and submit again.
+            </div>
+            <div t-if="error == 'mixed_company'" class="alert alert-danger" role="alert">
+                These devices were sold to you by different SafeX companies (<strong t-out="error_serial"/>).
+                Please raise a separate RMA for the devices of each company.
+            </div>
             <div t-if="error == 'photo'" class="alert alert-danger" role="alert">
                 Complaint photos must be images (JPG, PNG, ...) of at most 5 MB each, up to 5 photos per device.
             </div>
-            <form action="/my/rma/new" method="post" enctype="multipart/form-data" class="o_safex_rma_new_form">
+            <div t-if="error == 'accessory_serial_missing'" class="alert alert-danger" role="alert">
+                Enter the serial number of every Battery and Docking Station you send.
+            </div>
+            <div t-if="error == 'battery_serial'" class="alert alert-danger" role="alert">
+                Battery serial number <strong t-out="error_serial"/> was not found. Check the serial number
+                printed on the battery and try again.
+            </div>
+            <div t-if="error == 'dock_serial'" class="alert alert-danger" role="alert">
+                Docking Station serial number <strong t-out="error_serial"/> was not found. Check the serial
+                number printed on the docking station and try again.
+            </div>
+            <div t-if="error and safex_devices" class="alert alert-info" role="status">
+                The devices you entered have been kept below: correct the problem and submit again.
+                Complaint photos must be selected again.
+            </div>
+            <form action="/my/rma/new" method="post" enctype="multipart/form-data" class="o_safex_rma_new_form"
+                  t-att-data-safex-devices="safex_devices_json or '[]'">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <div class="card mb-3">
                     <div class="card-body">
@@ -143,13 +173,17 @@
                 <div class="d-none o_safex_device_template">
                     <div class="card mb-3 o_safex_device_card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <strong class="o_safex_device_title"/>
+                            <div>
+                                <strong class="o_safex_device_title"/>
+                                <span class="badge text-bg-warning ms-2 d-none o_safex_other_dealer_badge"/>
+                            </div>
                             <button type="button" class="btn btn-sm btn-link text-danger o_safex_remove_device">Remove</button>
                         </div>
                         <div class="card-body">
                             <input type="hidden" name="device_index" class="o_safex_index"/>
                             <input type="hidden" data-name="serial"/>
                             <input type="hidden" data-name="imei"/>
+                            <input type="hidden" data-name="other_dealer_confirmed"/>
                             <div class="row g-2">
                                 <div class="col-md-6">
                                     <label class="form-label">Customer Name (optional)</label>
@@ -171,6 +205,18 @@
                                             <label class="form-check-label" t-out="acc[1]"/>
                                         </div>
                                     </t>
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-md-6 d-none o_safex_acc_sno" data-accessory="acc_battery">
+                                            <label class="form-label">Battery Serial Number</label>
+                                            <input type="text" class="form-control" data-name="acc_battery_sno"
+                                                   placeholder="Serial number printed on the battery"/>
+                                        </div>
+                                        <div class="col-md-6 d-none o_safex_acc_sno" data-accessory="acc_dock">
+                                            <label class="form-label">Docking Station Serial Number</label>
+                                            <input type="text" class="form-control" data-name="acc_dock_sno"
+                                                   placeholder="Serial number printed on the docking station"/>
+                                        </div>
+                                    </div>
                                     <input type="text" class="form-control mt-2" placeholder="Other accessories" data-name="acc_other"/>
                                 </div>
                                 <div class="col-12">
@@ -198,12 +244,20 @@
             <div t-if="message == 'created'" class="alert alert-success" role="alert">
                 Your RMA has been submitted. Print the RMA Reference Document and place it inside the parcel.
             </div>
-            <div t-if="message == 'po'" class="alert alert-success" role="alert">PO number received: repair work resumes.</div>
-            <div t-if="message == 'approve'" class="alert alert-success" role="alert">Quotation approved. Please enter your PO number.</div>
+            <div t-if="message == 'po'" class="alert alert-success" role="alert">
+                Your PO was sent to SafeX. Repair work starts as soon as SafeX has verified it.
+            </div>
+            <div t-if="message == 'approve'" class="alert alert-success" role="alert">Quotation approved. Please submit your PO.</div>
             <div t-if="message in ('reject', 'clarify')" class="alert alert-success" role="alert">Your request was sent to SafeX.</div>
             <div t-if="message == 'received'" class="alert alert-success" role="alert">Thank you. Receipt of the devices has been confirmed to SafeX.</div>
             <div t-if="error == 'po_file'" class="alert alert-danger" role="alert">
                 The PO document must be a PDF or an image of at most 10 MB.
+            </div>
+            <div t-elif="error == 'po_file_missing'" class="alert alert-danger" role="alert">
+                Attach the PO document (PDF or image) to submit your PO.
+            </div>
+            <div t-elif="error == 'po'" class="alert alert-danger" role="alert">
+                The PO could not be submitted. Enter the PO number and attach the PO document.
             </div>
             <div t-elif="error" class="alert alert-danger" role="alert">
                 The action could not be completed. A reason is mandatory to reject or ask for clarification.
@@ -224,12 +278,18 @@
                     <div class="small">
                         <div t-if="rma.inbound_awb">Inbound: <t t-out="rma.forwarder_id.name or ''"/> AWB <t t-out="rma.inbound_awb"/></div>
                         <div t-if="rma.outbound_awb">Outbound: <t t-out="rma.outbound_forwarder_id.name or ''"/> AWB <t t-out="rma.outbound_awb"/></div>
-                        <div t-if="rma.po_number">PO Number: <strong t-out="rma.po_number"/></div>
+                        <div t-if="rma.po_number">PO Number: <strong t-out="rma.po_number"/>
+                            <span t-if="rma.po_status == 'submitted'" class="badge rounded-pill text-bg-info ms-1">Submitted - Awaiting Verification</span>
+                            <span t-elif="rma.po_status == 'verified'" class="badge rounded-pill text-bg-success ms-1">Verified</span>
+                            <span t-elif="rma.po_status == 'rejected'" class="badge rounded-pill text-bg-danger ms-1">Rejected</span>
+                        </div>
                     </div>
                     <div class="d-flex flex-column gap-1">
                         <a t-attf-href="/my/rma/#{rma.id}/report/reference" class="btn btn-sm btn-secondary">RMA Reference PDF</a>
                         <a t-if="rma.state in ('dispatched', 'closed')" t-attf-href="/my/rma/#{rma.id}/report/packing_list"
                            class="btn btn-sm btn-secondary">Packing List PDF</a>
+                        <a t-if="rma.state in ('dispatched', 'closed')" t-attf-href="/my/rma/#{rma.id}/report/final_service"
+                           class="btn btn-sm btn-secondary">Final Service Report PDF</a>
                         <a t-foreach="invoices" t-as="invoice" t-attf-href="/my/rma/#{rma.id}/report/invoice?order_id=#{invoice.id}"
                            class="btn btn-sm btn-secondary">Invoice <t t-out="invoice.name"/></a>
                     </div>
@@ -255,17 +315,52 @@
                 by <t t-out="rma.dealer_received_user_id.name"/>.
             </div>
 
-            <!-- PO entry, always available while a device waits for it -->
-            <div t-if="rma.has_po_pending" class="card mb-3 border-warning">
-                <div class="card-body">
-                    <h5>Enter your PO Number</h5>
-                    <p class="small text-muted">One PO number covers the grand total of all devices. Attach the PO document (PDF or image, max 10 MB).</p>
-                    <form t-attf-action="/my/rma/#{rma.id}/submit_po" method="post" enctype="multipart/form-data"
-                          class="d-flex flex-wrap gap-2">
+            <!-- PO submission (CR-09): number + document in a pop-up, verified by SafeX before repair starts -->
+            <t t-if="rma.has_po_pending">
+                <div t-if="rma.po_status == 'submitted'" class="alert alert-info mb-3" role="status">
+                    <strong>PO <t t-out="rma.po_number"/> submitted - awaiting verification.</strong>
+                    SafeX is checking your Purchase Order; repair work starts once it is verified.
+                </div>
+                <div t-if="rma.po_status in ('none', 'rejected')" class="card mb-3 border-warning">
+                    <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h5 class="mb-1">Submit your Purchase Order</h5>
+                            <div t-if="rma.po_status == 'rejected'" class="alert alert-danger small mb-2" role="alert">
+                                PO <strong t-out="rma.po_number"/> was not accepted<t t-if="rma.po_rejection_reason">:
+                                <t t-out="rma.po_rejection_reason"/></t>. Please submit a corrected PO.
+                            </div>
+                            <p class="small text-muted mb-0">One PO covers the grand total of all devices. Repair
+                                work starts once SafeX has verified your PO.</p>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#safex_po_modal">Submit PO</button>
+                    </div>
+                </div>
+            </t>
+            <div t-elif="rma.po_status == 'verified' and rma.po_number" class="alert alert-light border mb-3" role="status">
+                PO <strong t-out="rma.po_number"/> verified.
+            </div>
+
+            <div t-if="rma.has_po_pending and rma.po_status in ('none', 'rejected')" class="modal fade"
+                 id="safex_po_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form class="modal-content" t-attf-action="/my/rma/#{rma.id}/submit_po" method="post"
+                          enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="text" name="po_number" class="form-control w-auto flex-grow-1" required="required" placeholder="PO Number"/>
-                        <input type="file" name="po_file" class="form-control w-auto flex-grow-1" accept="application/pdf,image/*"/>
-                        <button type="submit" class="btn btn-primary">Submit PO</button>
+                        <div class="modal-header"><h5 class="modal-title">Submit your Purchase Order</h5></div>
+                        <div class="modal-body">
+                            <label class="form-label" for="safex_po_number">PO Number</label>
+                            <input type="text" id="safex_po_number" name="po_number" class="form-control mb-2"
+                                   required="required" maxlength="64" placeholder="PO Number"/>
+                            <label class="form-label" for="safex_po_file">PO Document (PDF or image, max 10 MB)</label>
+                            <input type="file" id="safex_po_file" name="po_file" class="form-control"
+                                   required="required" accept="application/pdf,image/*"/>
+                            <p class="small text-muted mt-2 mb-0">The PO is sent to SafeX for verification.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit PO</button>
+                        </div>
                     </form>
                 </div>
             </div>

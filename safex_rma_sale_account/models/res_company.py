@@ -9,6 +9,10 @@ class ResCompany(models.Model):
         string="Repair Quotation Terms & Conditions",
         help="Copied into every RMA repair quotation of this company.",
     )
+    safex_po_email = fields.Char(
+        string="PO Email Address",
+        help="Mailbox receiving the dealers' Purchase Orders submitted on the portal (PO number and "
+             "document). Empty: the company email.")
     safex_po_reminder_days = fields.Char(
         string="Reminder Days", default='7,14,30,40',
         help="Days after the dealer approved the quotation on which a PO reminder is emailed, "
@@ -29,3 +33,7 @@ class ResCompany(models.Model):
         if any(day <= 0 for day in days):
             raise ValueError
         return days
+
+    def _get_safex_po_email(self):
+        self.ensure_one()
+        return (self.safex_po_email or '').strip() or self.email

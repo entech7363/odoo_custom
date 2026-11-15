@@ -11,6 +11,7 @@
         <t t-set="layout_document_title">
             <span>Consolidated Packing List - </span><span t-field="doc.name"/>
         </t>
+        <t t-set="company" t-value="doc._get_document_company()"/>
         <t t-call="web.external_layout">
             <div class="page">
                 <div class="row mb-3">
@@ -36,7 +37,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="doc.line_ids" t-as="line">
+                        <tr t-foreach="doc._get_report_received_lines()" t-as="line">
                             <td><t t-out="line_index + 1"/></td>
                             <td><span t-field="line.product_id.name"/></td>
                             <td>
@@ -55,7 +56,9 @@
                                 <span t-if="not accessories">None</span>
                             </td>
                             <td>
-                                <span t-if="line.quality_check == 'passed'" class="badge text-bg-success">QC PASS</span>
+                                <!-- Print-safe: dark bordered text, no background colour (not printed by every printer). -->
+                                <span t-if="line.quality_check == 'passed'" class="fw-bold text-nowrap"
+                                      style="color: #000; border: 1px solid #000; padding: 1px 4px;">QC PASS</span>
                                 <div t-if="line.quality_check_user_id" class="small" t-field="line.quality_check_user_id"/>
                             </td>
                         </tr>

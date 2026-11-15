@@ -35,4 +35,26 @@
         <field name="binding_type">report</field>
     </record>
 
+    <record id="action_report_rma_inspection" model="ir.actions.report">
+        <field name="name">Inspection Report</field>
+        <field name="model">safex.rma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">safex_rma_reports.report_rma_inspection</field>
+        <field name="print_report_name">'Inspection Report - %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_safex_a4"/>
+        <field name="binding_model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_rma_final_service" model="ir.actions.report">
+        <field name="name">Final Service Report</field>
+        <field name="model">safex.rma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">safex_rma_reports.report_rma_final_service</field>
+        <field name="print_report_name">'Final Service Report - %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_safex_a4"/>
+        <field name="binding_model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="binding_type">report</field>
+    </record>
+
 </odoo>

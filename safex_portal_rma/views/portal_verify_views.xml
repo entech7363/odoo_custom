@@ -11,7 +11,8 @@
                 <div class="card-body">
                     <p class="text-muted">
                         Enter the product Serial Number and its IMEI (IMEI 1 or IMEI 2). Both must belong to
-                        the same device. Only devices delivered to your company can be verified.
+                        the same device. A device sold through another dealer is shown with a warning: you can
+                        still raise an RMA for it.
                     </p>
                     <div class="row g-2 align-items-end">
                         <div class="col-md-5">

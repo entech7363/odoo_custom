@@ -8,7 +8,7 @@
             <form string="RMA Device">
                 <header>
                     <button name="action_validate_physical_inspection" type="object" string="Validate Physical Inspection"
-                            class="btn-primary" invisible="state != 'draft' or rma_state != 'received'"/>
+                            class="btn-primary" invisible="state != 'draft' or rma_state != 'received' or not_received"/>
                     <field name="rma_state" invisible="1"/>
                     <button name="action_validate_technical_inspection" type="object" string="Validate Diagnostic &amp; Route"
                             class="btn-primary" invisible="state != 'inspected'"/>
@@ -23,10 +23,18 @@
                     <div class="alert alert-warning" role="alert" invisible="not is_repeat_device">
                         <field name="repeat_repair_warning" readonly="1"/>
                     </div>
+                    <div class="alert alert-warning" role="alert" invisible="not not_received">
+                        Not received: this device was declared by the dealer but is not in the carton. It is
+                        left out of the inspection, repair and dispatch, and reported to the dealer.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="channel_status != 'other_dealer'">
+                        Sold through another dealer: <field name="channel_distributor_id" readonly="1" class="fw-bold"/>
+                    </div>
                     <div class="alert alert-danger" role="alert" invisible="not accessory_discrepancy">
                         Accessory discrepancy detected: an item declared by the dealer was not received.
                     </div>
                     <div class="oe_title">
+                        <field name="company_id" invisible="1"/>
                         <h1><field name="lot_id" placeholder="Serial Number" options="{'no_create': True}"
                                    readonly="state != 'draft'"/></h1>
                     </div>
@@ -41,6 +49,10 @@
                         </group>
                         <group>
                             <field name="partner_id"/>
+                            <field name="channel_status" widget="badge" invisible="not channel_status"
+                                   decoration-danger="channel_status == 'other_dealer'"
+                                   decoration-warning="channel_status == 'not_sold'"
+                                   decoration-success="channel_status == 'own'"/>
                             <field name="end_customer_name"/>
                             <field name="end_customer_company"/>
                             <field name="company_id" groups="base.group_multi_company"/>
@@ -57,7 +69,9 @@
                                 <group string="Declared by Dealer">
                                     <field name="acc_declared_charger"/>
                                     <field name="acc_declared_dock"/>
+                                    <field name="acc_declared_dock_sno" invisible="not acc_declared_dock"/>
                                     <field name="acc_declared_battery"/>
+                                    <field name="acc_declared_battery_sno" invisible="not acc_declared_battery"/>
                                     <field name="acc_declared_screwdriver"/>
                                     <field name="acc_declared_cable"/>
                                     <field name="acc_declared_box"/>
@@ -76,7 +90,8 @@
                             <group>
                                 <field name="accessory_discrepancy"/>
                                 <field name="accessory_notes"/>
-                                <field name="is_unexpected_device"/>
+                                <field name="is_unexpected_device" readonly="not_received"/>
+                                <field name="not_received" readonly="state != 'draft' or is_unexpected_device"/>
                             </group>
                         </page>
                         <page name="physical" string="Physical &amp; Cosmetic Inspection">
@@ -111,7 +126,8 @@
                                     <field name="technician_id"/>
                                     <field name="diagnostic_date"/>
                                     <field name="diagnostic_hours" widget="float_time"/>
-                                    <field name="fault_category"/>
+                                    <field name="fault_category_ids" widget="many2many_tags"
+                                           options="{'color_field': 'color', 'no_create': True}"/>
                                 </group>
                                 <group string="Warranty Decision">
                                     <field name="dealer_warranty_expiry" groups="base.group_user"/>
@@ -191,6 +207,7 @@
                        decoration-success="warranty_classification == 'under_warranty'"
                        decoration-warning="warranty_classification in ('out_of_warranty', 'no_fault_found')"
                        decoration-danger="warranty_classification in ('physical_damage', 'warranty_rejected', 'replacement_recommended')"/>
+                <field name="fault_category_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide"/>
                 <field name="technician_id" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-info="state in ('draft', 'inspected')"
@@ -213,6 +230,7 @@
                 <field name="rma_id"/>
                 <field name="partner_id"/>
                 <field name="technician_id"/>
+                <field name="fault_category_ids"/>
                 <filter name="my_devices" string="My Devices" domain="[('technician_id', '=', uid)]"/>
                 <separator/>
                 <filter name="po_pending" string="PO Pending" domain="[('state', '=', 'po_pending')]"/>
@@ -226,6 +244,7 @@
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_classification" string="Warranty Classification" context="{'group_by': 'warranty_classification'}"/>
                     <filter name="group_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                    <filter name="group_fault_category" string="Fault Category" context="{'group_by': 'fault_category_ids'}"/>
                 </group>
             </search>
         </field>

@@ -1,6 +1,6 @@
 {
     'name': 'SafeX RMA Sales & Invoicing',
-    'version': '18.0.1.0.1',
+    'version': '18.0.1.2.0',
     'category': 'Services/SafeX RMA',
     'summary': 'Sectioned repair quotations, dealer approval, PO gating, reminders and invoicing',
     'description': """
@@ -13,6 +13,9 @@ SafeX RMA Sales & Invoicing (DES00112)
 - PO number links to the quotation (also Entech's PO Number / PO Date, printed on deliveries and
   invoices); PO pending reminders on days 7, 14, 30 and 40.
 - RMA quotations skip the sale_price_control minimum-price approval for the 0.00 replaced-part lines.
+- Warranty / manufacturing-defect devices are quoted at 0.00 and follow the same approval + PO flow;
+  0.00 orders need no invoice before dispatch.
+- Dealer PO submission is emailed to the company's PO mailbox and verified by SafeX before repair.
 - Invoice creation for chargeable repairs.
 - Configurable quotation Terms & Conditions per company.
     """,

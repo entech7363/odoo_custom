@@ -1,6 +1,6 @@
 {
     'name': 'SafeX RMA Core',
-    'version': '18.0.1.0.2',
+    'version': '18.0.1.5.0',
     'category': 'Services/SafeX RMA',
     'summary': 'Multi-device RMA container, receiving, inspections, repair, spare parts and QC',
     'description': """
@@ -26,12 +26,15 @@ SafeX RMA Core (DES00105-DES00111, DES00113)
         'security/safex_security.xml',
         'data/ir_sequence_data.xml',
         'data/inspection_checklist_data.xml',
+        'data/fault_category_data.xml',
         'views/safex_inspection_views.xml',
+        'views/safex_fault_category_views.xml',
         'views/safex_rma_line_views.xml',
         'views/safex_rma_views.xml',
         'views/res_company_views.xml',
         'views/product_template_views.xml',
         'views/safex_rma_menus.xml',
+        'wizard/safex_rma_po_wizard_views.xml',
     ],
     'installable': True,
     'application': False,

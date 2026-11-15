@@ -28,3 +28,10 @@ class SaleOrder(models.Model):
             and line.price_unit < line.product_id.minimum_price
             for line in self.order_line
         )
+
+    def _safex_filter_to_invoice(self):
+        """Confirmed orders with something to invoice. An order whose total is 0.00 (warranty /
+        manufacturing-defect repairs quoted at no charge, CR-08) is never invoiced."""
+        return self.filtered(
+            lambda so: so.state == 'sale' and so.invoice_status == 'to invoice'
+            and not so.currency_id.is_zero(so.amount_total))

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- CR-12 / CR-07: Inspection Report (sent to the dealer after the physical & technical inspection)
+         and Final Service Report (inspection + repair & QC, attached to the dispatch email).
+         Dealer documents: no warranty classification, no part costs or stock locations. -->
+
+    <template id="report_safex_inspection_header">
+        <div class="row mb-3">
+            <div class="col-3"><strong>RMA</strong><div t-field="doc.name"/></div>
+            <div class="col-3"><strong>Dealer</strong><div t-field="doc.partner_id.commercial_partner_id.name"/></div>
+            <div class="col-3"><strong>Received</strong><div t-field="doc.received_date" t-options='{"widget": "date"}'/></div>
+            <div class="col-3"><strong>Inbound Courier / AWB</strong>
+                <div><t t-out="doc.forwarder_id.name or '-'"/> / <t t-out="doc.inbound_awb or '-'"/></div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_safex_inspection_body">
+        <t t-set="received_lines" t-value="doc._get_report_received_lines()"/>
+
+        <!-- Items received -->
+        <h5 class="mt-3">Items Received</h5>
+        <table class="table table-sm o_main_table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 35%;">Device Model / Serial Number / IMEI</th>
+                    <th style="width: 60%;">Accessories Received</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-set="unit_number" t-value="0"/>
+                <t t-foreach="doc._get_lines_by_product(received_lines)" t-as="group">
+                    <tr class="bg-light">
+                        <td/>
+                        <td colspan="2"><strong t-out="group[0].name"/>
+                            <span t-if="len(group[1]) &gt; 1"> (<t t-out="len(group[1])"/> units)</span>
+                        </td>
+                    </tr>
+                    <tr t-foreach="group[1]" t-as="line">
+                        <t t-set="unit_number" t-value="unit_number + 1"/>
+                        <td><t t-out="unit_number"/></td>
+                        <td class="ps-3">
+                            <div class="small">S/N: <span t-field="line.lot_id.name"/></div>
+                            <div t-if="line.imei_1" class="small">IMEI 1: <span t-field="line.imei_1"/></div>
+                            <div t-if="line.imei_2" class="small">IMEI 2: <span t-field="line.imei_2"/></div>
+                        </td>
+                        <td>
+                            <t t-set="accessories" t-value="doc.get_received_accessory_details(line)"/>
+                            <span t-foreach="accessories" t-as="acc" class="badge text-bg-light me-1" t-out="acc"/>
+                            <span t-if="not accessories">None</span>
+                        </td>
+                    </tr>
+                </t>
+                <tr t-if="not received_lines">
+                    <td colspan="3">No device received.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Discrepancies -->
+        <t t-set="missing_devices" t-value="doc.line_ids.filtered('not_received')"/>
+        <t t-set="unexpected_devices" t-value="received_lines.filtered('is_unexpected_device')"/>
+        <t t-set="accessory_lines" t-value="received_lines.filtered('accessory_discrepancy')"/>
+        <t t-set="damaged_lines" t-value="received_lines.filtered('physical_damage_suspected')"/>
+        <h5 class="mt-4">Discrepancies</h5>
+        <p t-if="not (missing_devices or unexpected_devices or accessory_lines or damaged_lines)">
+            No discrepancy found: the parcel content matches the RMA.
+        </p>
+        <table t-else="" class="table table-sm">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Device</th>
+                    <th style="width: 25%;">Discrepancy</th>
+                    <th style="width: 45%;">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="missing_devices" t-as="line">
+                    <td><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></td>
+                    <td>Declared device not received</td>
+                    <td>This device was on the RMA but was not in the parcel.</td>
+                </tr>
+                <tr t-foreach="unexpected_devices" t-as="line">
+                    <td><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></td>
+                    <td>Unexpected device</td>
+                    <td>Found in the parcel but not declared on the RMA.</td>
+                </tr>
+                <tr t-foreach="accessory_lines" t-as="line">
+                    <td><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></td>
+                    <td>Declared accessories not received</td>
+                    <td>
+                        <t t-out="', '.join(doc.get_missing_accessory_labels(line))"/>
+                        <div t-if="line.accessory_notes" class="small" t-field="line.accessory_notes"/>
+                    </td>
+                </tr>
+                <tr t-foreach="damaged_lines" t-as="line">
+                    <td><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></td>
+                    <td>Physical damage found</td>
+                    <td>
+                        <div t-foreach="line.inspection_line_ids.filtered(lambda result: result.option_id.requires_photo)" t-as="result">
+                            <t t-out="result.item_id.name"/>: <t t-out="result.option_id.name"/>
+                            <t t-if="result.notes"> - <t t-out="result.notes"/></t>
+                        </div>
+                        <div t-if="line.physical_inspection_notes" t-field="line.physical_inspection_notes"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Findings: only the devices whose technical inspection was validated (diagnostic date set
+             by "Validate Technical Inspection"); left out while no device has been diagnosed. -->
+        <t t-set="finding_lines" t-value="received_lines.filtered('diagnostic_date')"/>
+        <t t-if="finding_lines">
+            <h5 class="mt-4">Findings</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Device</th>
+                        <th style="width: 25%;">Fault Categories</th>
+                        <th style="width: 45%;">Diagnostic Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="finding_lines" t-as="line">
+                        <td><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></td>
+                        <td><t t-out="', '.join(line.fault_category_ids.mapped('name')) or '-'"/></td>
+                        <td>
+                            <span t-if="line.dealer_facing_report" t-field="line.dealer_facing_report"/>
+                            <span t-else="" class="text-muted">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+
+        <!-- Spare parts that may be required: name and quantity only (never cost or stock location) -->
+        <t t-set="part_lines" t-value="received_lines.filtered('part_line_ids')"/>
+        <h5 class="mt-4">Spare Parts That May Be Required</h5>
+        <p t-if="not part_lines">No spare part identified.</p>
+        <table t-else="" class="table table-sm">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Device</th>
+                    <th style="width: 55%;">Spare Part</th>
+                    <th style="width: 15%;" class="text-end">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="part_lines" t-as="line">
+                    <tr t-foreach="line.part_line_ids" t-as="part">
+                        <td>
+                            <t t-if="part_first"><t t-out="line.product_id.name"/><div class="small">S/N: <t t-out="line.lot_id.name"/></div></t>
+                        </td>
+                        <td><t t-out="part.product_id.name"/></td>
+                        <td class="text-end"><t t-out="part.quantity" t-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}'/>
+                            <t t-out="part.uom_id.name"/></td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="report_rma_inspection_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="address">
+            <strong>Dealer</strong>
+            <div t-field="doc.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
+        </t>
+        <t t-set="layout_document_title">
+            <span>Inspection Report - </span><span t-field="doc.name"/>
+        </t>
+        <t t-set="company" t-value="doc._get_document_company()"/>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="safex_rma_reports.report_safex_inspection_header"/>
+                <t t-call="safex_rma_reports.report_safex_inspection_body"/>
+                <p class="mt-4 small">A repair quotation will follow separately where applicable.</p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_rma_inspection">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="safex_rma_reports.report_rma_inspection_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_rma_final_service_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="address">
+            <strong>Dealer</strong>
+            <div t-field="doc.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
+        </t>
+        <t t-set="layout_document_title">
+            <span>Final Service Report - </span><span t-field="doc.name"/>
+        </t>
+        <t t-set="company" t-value="doc._get_document_company()"/>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="safex_rma_reports.report_safex_inspection_header"/>
+                <div t-if="doc.dispatch_date or doc.outbound_awb" class="row mb-3">
+                    <div class="col-3"><strong>Dispatched</strong><div t-field="doc.dispatch_date" t-options='{"widget": "date"}'/></div>
+                    <div class="col-3"><strong>Outbound Courier / AWB</strong>
+                        <div><t t-out="doc.outbound_forwarder_id.name or '-'"/> / <t t-out="doc.outbound_awb or '-'"/></div>
+                    </div>
+                </div>
+                <t t-call="safex_rma_reports.report_safex_inspection_body"/>
+
+                <t t-set="service_lines" t-value="doc._get_report_received_lines()"/>
+                <h5 t-if="service_lines" class="mt-4" style="page-break-before: auto;">Repair &amp; Quality Check</h5>
+                <t t-foreach="service_lines" t-as="line">
+                    <div class="border p-2 mb-2" style="page-break-inside: avoid;">
+                        <div class="fw-bold">
+                            <t t-out="line.product_id.name"/> - S/N: <t t-out="line.lot_id.name"/>
+                            <t t-if="line.imei_1"> | IMEI: <t t-out="line.imei_1"/></t>
+                        </div>
+                        <t t-if="line.state == 'rejected'">
+                            <div>Returned as-is, no repair carried out.</div>
+                            <div t-if="line.rejection_reason" class="small">Reason: <span t-field="line.rejection_reason"/></div>
+                        </t>
+                        <t t-else="">
+                            <div class="row small">
+                                <div class="col-4"><strong>Technician: </strong><t t-out="line.technician_id.name or '-'"/></div>
+                                <div class="col-4"><strong>Repair Date: </strong>
+                                    <span t-if="line.repair_date" t-field="line.repair_date"/><span t-else="">-</span></div>
+                                <div class="col-4"><strong>Final Test: </strong><span t-field="line.final_test_result"/></div>
+                            </div>
+                            <div class="row small">
+                                <div class="col-4"><strong>QC Result: </strong><span t-field="line.quality_check"/></div>
+                                <div class="col-8"><strong>QC By: </strong><t t-out="line.quality_check_user_id.name or '-'"/>
+                                    <t t-if="line.quality_check_date"> (<span t-field="line.quality_check_date" t-options='{"widget": "date"}'/>)</t></div>
+                            </div>
+                            <div class="mt-1"><strong>Repair Work Done: </strong>
+                                <span t-if="line.repair_work_done" t-field="line.repair_work_done"/>
+                                <span t-else="">No repair required.</span>
+                            </div>
+                            <div t-if="line.final_test_notes" class="small"><strong>Test Notes: </strong><span t-field="line.final_test_notes"/></div>
+                            <t t-set="used_parts" t-value="line.part_line_ids.filtered('consumed')"/>
+                            <div class="mt-1"><strong>Parts Used: </strong>
+                                <t t-if="used_parts">
+                                    <t t-foreach="used_parts" t-as="part">
+                                        <t t-out="part.product_id.name"/> x <t t-out="part.quantity" t-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}'/><t t-if="not part_last">, </t>
+                                    </t>
+                                </t>
+                                <t t-else="">None</t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_rma_final_service">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="safex_rma_reports.report_rma_final_service_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

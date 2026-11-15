@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- CR-06: on invoices of RMA repairs, the device model is printed once and each unit's
+         serial number / IMEI beneath it (one section per device, devices of the same model are
+         consecutive on RMA quotations). Other invoices keep the standard section title. -->
+    <template id="report_invoice_document_safex_rma" inherit_id="account.report_invoice_document">
+        <xpath expr="//tbody[hasclass('invoice_tbody')]/t[@t-set='current_subtotal']" position="before">
+            <t t-set="safex_previous_model" t-value="False"/>
+        </xpath>
+        <xpath expr="//t[@t-elif=&quot;line.display_type == 'line_section'&quot;]/td/span" position="replace">
+            <t t-set="safex_device" t-value="line.sale_line_ids.rma_line_id[:1]"/>
+            <t t-if="safex_device">
+                <div t-if="safex_device.product_id != safex_previous_model" t-out="safex_device.product_id.display_name"/>
+                <div class="fw-normal ps-3">
+                    S/N: <t t-out="safex_device.lot_id.name"/>
+                    <t t-if="safex_device.imei_1"> &#160;|&#160; IMEI: <t t-out="safex_device.imei_1"/></t>
+                    <t t-if="safex_device.imei_2"> &#160;|&#160; IMEI 2: <t t-out="safex_device.imei_2"/></t>
+                </div>
+                <t t-set="safex_previous_model" t-value="safex_device.product_id"/>
+            </t>
+            <t t-else="">
+                <span t-if="line.name" t-field="line.name" t-options="{'widget': 'text'}">A section title</span>
+                <t t-set="safex_previous_model" t-value="False"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- D1 / CR-05: invoices of RMA repairs carry the letterhead, address and footer of the branding
+         company (safex_document_company_id) of their company, like every SafeX RMA document.
+         Other invoices (non-RMA, companies without a branding company) are unchanged. -->
+    <template id="report_invoice_document_safex_branding" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="before">
+            <t t-set="safex_document_company" t-value="o._get_safex_document_company()"/>
+            <t t-if="safex_document_company" t-set="company" t-value="safex_document_company"/>
+        </xpath>
+    </template>
+
+    <!-- Amount in words: amount_in_words_invoice and entech_custom both print an "Amount in Words
+         (Total)" box on invoices. SafeX companies (partner flagged SafeX Internal Entity) print it
+         once: entech_custom's box is left out, the one of amount_in_words_invoice (followed by the
+         signature block) stays. Entech and other companies are unchanged. -->
+    <template id="report_invoice_document_safex_amount_in_words" inherit_id="account.report_invoice_document"
+              priority="99">
+        <!-- entech_custom's box is the one with a top margin (amount_in_words_invoice's has none). -->
+        <xpath expr="//div[span[@t-field='o.number_to_words']][contains(@style, 'margin-top')]"
+               position="attributes">
+            <attribute name="t-if">not o.company_id.partner_id.is_safex_internal_entity</attribute>
+        </xpath>
+    </template>
+
+    <!-- Same for the quotation / sales order of an RMA (standard sales report). -->
+    <template id="report_saleorder_document_safex_branding" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="before">
+            <t t-set="safex_document_company" t-value="doc._get_safex_document_company()"/>
+            <t t-if="safex_document_company" t-set="company" t-value="safex_document_company"/>
+        </xpath>
+    </template>
+
+</odoo>

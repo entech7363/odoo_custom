@@ -12,8 +12,8 @@
 <div style="margin: 0px; padding: 0px; font-size: 13px;">
     <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
     <p>Thank you for approving the repair quotation for RMA <strong t-out="object.name or ''">RMA/2026/00001</strong>.</p>
-    <p>Repair work is <strong>paused until we receive your PO number</strong>.
-       Please email your Purchase Order to SafeX and enter the PO number on the dealer portal.</p>
+    <p>Repair work is <strong>paused until we receive and verify your Purchase Order</strong>.
+       Please submit it on the dealer portal (Submit PO): enter the PO number and attach the PO document.</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>
@@ -31,10 +31,40 @@
     <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
     <p>RMA <strong t-out="object.name or ''">RMA/2026/00001</strong> has been waiting for your PO number for
        <t t-out="object.po_pending_days">7</t> days.</p>
-    <p>The quotation stays open: as soon as you enter the PO number on the portal, repair work resumes.</p>
+    <t t-if="object.po_status == 'rejected'">
+        <p>The PO submitted previously was not accepted<t t-if="object.po_rejection_reason">:
+           <t t-out="object.po_rejection_reason or ''">Reason</t></t>.</p>
+    </t>
+    <p>The quotation stays open: submit your PO number and PO document on the dealer portal.
+       Repair work resumes once SafeX has verified the PO.</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_po_submitted" model="mail.template">
+        <field name="name">SafeX RMA: PO Submitted by Dealer</field>
+        <field name="model_id" ref="safex_rma_core.model_safex_rma"/>
+        <field name="subject">{{ object.name }}: PO {{ object.po_number or '' }} from {{ object.partner_id.commercial_partner_id.name or '' }}</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.company_id.safex_po_email or object.company_id.email or '' }}</field>
+        <field name="reply_to">{{ object.partner_id.email_formatted or '' }}</field>
+        <field name="description">Sent to the company's PO mailbox when a dealer submits a PO on the portal, with the PO document</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px;">
+    <p>A Purchase Order was submitted on the dealer portal.</p>
+    <p>
+        RMA: <strong t-out="object.name or ''">RMA/2026/00001</strong><br/>
+        Dealer: <t t-out="object.partner_id.commercial_partner_id.name or ''">Dealer</t><br/>
+        PO Number entered by the dealer: <strong t-out="object.po_number or ''">PO123</strong><br/>
+        Quoted Total: <t t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 0.00</t>
+    </p>
+    <p>The PO document is attached. Check that the PO number on the document matches, then open the RMA
+       and click <strong>Verify PO</strong> to release the devices to repair (or <strong>Reject PO</strong>
+       with a reason).</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="False"/>
     </record>
 
 </odoo>

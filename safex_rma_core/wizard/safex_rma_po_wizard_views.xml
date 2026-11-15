@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_rma_po_verify_form" model="ir.ui.view">
+        <field name="name">safex.rma.po.verify.form</field>
+        <field name="model">safex.rma.po.verify</field>
+        <field name="arch" type="xml">
+            <form string="Verify PO">
+                <p class="text-muted">
+                    Type the PO number exactly as printed on the PO document received. It must match the
+                    number entered by the dealer (case and spaces are ignored); the PO-pending devices are
+                    then released to repair.
+                </p>
+                <group>
+                    <field name="rma_id"/>
+                    <field name="dealer_po_number" invisible="not dealer_po_number"/>
+                    <field name="po_document_ids" widget="many2many_binary" readonly="1"
+                           invisible="not po_document_ids"/>
+                    <field name="po_number"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Verify &amp; Release to Repair"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button special="cancel" string="Cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_safex_rma_po_reject_form" model="ir.ui.view">
+        <field name="name">safex.rma.po.reject.form</field>
+        <field name="model">safex.rma.po.reject</field>
+        <field name="arch" type="xml">
+            <form string="Reject PO">
+                <group>
+                    <field name="rma_id"/>
+                    <field name="dealer_po_number"/>
+                    <field name="reason" placeholder="e.g. PO number on the document does not match, amount differs..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Reject PO" class="btn-danger" data-hotkey="q"/>
+                    <button special="cancel" string="Cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

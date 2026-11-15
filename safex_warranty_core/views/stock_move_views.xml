@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- Detailed Operations popup (entech_components_tracking): the warranty fields are optional on
-         transfers between SafeX entities, the shared serial keeps its warranty. -->
+         transfers between SafeX entities, the linked serial keeps the seller's factory warranty. -->
     <record id="view_stock_move_operations_safex_intercompany" model="ir.ui.view">
         <field name="name">stock.move.operations.form.safex.intercompany</field>
         <field name="model">stock.move</field>

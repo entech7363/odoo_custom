@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- CR-01: inter-company receipt (a SafeX company buying from another SafeX company). -->
+    <record id="view_picking_form_safex_intercompany" model="ir.ui.view">
+        <field name="name">stock.picking.form.safex.intercompany</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_assign']" position="before">
+                <button name="action_safex_load_intercompany_serials" type="object"
+                        string="Load Serials from Seller" class="btn-secondary"
+                        groups="stock.group_stock_user"
+                        invisible="not safex_seller_company_id or state in ('done', 'cancel')"
+                        title="Load the serial numbers the SafeX seller delivered to this company and not received yet (same Internal Reference)."/>
+            </xpath>
+            <xpath expr="//field[@name='backorder_id']" position="before">
+                <field name="safex_seller_company_id" invisible="not safex_seller_company_id"
+                       options="{'no_open': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

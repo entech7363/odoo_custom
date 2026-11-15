@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_safex_rma_form_reports" model="ir.ui.view">
+        <field name="name">safex.rma.form.reports</field>
+        <field name="model">safex.rma</field>
+        <field name="inherit_id" ref="safex_rma_core.view_safex_rma_form"/>
+        <field name="arch" type="xml">
+            <button name="action_complete_physical_inspection" position="after">
+                <!-- Sent once: then only a secondary "Resend" (e.g. after the diagnosis is completed). -->
+                <button name="action_send_inspection_report" type="object" string="Send Inspection Report"
+                        invisible="state not in ('inspection', 'processing') or inspection_report_sent_date"
+                        confirm="Email the Inspection Report to the dealer?"/>
+                <button name="action_send_inspection_report" type="object" string="Resend Inspection Report"
+                        class="btn-secondary"
+                        invisible="state not in ('inspection', 'processing') or not inspection_report_sent_date"
+                        confirm="The Inspection Report was already sent. Email it to the dealer again?"/>
+            </button>
+            <field name="received_date" position="after">
+                <field name="inspection_report_sent_date" invisible="not inspection_report_sent_date"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

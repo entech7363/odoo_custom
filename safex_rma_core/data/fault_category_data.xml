@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Default fault categories (CR-10). Editable in
+         RMA &amp; Repairs > Configuration > Fault Categories. -->
+
+    <record id="fault_category_motherboard" model="safex.fault.category">
+        <field name="name">Motherboard / Power</field>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="fault_category_display" model="safex.fault.category">
+        <field name="name">Display</field>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="fault_category_battery" model="safex.fault.category">
+        <field name="name">Battery</field>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="fault_category_rf_connectivity" model="safex.fault.category">
+        <field name="name">RF / Connectivity</field>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="fault_category_audio_mic" model="safex.fault.category">
+        <field name="name">Audio / Microphone</field>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="fault_category_camera" model="safex.fault.category">
+        <field name="name">Camera</field>
+        <field name="sequence" eval="60"/>
+    </record>
+    <record id="fault_category_housing_seal" model="safex.fault.category">
+        <field name="name">Housing / ATEX Seal</field>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="fault_category_software_os" model="safex.fault.category">
+        <field name="name">Software / OS</field>
+        <field name="sequence" eval="80"/>
+    </record>
+
+</odoo>

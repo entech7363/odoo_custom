@@ -12,6 +12,9 @@
                     <label for="is_safex_spare_part"/>
                 </span>
             </div>
+            <field name="categ_id" position="after">
+                <field name="safex_accessory_type"/>
+            </field>
         </field>
     </record>
 

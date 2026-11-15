@@ -19,6 +19,10 @@
                     <field name="other_serial" placeholder="Other Serial"/>
                 </div>
             </xpath>
+            <xpath expr="//group[@name='main_group']/group[1]" position="inside">
+                <field name="safex_source_device" invisible="not safex_source_device"/>
+                <field name="safex_linked_devices" invisible="not safex_linked_devices"/>
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="safex_warranty" string="SafeX Warranty &amp; Service" groups="base.group_user">
                     <group>

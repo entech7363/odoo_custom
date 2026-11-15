@@ -12,5 +12,7 @@
               action="stock.action_production_lot_form" sequence="20"/>
     <menuitem id="menu_safex_inspection_checklist" name="Inspection Checklist" parent="repair.repair_menu_config"
               action="action_safex_inspection_item" sequence="21"/>
+    <menuitem id="menu_safex_fault_category" name="Fault Categories" parent="repair.repair_menu_config"
+              action="action_safex_fault_category" sequence="22"/>
 
 </odoo>

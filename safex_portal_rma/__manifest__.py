@@ -1,6 +1,6 @@
 {
     'name': 'SafeX Dealer Portal RMA',
-    'version': '18.0.1.0.2',
+    'version': '18.0.1.3.1',
     'category': 'Website/Portal',
     'summary': 'Dealer portal: device verification, multi-device RMA, quotation review and PO entry',
     'description': """

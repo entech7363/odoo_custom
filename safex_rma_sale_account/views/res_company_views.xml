@@ -7,6 +7,9 @@
         <field name="inherit_id" ref="safex_rma_core.view_company_form_safex_rma"/>
         <field name="arch" type="xml">
             <group name="safex_warranty" position="after">
+                <group name="safex_po_mailbox" string="Purchase Orders">
+                    <field name="safex_po_email" placeholder="e.g. po@safex-instruments.com" widget="email"/>
+                </group>
                 <group name="safex_po_reminders" string="PO Pending Reminders">
                     <field name="safex_po_reminder_days" placeholder="7,14,30,40"/>
                     <div class="text-muted" colspan="2">

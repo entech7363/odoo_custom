@@ -50,6 +50,7 @@
         <field name="arch" type="xml">
             <field name="is_chargeable" position="after">
                 <field name="currency_id" invisible="1"/>
+                <!-- Warranty / manufacturing-defect devices are quoted at 0.00 (CR-08). -->
                 <field name="service_charge_amount" invisible="not is_chargeable"
                        required="is_chargeable and state == 'quoted'"/>
             </field>

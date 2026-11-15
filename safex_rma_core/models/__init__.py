@@ -1,5 +1,6 @@
 from . import product_template
 from . import res_company
+from . import safex_fault_category
 from . import safex_inspection
 from . import safex_rma
 from . import safex_rma_line
