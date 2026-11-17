@@ -91,6 +91,7 @@ class SafexRma(models.Model):
                     'product_uom_qty': part.quantity,
                     'price_unit': 0.0,
                     'rma_line_id': device.id,
+                    'rma_part_id': part.id,
                     'is_spare_part': True,
                 }))
         return commands

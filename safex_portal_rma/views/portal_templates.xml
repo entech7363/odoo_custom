@@ -123,8 +123,11 @@
                 Too many verification attempts. Please wait a minute and submit again.
             </div>
             <div t-if="error == 'mixed_company'" class="alert alert-danger" role="alert">
-                These devices were sold to you by different SafeX companies (<strong t-out="error_serial"/>).
-                Please raise a separate RMA for the devices of each company.
+                These devices are handled by different SafeX companies (<strong t-out="error_serial"/>).
+                Please raise a separate RMA for the devices of each company, or contact SafeX.
+            </div>
+            <div t-if="error == 'unavailable'" class="alert alert-danger" role="alert">
+                One of these devices cannot be registered for repair yet. Please contact SafeX.
             </div>
             <div t-if="error == 'photo'" class="alert alert-danger" role="alert">
                 Complaint photos must be images (JPG, PNG, ...) of at most 5 MB each, up to 5 photos per device.
@@ -208,12 +211,12 @@
                                     <div class="row g-2 mt-1">
                                         <div class="col-md-6 d-none o_safex_acc_sno" data-accessory="acc_battery">
                                             <label class="form-label">Battery Serial Number</label>
-                                            <input type="text" class="form-control" data-name="acc_battery_sno"
+                                            <input type="text" class="form-control" data-name="acc_battery_sno" readonly="readonly"
                                                    placeholder="Serial number printed on the battery"/>
                                         </div>
                                         <div class="col-md-6 d-none o_safex_acc_sno" data-accessory="acc_dock">
                                             <label class="form-label">Docking Station Serial Number</label>
-                                            <input type="text" class="form-control" data-name="acc_dock_sno"
+                                            <input type="text" class="form-control" data-name="acc_dock_sno" readonly="readonly"
                                                    placeholder="Serial number printed on the docking station"/>
                                         </div>
                                     </div>
@@ -253,11 +256,8 @@
             <div t-if="error == 'po_file'" class="alert alert-danger" role="alert">
                 The PO document must be a PDF or an image of at most 10 MB.
             </div>
-            <div t-elif="error == 'po_file_missing'" class="alert alert-danger" role="alert">
-                Attach the PO document (PDF or image) to submit your PO.
-            </div>
             <div t-elif="error == 'po'" class="alert alert-danger" role="alert">
-                The PO could not be submitted. Enter the PO number and attach the PO document.
+                The PO could not be submitted. Enter the PO number.
             </div>
             <div t-elif="error" class="alert alert-danger" role="alert">
                 The action could not be completed. A reason is mandatory to reject or ask for clarification.
@@ -352,9 +352,18 @@
                             <label class="form-label" for="safex_po_number">PO Number</label>
                             <input type="text" id="safex_po_number" name="po_number" class="form-control mb-2"
                                    required="required" maxlength="64" placeholder="PO Number"/>
-                            <label class="form-label" for="safex_po_file">PO Document (PDF or image, max 10 MB)</label>
+                            <label class="form-label" for="safex_po_file">PO Document (optional, PDF or image, max 10 MB)</label>
                             <input type="file" id="safex_po_file" name="po_file" class="form-control"
-                                   required="required" accept="application/pdf,image/*"/>
+                                   accept="application/pdf,image/*"/>
+                            <t t-set="po_mailbox" t-value="rma.company_id._get_safex_po_email()"/>
+                            <div t-if="po_mailbox" class="small mt-2 alert alert-warning py-2 mb-0">
+                                You have to send the PO by email to
+                                <a t-attf-href="mailto:#{po_mailbox}?subject=#{rma.name}%20-%20Purchase%20Order"
+                                   t-out="po_mailbox"/> for verification.
+                                <a class="btn btn-sm btn-outline-secondary ms-1"
+                                   t-attf-href="mailto:#{po_mailbox}?subject=#{rma.name}%20-%20Purchase%20Order">
+                                    <i class="fa fa-envelope me-1"/>Email PO to SafeX</a>
+                            </div>
                             <p class="small text-muted mt-2 mb-0">The PO is sent to SafeX for verification.</p>
                         </div>
                         <div class="modal-footer">

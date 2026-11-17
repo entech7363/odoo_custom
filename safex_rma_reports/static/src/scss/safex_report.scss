@@ -1,0 +1,12 @@
+// Long text (dealer notes, descriptions, a long word or number without spaces) wraps inside its
+// column instead of widening the table past the right margin: with an automatic table layout,
+// wkhtmltopdf sizes the table on the longest unbreakable word.
+.o_safex_report {
+    table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    td, th, div, p, span {
+        word-wrap: break-word;
+    }
+}

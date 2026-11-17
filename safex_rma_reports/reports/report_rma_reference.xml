@@ -15,7 +15,7 @@
              branding company of the RMA's company (e.g. SafeX UK for SafeX Qatar), CR-05. -->
         <t t-set="company" t-value="doc._get_document_company()"/>
         <t t-call="web.external_layout">
-            <div class="page">
+            <div class="page o_safex_report">
                 <div class="row mb-3">
                     <div class="col-6">
                         <h4 t-field="doc.name"/>

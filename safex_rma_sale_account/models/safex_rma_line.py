@@ -21,6 +21,9 @@ class SafexRmaLine(models.Model):
             sale_lines = line.sale_line_ids.sudo()
             draft_lines = sale_lines.filtered(lambda sl: sl.order_id.state in ('draft', 'sent', 'to_approve'))
             draft_lines.unlink()
-            (sale_lines - draft_lines).filtered(
-                lambda sl: sl.order_id.state == 'sale' and not sl.display_type and not sl.invoice_lines
-            ).write({'product_uom_qty': 0.0})
+            confirmed = (sale_lines - draft_lines).filtered(
+                lambda sl: sl.order_id.state == 'sale' and not sl.display_type)
+            # The device goes back as-is: its spare parts are not delivered.
+            confirmed.move_ids.filtered(lambda move: move.state not in ('done', 'cancel'))._action_cancel()
+            confirmed.filtered(lambda sl: not sl.invoice_lines).with_context(safex_no_stock_rule=True).write(
+                {'product_uom_qty': 0.0})

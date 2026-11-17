@@ -2,9 +2,67 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
 import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { Dialog } from "@web/core/dialog/dialog";
+import { Component, onMounted, useRef, useState } from "@odoo/owl";
 
 async function verifyDevice(serialNo, imei) {
     return rpc("/my/rma/verify_device", { serial_no: serialNo, imei: imei });
+}
+
+const ACCESSORY_TEXTS = {
+    acc_battery: {
+        kind: "battery",
+        title: _t("Battery Serial Number"),
+        label: _t("Enter the serial number printed on the battery you send."),
+        placeholder: _t("Battery serial number"),
+    },
+    acc_dock: {
+        kind: "dock",
+        title: _t("Docking Station Serial Number"),
+        label: _t("Enter the serial number printed on the docking station you send."),
+        placeholder: _t("Docking station serial number"),
+    },
+};
+
+/** Pop-up asking the battery / docking station serial number, verified before it is accepted. */
+class AccessorySerialDialog extends Component {
+    static template = "safex_portal_rma.AccessorySerialDialog";
+    static components = { Dialog };
+    static props = {
+        kind: String,
+        title: String,
+        label: String,
+        placeholder: String,
+        serial: { type: String, optional: true },
+        onVerified: Function,
+        close: Function,
+    };
+
+    setup() {
+        this.state = useState({ serial: this.props.serial || "", message: "", busy: false });
+        this.serialInput = useRef("serialInput");
+        onMounted(() => this.serialInput.el?.focus());
+    }
+
+    async onVerify() {
+        const serial = this.state.serial.trim();
+        if (!serial) {
+            this.state.message = _t("Enter the serial number.");
+            return;
+        }
+        this.state.busy = true;
+        try {
+            const result = await rpc("/my/rma/verify_accessory", { kind: this.props.kind, serial_no: serial });
+            if (result.verified) {
+                this.props.onVerified(result.serial_no);
+                this.props.close();
+            } else {
+                this.state.message = result.message || _t("Serial number not found.");
+            }
+        } finally {
+            this.state.busy = false;
+        }
+    }
 }
 
 function renderResult(container, result) {
@@ -221,7 +279,8 @@ publicWidget.registry.SafexRmaNewForm = publicWidget.Widget.extend({
         }
     },
 
-    /** Ticking Battery / Docking Station shows its serial number input, which is then required. */
+    /** Ticking Battery / Docking Station asks its serial number in a pop-up, verified at once: the
+     *  accessory stays ticked only with a verified serial number (shown read-only on the card). */
     _onRowsChange(ev) {
         const checkbox = ev.target;
         if (checkbox.type !== "checkbox") {
@@ -229,17 +288,40 @@ publicWidget.registry.SafexRmaNewForm = publicWidget.Widget.extend({
         }
         const card = checkbox.closest(".o_safex_device_card");
         const block = card.querySelector(`.o_safex_acc_sno[data-accessory="${checkbox.dataset.name}"]`);
-        if (!block) {
+        const texts = ACCESSORY_TEXTS[checkbox.dataset.name];
+        if (!block || !texts) {
             return;
         }
         const input = block.querySelector("input");
-        block.classList.toggle("d-none", !checkbox.checked);
-        input.required = checkbox.checked;
-        if (checkbox.checked) {
-            input.focus();
-        } else {
-            input.value = "";
+        const setSerial = (serial) => {
+            input.value = serial;
+            checkbox.checked = Boolean(serial);
+            block.classList.toggle("d-none", !serial);
+            input.required = Boolean(serial);
+        };
+        if (!checkbox.checked) {
+            setSerial("");
+            return;
         }
+        checkbox.checked = false; // ticked again once the serial number is verified
+        let verified = false;
+        this.call("dialog", "add", AccessorySerialDialog, {
+            kind: texts.kind,
+            title: texts.title,
+            label: texts.label,
+            placeholder: texts.placeholder,
+            serial: input.value,
+            onVerified: (serial) => {
+                verified = true;
+                setSerial(serial);
+            },
+        }, {
+            onClose: () => {
+                if (!verified) {
+                    setSerial("");
+                }
+            },
+        });
     },
 
     _updateSubmit() {

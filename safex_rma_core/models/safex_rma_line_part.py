@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_compare
 
 
 class SafexRmaLinePart(models.Model):
@@ -51,8 +52,25 @@ class SafexRmaLinePart(models.Model):
         for part in self:
             part.consumed = part.stock_move_id.state == 'done'
 
+    def _check_stock_available(self):
+        """Block when a part to consume is not in stock at its source location."""
+        missing = []
+        for part in self.filtered(lambda p: not p.consumed and p.quantity > 0):
+            available = part.product_id.with_context(location=part.location_id.id).sudo().qty_available \
+                if part.location_id else 0.0
+            if float_compare(available, part.quantity, precision_rounding=part.uom_id.rounding or 0.01) < 0:
+                missing.append(self.env._(
+                    "%(part)s: needed %(needed)s, available %(available)s in %(location)s",
+                    part=part.product_id.display_name, needed=part.quantity, available=available,
+                    location=part.location_id.display_name or '-'))
+        if missing:
+            raise UserError(self.env._(
+                "Not enough stock of the spare parts of %(device)s:\n%(parts)s\nReceive or move the parts into "
+                "stock, then try again.", device=self.rma_line_id[:1].display_name, parts="\n".join(missing)))
+
     def _consume(self):
         """Create and validate a stock move to the company's scrap/consumption location."""
+        self._check_stock_available()
         for part in self.filtered(lambda p: not p.consumed and p.quantity > 0):
             company = part.company_id
             dest = self.env['stock.location'].sudo().search([

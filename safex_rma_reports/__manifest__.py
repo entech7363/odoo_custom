@@ -39,6 +39,11 @@ SafeX RMA Reports & Communication (DES00106)
         'views/manufacturer_claim_views.xml',
         'views/safex_rma_views.xml',
     ],
+    'assets': {
+        'web.report_assets_common': [
+            'safex_rma_reports/static/src/scss/safex_report.scss',
+        ],
+    },
     'installable': True,
     'application': False,
 }

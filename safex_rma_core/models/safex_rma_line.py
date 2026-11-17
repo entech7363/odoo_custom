@@ -44,6 +44,8 @@ class SafexRmaLine(models.Model):
     company_id = fields.Many2one(related='rma_id.company_id', store=True, index=True)
     partner_id = fields.Many2one(related='rma_id.partner_id', store=True, index=True, string="Dealer")
     state = fields.Selection(LINE_STATES, default='draft', required=True, tracking=True, copy=False, index=True)
+    # Notebook tab opened on the form: the one to fill in at the device's current stage.
+    safex_stage_page = fields.Char(compute='_compute_safex_stage_page')
 
     # Device identity
     # CR-01: each SafeX company has its own serial record of a device: the RMA's company's one.
@@ -159,6 +161,25 @@ class SafexRmaLine(models.Model):
 
     rejection_reason = fields.Text(tracking=True, copy=False)
 
+    @api.depends('state', 'rma_id.state')
+    def _compute_safex_stage_page(self):
+        pages = {
+            'inspected': 'technical',
+            'quoted': 'technical',
+            'po_pending': 'technical',
+            'in_repair': 'repair',
+            'qc_testing': 'qc',
+            'ready': 'qc',
+            'rejected': 'qc',
+        }
+        for line in self:
+            if line.state == 'draft':
+                # Before the parcel arrives: the accessories declared; once received: the physical inspection.
+                line.safex_stage_page = 'physical' if line.rma_id.state in ('received', 'inspection') \
+                    else 'accessories'
+            else:
+                line.safex_stage_page = pages.get(line.state, 'accessories')
+
     @api.depends('rma_id.name', 'lot_id.name', 'product_id')
     def _compute_display_name(self):
         for line in self:
@@ -202,7 +223,7 @@ class SafexRmaLine(models.Model):
             # The other dealer may belong to another company than the user's.
             values = {'serial': line.lot_id.name, 'distributor': line.channel_distributor_id.sudo().display_name,
                       'dealer': line.rma_id.partner_id.commercial_partner_id.sudo().display_name}
-            if line.lot_id.id in confirmed:
+            if confirmed & set(line.lot_id._safex_device_lots().ids):
                 body = self.env._("Dealer confirmed Proceed to RMA for SN %(serial)s (sold through %(distributor)s).",
                                   **values)
             else:
@@ -247,6 +268,14 @@ class SafexRmaLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # A device sold by another SafeX company (e.g. SafeX UK) is put on the RMA with its serial record
+        # of the RMA's company (e.g. SafeX Qatar, which handles all the RMAs), created if needed.
+        for vals in vals_list:
+            if vals.get('lot_id') and vals.get('rma_id'):
+                lot = self.env['stock.lot'].sudo().browse(vals['lot_id'])
+                company = self.env['safex.rma'].browse(vals['rma_id']).company_id
+                if lot.company_id and company and lot.company_id != company and lot._safex_is_safex_lot():
+                    vals['lot_id'] = lot._safex_lot_for_company(company).id
         lines = super().create(vals_list)
         lines._sync_inspection_lines()
         # Draft RMAs log these devices at submission; devices added to a submitted RMA are logged now.

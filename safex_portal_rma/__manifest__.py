@@ -32,6 +32,7 @@ SafeX Dealer Portal RMA (DES00103, DES00104, DES00105, DES00112)
         'web.assets_frontend': [
             'safex_portal_rma/static/src/scss/portal_rma.scss',
             'safex_portal_rma/static/src/js/portal_rma.js',
+            'safex_portal_rma/static/src/xml/portal_rma.xml',
         ],
     },
     'installable': True,

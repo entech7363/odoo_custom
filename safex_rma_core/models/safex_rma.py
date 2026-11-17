@@ -30,6 +30,13 @@ SHIPMENT_MODES = [
 ]
 
 
+def _default_rma_company(env):
+    """The company handling the RMAs of the current company (e.g. SafeX Qatar for SafeX UK) when the
+    user may work in it, else the current company."""
+    handler = env.company._get_safex_rma_company()
+    return handler if handler in env.companies else env.company
+
+
 class SafexRma(models.Model):
     """RMA shipment container: one dealer batch holding one or more devices."""
     _name = 'safex.rma'
@@ -40,7 +47,7 @@ class SafexRma(models.Model):
 
     name = fields.Char(string="RMA Reference", required=True, readonly=True, copy=False, default='New', index='trigram')
     company_id = fields.Many2one(
-        'res.company', required=True, index=True, default=lambda self: self.env.company,
+        'res.company', required=True, index=True, default=lambda self: _default_rma_company(self.env),
         string="Operating Company")
     partner_id = fields.Many2one(
         'res.partner', string="Dealer", required=True, tracking=True, index=True,
@@ -63,7 +70,7 @@ class SafexRma(models.Model):
     created_from_portal = fields.Boolean(readonly=True, copy=False)
     terms = fields.Html(
         string="Terms & Conditions",
-        default=lambda self: self.env.company.safex_rma_terms)
+        default=lambda self: _default_rma_company(self.env).safex_rma_terms)
 
     # Inbound logistics & carton (DES00107)
     received_date = fields.Datetime(tracking=True, copy=False)
@@ -118,6 +125,8 @@ class SafexRma(models.Model):
         help="Factory when any device has a manufacturing defect (regardless of warranty period); "
              "otherwise the dealer.")
     can_dispatch = fields.Boolean(compute='_compute_line_flags', store=True)
+    # Notebook tab opened on the form: the one to fill in at the current stage.
+    safex_stage_page = fields.Char(compute='_compute_safex_stage_page')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -197,6 +206,22 @@ class SafexRma(models.Model):
                 or (line.state == 'ready' and line.final_test_result == 'passed' and line.quality_check == 'passed')
                 for line in lines
             )
+
+    @api.depends('state', 'has_po_pending', 'can_dispatch')
+    def _compute_safex_stage_page(self):
+        for rma in self:
+            rma.safex_stage_page = rma._get_safex_stage_page()
+
+    def _get_safex_stage_page(self):
+        """Name of the form's notebook page to fill in at the RMA's current stage."""
+        self.ensure_one()
+        if self.state == 'submitted':
+            return 'inbound'  # parcel arrival: freight, AWB, carton condition
+        if self.state in ('dispatched', 'closed') or (self.state in ('inspection', 'processing') and self.can_dispatch):
+            return 'dispatch'
+        if self.has_po_pending:
+            return 'po'
+        return 'devices'
 
     @api.depends('line_ids.is_manufacturing_defect')
     def _compute_freight_payer(self):
@@ -320,9 +345,9 @@ class SafexRma(models.Model):
                 'po_status': 'submitted',
                 'po_rejection_reason': False,
             })
-            if attachments:
-                # Only the documents of this submission are offered for verification.
-                rma.po_document_ids = [Command.set(attachments.ids)]
+            # Only the documents of this submission are offered for verification (none when the
+            # dealer sends the PO document by email).
+            rma.po_document_ids = [Command.set(attachments.ids if attachments else [])]
             rma.message_post(
                 body=self.env._("PO %s submitted by the dealer, awaiting verification.", number),
                 attachment_ids=attachments.ids if attachments else [],

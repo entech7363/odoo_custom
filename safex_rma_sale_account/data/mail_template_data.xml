@@ -13,7 +13,10 @@
     <p>Dear <t t-out="object.partner_id.name or ''">Dealer</t>,</p>
     <p>Thank you for approving the repair quotation for RMA <strong t-out="object.name or ''">RMA/2026/00001</strong>.</p>
     <p>Repair work is <strong>paused until we receive and verify your Purchase Order</strong>.
-       Please submit it on the dealer portal (Submit PO): enter the PO number and attach the PO document.</p>
+       Please enter your PO number on the dealer portal (Submit PO), and
+       <strong>send the PO by email to
+       <t t-out="object.company_id.safex_po_email or object.company_id.email or ''">po@safex.example</t>
+       for verification</strong>.</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>
@@ -35,8 +38,10 @@
         <p>The PO submitted previously was not accepted<t t-if="object.po_rejection_reason">:
            <t t-out="object.po_rejection_reason or ''">Reason</t></t>.</p>
     </t>
-    <p>The quotation stays open: submit your PO number and PO document on the dealer portal.
-       Repair work resumes once SafeX has verified the PO.</p>
+    <p>The quotation stays open: enter your PO number on the dealer portal and
+       <strong>send the PO by email to
+       <t t-out="object.company_id.safex_po_email or object.company_id.email or ''">po@safex.example</t>
+       for verification</strong>. Repair work resumes once SafeX has verified the PO.</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>
@@ -59,7 +64,9 @@
         PO Number entered by the dealer: <strong t-out="object.po_number or ''">PO123</strong><br/>
         Quoted Total: <t t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 0.00</t>
     </p>
-    <p>The PO document is attached. Check that the PO number on the document matches, then open the RMA
+    <p t-if="not object.po_document_ids">No PO document was uploaded on the portal: the dealer may send it
+       to this mailbox by email.</p>
+    <p>Check that the PO number on the PO document matches, then open the RMA
        and click <strong>Verify PO</strong> to release the devices to repair (or <strong>Reject PO</strong>
        with a reason).</p>
 </div>

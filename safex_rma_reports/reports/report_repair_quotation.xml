@@ -13,7 +13,7 @@
         <!-- D1 / CR-05: letterhead, address and footer of the RMA documents branding company. -->
         <t t-set="company" t-value="doc._get_safex_document_company() or doc.company_id.sudo()"/>
         <t t-call="web.external_layout">
-            <div class="page">
+            <div class="page o_safex_report">
                 <div class="row mb-3">
                     <div class="col"><strong>RMA</strong><div t-field="doc.rma_id.name"/></div>
                     <div class="col"><strong>Date</strong><div t-field="doc.date_order" t-options='{"widget": "date"}'/></div>
@@ -23,10 +23,10 @@
                 <table class="table table-sm o_main_table">
                     <thead>
                         <tr>
-                            <th>Description</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Unit Price</th>
-                            <th class="text-end">Amount</th>
+                            <th style="width: 55%;">Description</th>
+                            <th style="width: 13%;" class="text-end">Quantity</th>
+                            <th style="width: 16%;" class="text-end">Unit Price</th>
+                            <th style="width: 16%;" class="text-end">Amount</th>
                         </tr>
                     </thead>
                     <tbody>

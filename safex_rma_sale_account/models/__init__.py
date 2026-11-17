@@ -3,3 +3,4 @@ from . import safex_rma
 from . import safex_rma_line
 from . import sale_order
 from . import sale_order_line
+from . import safex_rma_line_part

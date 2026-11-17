@@ -1,4 +1,5 @@
 from odoo import api, models
+from odoo.exceptions import UserError
 
 
 class StockLot(models.Model):
@@ -51,6 +52,50 @@ class StockLot(models.Model):
             ('product_id.product_tmpl_id.safex_accessory_type', '=', kind),
             ('company_id', 'in', company_ids),
         ], limit=1))
+
+    def _safex_lot_for_company(self, company):
+        """This device's serial record in ``company`` (the company handling the RMA): the linked serial
+        record when there is one, else a new serial record of ``company``'s product with the same
+        Internal Reference, linked to this one and carrying its device and warranty data (a device sold
+        directly by SafeX UK put on an RMA of SafeX Qatar)."""
+        self.ensure_one()
+        lot = self.sudo()
+        if lot.company_id == company:
+            return lot
+        Lot = self.env['stock.lot'].sudo()
+        existing = lot._safex_device_lots().filtered(lambda other: other.company_id == company)
+        if existing:
+            return existing.sorted('id')[:1]
+        product = lot.product_id
+        if product.company_id and product.company_id != company:
+            code = product.default_code
+            candidates = code and self.env['product.product'].sudo().search([
+                ('default_code', '=', code), ('tracking', '=', 'serial'),
+                ('company_id', 'in', (company.id, False)),
+            ], order='company_id', limit=1)
+            if not candidates:
+                raise UserError(self.env._(
+                    "Device %(serial)s (%(product)s) cannot be put on an RMA of %(company)s: %(company)s has no "
+                    "serial-tracked product with the Internal Reference \"%(code)s\".",
+                    serial=lot.name, product=product.display_name, company=company.name, code=code or ''))
+            product = candidates
+        same = Lot.search([('name', '=', lot.name), ('product_id', '=', product.id), ('company_id', '=', company.id)],
+                          limit=1)
+        if same:
+            return same._safex_link_to_source(lot)
+        new = Lot.with_company(company).with_context(safex_skip_identifier_check=True).create({
+            'name': lot.name,
+            'product_id': product.id,
+            'company_id': company.id,
+            'customer_warranty': lot.customer_warranty,
+            'c_start_date': lot.c_start_date,
+        })
+        new._safex_link_to_source(lot)
+        new._safex_sync_warranty_dates()
+        new.message_post(body=self.env._(
+            "Serial record created for the RMAs handled by %(company)s: same device as %(serial)s (%(seller)s).",
+            company=company.name, serial=lot.name, seller=lot.company_id.name))
+        return new
 
     def action_view_rmas(self):
         self.ensure_one()

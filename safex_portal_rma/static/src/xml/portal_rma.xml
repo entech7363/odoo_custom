@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="safex_portal_rma.AccessorySerialDialog">
+        <Dialog title="props.title" size="'md'">
+            <form t-on-submit.prevent="onVerify">
+                <label class="form-label" for="safex_acc_serial_input" t-out="props.label"/>
+                <input type="text" id="safex_acc_serial_input" class="form-control" maxlength="64"
+                       t-ref="serialInput" t-model="state.serial" t-att-placeholder="props.placeholder"/>
+                <div t-if="state.message" class="alert alert-danger small mt-2 mb-0" role="alert"
+                     t-out="state.message"/>
+            </form>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="onVerify" t-att-disabled="state.busy">Verify</button>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

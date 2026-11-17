@@ -36,6 +36,11 @@ SafeX RMA Core (DES00105-DES00111, DES00113)
         'views/safex_rma_menus.xml',
         'wizard/safex_rma_po_wizard_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'safex_rma_core/static/src/js/stage_notebook.js',
+        ],
+    },
     'installable': True,
     'application': False,
 }

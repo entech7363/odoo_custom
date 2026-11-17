@@ -63,7 +63,9 @@
                         <field name="complaint_description"/>
                         <field name="complaint_photo_ids" widget="many2many_binary"/>
                     </group>
-                    <notebook>
+                    <field name="safex_stage_page" invisible="1"/>
+                    <!-- o_safex_stage_notebook: the page named by safex_stage_page is opened (stage_notebook.js). -->
+                    <notebook class="o_safex_stage_notebook">
                         <page name="accessories" string="Accessories Audit">
                             <group>
                                 <group string="Declared by Dealer">

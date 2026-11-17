@@ -23,7 +23,7 @@ VERIFY_WINDOW = 60  # seconds
 SUBMIT_MAX_VERIFICATIONS = 60
 MAX_DEVICES_PER_RMA = 50
 MAX_IDENTIFIER_LENGTH = 64  # serial number / IMEI typed by the dealer
-NEW_RMA_ERRORS = ('device', 'empty', 'duplicate', 'mixed_company', 'other_dealer', 'photo', 'too_many',
+NEW_RMA_ERRORS = ('device', 'empty', 'duplicate', 'mixed_company', 'unavailable', 'other_dealer', 'photo', 'too_many',
                   'accessory_serial_missing', 'battery_serial', 'dock_serial', 'throttled')
 ACCESSORY_KEYS = ('charger', 'dock', 'battery', 'screwdriver', 'cable', 'box')
 # Accessories whose serial number the dealer must enter when ticked (CR-03).
@@ -171,6 +171,27 @@ class SafexRmaPortal(CustomerPortal):
         # Only these keys may ever leave the server.
         return {key: result[key] for key in keys if key in result}
 
+    @http.route('/my/rma/verify_accessory', type='json', auth='user', methods=['POST'])
+    def portal_verify_accessory_json(self, kind=None, serial_no=None, **kw):
+        """Battery / docking station serial checked as soon as the dealer ticks the accessory (the RMA
+        submission checks it again)."""
+        if self._safex_verify_throttled():
+            return {'verified': False, 'message': request.env._(
+                "Too many verification attempts. Please wait a minute and try again.")}
+        serial_no = str(serial_no or '').strip()
+        if kind not in SERIAL_ACCESSORY_KEYS or not serial_no:
+            return {'verified': False, 'message': request.env._("Enter the serial number.")}
+        if len(serial_no) <= MAX_IDENTIFIER_LENGTH \
+                and request.env['stock.lot'].sudo()._safex_accessory_serial_exists(kind, serial_no):
+            return {'verified': True, 'serial_no': serial_no}
+        if kind == 'battery':
+            message = request.env._("Battery serial number %s was not found. Check the serial number printed "
+                                    "on the battery and try again.", serial_no[:MAX_IDENTIFIER_LENGTH])
+        else:
+            message = request.env._("Docking Station serial number %s was not found. Check the serial number "
+                                    "printed on the docking station and try again.", serial_no[:MAX_IDENTIFIER_LENGTH])
+        return {'verified': False, 'message': message}
+
     # ------------------------------------------------------------------
     # RMA creation
     # ------------------------------------------------------------------
@@ -292,12 +313,16 @@ class SafexRmaPortal(CustomerPortal):
             lines.append((0, 0, vals))
         if not lines:
             return refuse('empty')
-        # CR-01: an RMA is handled by the SafeX company that sold the devices to the dealer (the company
-        # of the verified serial record): devices sold by different SafeX companies need separate RMAs.
-        companies = Lot.browse([vals['lot_id'] for _cmd, _id, vals in lines]).company_id
+        # The RMA is created in the company handling the RMAs of the company that sold the devices
+        # ("RMAs Handled By", e.g. SafeX Qatar for SafeX UK): devices sold by different SafeX companies,
+        # to this dealer or through another dealer, go on the same RMA. The devices are then put on the
+        # RMA with their serial record of that company (see safex.rma.line.create).
+        companies = request.env['res.company'].sudo()
+        for company in Lot.browse([vals['lot_id'] for _cmd, _id, vals in lines]).company_id:
+            companies |= company._get_safex_rma_company()
         if len(companies) > 1:
+            # Only when "RMAs Handled By" is not set up on the SafeX companies.
             return refuse('mixed_company', ", ".join(companies.mapped('name')))
-        lot = request.env['stock.lot'].sudo().browse(lines[0][2]['lot_id'])
         try:
             # Savepoint: a refused RMA must not stay half-created when we redirect back to the form.
             with request.env.cr.savepoint():
@@ -305,7 +330,7 @@ class SafexRmaPortal(CustomerPortal):
                 rma = request.env['safex.rma'].sudo().with_context(
                     safex_portal_other_dealer_confirmed=confirmed).create({
                     'partner_id': dealer.id,
-                    'company_id': lot.company_id.id or request.env.company.id,
+                    'company_id': companies.id or request.env.company.id,
                     'created_from_portal': True,
                     'user_id': False,  # the default would be the dealer's portal user
                     'line_ids': lines,
@@ -318,6 +343,9 @@ class SafexRmaPortal(CustomerPortal):
         except ValidationError:
             # A device is already on another open RMA
             return refuse('duplicate')
+        except UserError:
+            # The handling company has no product for a device sold by another SafeX company.
+            return refuse('unavailable')
         return request.redirect(f'/my/rma/{rma.id}?message=created')
 
     # ------------------------------------------------------------------
@@ -376,8 +404,9 @@ class SafexRmaPortal(CustomerPortal):
 
     @http.route('/my/rma/<int:rma_id>/submit_po', type='http', auth='user', website=True, methods=['POST'])
     def portal_rma_submit_po(self, rma_id, po_number=None, **kw):
-        """PO number + PO document (both required): emailed to the company's PO mailbox and kept on
-        the RMA. Repair starts only once SafeX has verified the PO (CR-09)."""
+        """PO number (required) + PO document (optional: the dealer may email it to SafeX instead):
+        emailed to the company's PO mailbox and kept on the RMA. Repair starts only once SafeX has
+        verified the PO (CR-09)."""
         rma_sudo = self._safex_get_rma(rma_id)
         po_number = (po_number or '').strip()
         if not po_number:
@@ -387,11 +416,9 @@ class SafexRmaPortal(CustomerPortal):
                 request.httprequest.files.get('po_file'), PO_MAX_SIZE, ('application/pdf', 'image/'))
         except ValueError:
             return request.redirect(f'/my/rma/{rma_id}?error=po_file')
-        if not po_file:
-            return request.redirect(f'/my/rma/{rma_id}?error=po_file_missing')
         try:
             with request.env.cr.savepoint():
-                attachment = self._safex_attach(rma_sudo, [po_file])
+                attachment = self._safex_attach(rma_sudo, [po_file]) if po_file else None
                 rma_sudo.action_dealer_submit_po(
                     po_number, attachments=attachment, author=request.env.user.partner_id)
         except UserError:

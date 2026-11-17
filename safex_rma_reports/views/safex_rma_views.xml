@@ -9,10 +9,11 @@
             <button name="action_complete_physical_inspection" position="after">
                 <!-- Sent once: then only a secondary "Resend" (e.g. after the diagnosis is completed). -->
                 <button name="action_send_inspection_report" type="object" string="Send Inspection Report"
+                        class="btn-primary" icon="fa-envelope"
                         invisible="state not in ('inspection', 'processing') or inspection_report_sent_date"
                         confirm="Email the Inspection Report to the dealer?"/>
                 <button name="action_send_inspection_report" type="object" string="Resend Inspection Report"
-                        class="btn-secondary"
+                        class="btn-primary" icon="fa-envelope"
                         invisible="state not in ('inspection', 'processing') or not inspection_report_sent_date"
                         confirm="The Inspection Report was already sent. Email it to the dealer again?"/>
             </button>

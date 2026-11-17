@@ -109,6 +109,45 @@
             </tbody>
         </table>
 
+        <!-- Physical inspection: the checklist result of each device (e.g. Display: Mint) and the
+             inspector's notes, for the devices whose physical inspection was validated. Results that
+             call for a photo (damage) are highlighted. -->
+        <t t-set="physical_lines" t-value="received_lines.filtered('physical_inspection_date')"/>
+        <t t-if="physical_lines">
+            <h5 class="mt-4">Physical Inspection</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Device</th>
+                        <th style="width: 70%;">Condition on Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="physical_lines" t-as="line" style="page-break-inside: avoid;">
+                        <td>
+                            <t t-out="line.product_id.name"/>
+                            <div class="small">S/N: <t t-out="line.lot_id.name"/></div>
+                            <div class="small text-muted">Inspected on
+                                <t t-out="line.physical_inspection_date" t-options='{"widget": "date"}'/></div>
+                        </td>
+                        <td>
+                            <!-- Two results per line (inline blocks: wkhtmltopdf does not wrap flex rows). -->
+                            <div t-foreach="line.inspection_line_ids.filtered('option_id')" t-as="result"
+                                 class="small" style="display: inline-block; width: 49%; vertical-align: top;">
+                                <t t-out="result.item_id.name"/>:
+                                <strong t-att-class="'text-danger' if result.option_id.requires_photo else None"
+                                        t-out="result.option_id.name"/>
+                                <t t-if="result.notes"> - <t t-out="result.notes"/></t>
+                            </div>
+                            <div t-if="line.physical_inspection_notes" class="small mt-1">
+                                <strong>Notes:</strong> <span t-field="line.physical_inspection_notes"/>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+
         <!-- Findings: only the devices whose technical inspection was validated (diagnostic date set
              by "Validate Technical Inspection"); left out while no device has been diagnosed. -->
         <t t-set="finding_lines" t-value="received_lines.filtered('diagnostic_date')"/>
@@ -174,7 +213,7 @@
         </t>
         <t t-set="company" t-value="doc._get_document_company()"/>
         <t t-call="web.external_layout">
-            <div class="page">
+            <div class="page o_safex_report">
                 <t t-call="safex_rma_reports.report_safex_inspection_header"/>
                 <t t-call="safex_rma_reports.report_safex_inspection_body"/>
                 <p class="mt-4 small">A repair quotation will follow separately where applicable.</p>
@@ -202,7 +241,7 @@
         </t>
         <t t-set="company" t-value="doc._get_document_company()"/>
         <t t-call="web.external_layout">
-            <div class="page">
+            <div class="page o_safex_report">
                 <t t-call="safex_rma_reports.report_safex_inspection_header"/>
                 <div t-if="doc.dispatch_date or doc.outbound_awb" class="row mb-3">
                     <div class="col-3"><strong>Dispatched</strong><div t-field="doc.dispatch_date" t-options='{"widget": "date"}'/></div>

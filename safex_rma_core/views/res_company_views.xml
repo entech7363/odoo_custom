@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <page name="safex_settings" position="inside">
                 <group name="safex_rma_documents" string="RMA Documents">
+                    <field name="safex_rma_company_id" options="{'no_create': True}"/>
                     <field name="safex_document_company_id" options="{'no_create': True}"/>
                 </group>
                 <group name="safex_rma_terms" string="RMA Terms &amp; Conditions">
