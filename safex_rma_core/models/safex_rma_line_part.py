@@ -53,9 +53,10 @@ class SafexRmaLinePart(models.Model):
             part.consumed = part.stock_move_id.state == 'done'
 
     def _check_stock_available(self):
-        """Block when a part to consume is not in stock at its source location."""
+        """Block when a part to consume is not in stock at its source location. Consumables that do not
+        track inventory (qty_available always 0) are not checked."""
         missing = []
-        for part in self.filtered(lambda p: not p.consumed and p.quantity > 0):
+        for part in self.filtered(lambda p: not p.consumed and p.quantity > 0 and p.product_id.is_storable):
             available = part.product_id.with_context(location=part.location_id.id).sudo().qty_available \
                 if part.location_id else 0.0
             if float_compare(available, part.quantity, precision_rounding=part.uom_id.rounding or 0.01) < 0:

@@ -1,6 +1,6 @@
 {
     'name': 'SafeX RMA Core',
-    'version': '18.0.1.5.0',
+    'version': '18.0.1.6.0',
     'category': 'Services/SafeX RMA',
     'summary': 'Multi-device RMA container, receiving, inspections, repair, spare parts and QC',
     'description': """

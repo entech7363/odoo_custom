@@ -21,8 +21,12 @@ class SaleOrder(models.Model):
             super(SaleOrder, order.with_context(from_approval_wizard=True)).action_confirm()
         # The spare parts are reserved as soon as the quotation is approved: missing stock shows before
         # the repair starts (the delivery is validated by Complete Repair).
-        self.filtered(lambda so: so.rma_id and so.state == 'sale').picking_ids.filtered(
-            lambda picking: picking.state in ('confirmed', 'waiting')).action_assign()
+        # action_assign() raises "Nothing to check the availability for." on an empty recordset: only
+        # call it when an RMA order has a delivery to reserve (not on normal orders or service-only ones).
+        pickings = self.filtered(lambda so: so.rma_id and so.state == 'sale').picking_ids.filtered(
+            lambda picking: picking.state in ('confirmed', 'waiting'))
+        if pickings:
+            pickings.action_assign()
         return res
 
     def _safex_needs_price_approval(self):
