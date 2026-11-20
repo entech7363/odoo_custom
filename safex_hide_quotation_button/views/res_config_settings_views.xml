@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_hide_quotation_button" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hide.quotation.button</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='quotation_order_setting_container']" position="inside">
+                <setting id="hide_quotation_email_button_setting"
+                         string="Hide Quotation Email Button"
+                         help="Removes the View/Accept &amp; Sign/Accept &amp; Pay Quotation button from quotation and order emails, for every company">
+                    <field name="hide_quotation_email_button"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
