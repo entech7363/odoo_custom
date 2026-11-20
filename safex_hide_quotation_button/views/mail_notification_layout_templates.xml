@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hides only the clickable "View/Accept & Sign/Pay Quotation" button (and its invisible
+         schema.org metadata) when the setting is on. ``has_button_access`` itself is left
+         untouched, so ``show_header``/``show_footer`` (and therefore the quotation-number
+         heading and the company footer) keep behaving exactly as Odoo's own logic intends. -->
+    <template id="mail_notification_layout_hide_quotation_button"
+              inherit_id="mail.mail_notification_layout">
+        <xpath expr="//div[@itemtype='http://schema.org/EmailMessage']" position="attributes">
+            <attribute name="t-if">show_header and has_button_access and not safex_hide_quotation_button</attribute>
+        </xpath>
+        <xpath expr="//td[@t-if='has_button_access'][@t-att-style]" position="attributes">
+            <attribute name="t-if">has_button_access and not safex_hide_quotation_button</attribute>
+        </xpath>
+        <xpath expr="//td[@t-if='has_button_access'][not(@t-att-style)]" position="attributes">
+            <attribute name="t-if">has_button_access and not safex_hide_quotation_button</attribute>
+        </xpath>
+    </template>
+</odoo>
